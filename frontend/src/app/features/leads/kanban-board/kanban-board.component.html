@@ -1,0 +1,55 @@
+<div class="kanban-wrapper">
+    <!-- Local Search Bar -->
+    <div class="kanban-toolbar">
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search by name or stage..." (input)="filterLeads($any($event.target).value)"
+                class="kanban-search-input">
+        </div>
+    </div>
+
+    <!-- Main Kanban Grid -->
+    <div class="kanban-container">
+        <!-- Columns -->
+        <div class="kanban-column" *ngFor="let phase of phases" [class]="phase.id.toLowerCase()" cdkDropList
+            [cdkDropListData]="phaseData[phase.id]" [id]="'phase-' + phase.id"
+            [cdkDropListConnectedTo]="getConnectedList()" (cdkDropListDropped)="drop($event, phase.id)">
+
+            <!-- Column Header -->
+            <div class="column-header">
+                <div class="header-titling">
+                    <span class="phase-name">{{ phase.name }}</span>
+                    <span class="count-badge">{{ phaseData[phase.id].length }}</span>
+                </div>
+            </div>
+
+            <!-- Scrollable List -->
+            <div class="column-body custom-scrollbar">
+                <div class="kanban-card" *ngFor="let lead of phaseData[phase.id]" cdkDrag (click)="openLead(lead)"
+                    [style.border-left-color]="getStageColor(lead.stage)">
+
+                    <!-- Card Content: Name, Contact, Money ONLY -->
+                    <div class="card-content">
+                        <div class="lead-name">{{ lead.first_name }} {{ lead.last_name }}</div>
+
+                        <div class="lead-contact">
+                            <span class="icon">✉️</span>
+                            <span class="text">{{ lead.email }}</span>
+                        </div>
+
+                        <!-- Specific Stage Badge (Subtask) -->
+                        <div class="sub-stage" [style.background-color]="getStageColor(lead.stage) + '15'"
+                            [style.color]="getStageColor(lead.stage)">
+                            {{ lead.stage.replace('_', ' ') }}
+                        </div>
+                    </div>
+
+                    <div class="card-footer-money">
+                        {{ formatCurrency(lead.salary_aed || lead.monthly_fixed_income) }}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

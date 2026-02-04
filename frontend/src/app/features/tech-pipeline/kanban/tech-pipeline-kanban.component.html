@@ -1,0 +1,42 @@
+<div class="kanban-container">
+    <div class="kanban-header">
+        <h1>🔧 Tech Pipeline</h1>
+        <p>Manage project preparation stages</p>
+    </div>
+
+    <div class="kanban-board" cdkDropListGroup>
+        <div class="kanban-column" *ngFor="let stage of stages">
+            <div class="column-header" [style.border-top-color]="getAvatarColor(stage.name)">
+                <span class="stage-icon">{{ stage.icon }}</span>
+                <span class="stage-name">{{ stage.name }}</span>
+                <span class="stage-count">{{ stageData[stage.id]?.length || 0 }}</span>
+            </div>
+
+            <div class="column-body" cdkDropList [id]="'stage-' + stage.id" [cdkDropListData]="stageData[stage.id]"
+                [cdkDropListConnectedTo]="getConnectedList()" (cdkDropListDropped)="drop($event, stage.id)">
+                <div class="pipeline-card" *ngFor="let pipeline of stageData[stage.id]" cdkDrag
+                    (click)="openLead(pipeline)">
+                    <div class="card-header">
+                        <div class="lead-avatar"
+                            [style.background-color]="getAvatarColor(pipeline.lead_name || 'Unknown')">
+                            {{ getInitials(pipeline.lead_name || 'Unknown') }}
+                        </div>
+                        <div class="lead-info">
+                            <strong>{{ pipeline.lead_name || 'Lead #' + pipeline.lead }}</strong>
+                        </div>
+                    </div>
+                    <div class="card-meta">
+                        <small>Updated: {{ pipeline.updated_at | date:'shortDate' }}</small>
+                    </div>
+                    <div class="card-notes" *ngIf="pipeline.notes">
+                        <p>{{ pipeline.notes | slice:0:80 }}{{ pipeline.notes.length > 80 ? '...' : '' }}</p>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="!stageData[stage.id]?.length">
+                    No items in {{ stage.name }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

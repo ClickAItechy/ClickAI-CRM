@@ -1,0 +1,47 @@
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Deals Pipeline</h2>
+            <div style="display: flex; gap: 0.75rem;">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Search deals..." style="width: 250px;">
+                <button class="btn btn-primary">
+                    <span>💰</span> Add Deal
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Deal Name</th>
+                        <th>Amount</th>
+                        <th>Stage</th>
+                        <th>Closing Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let deal of filteredDeals">
+                        <td><strong>{{ deal.name }}</strong></td>
+                        <td style="color: var(--success-color); font-weight: 600;">
+                            {{ deal.amount | currency:'AED ':'symbol':'1.0-0' }}
+                        </td>
+                        <td>
+                            <span class="badge"
+                                [class.badge-info]="deal.stage === 'New' || deal.stage === 'Negotiation'"
+                                [class.badge-success]="deal.stage === 'Won'"
+                                [class.badge-danger]="deal.stage === 'Lost'">
+                                {{ deal.stage }}
+                            </span>
+                        </td>
+                        <td>{{ deal.closing_date | date:'mediumDate' }}</td>
+                    </tr>
+                    <tr *ngIf="filteredDeals.length === 0">
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No
+                            deals found matching your search.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

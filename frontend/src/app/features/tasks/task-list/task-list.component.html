@@ -1,0 +1,170 @@
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Tasks & Activities</h2>
+            <div style="display: flex; gap: 0.75rem;">
+                <!-- New Filter Dropdown -->
+                <select [(ngModel)]="filterType" class="form-control"
+                    style="width: 150px; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <option value="All">All Tasks</option>
+                    <option value="Due Today">Due Today</option>
+                    <option value="Overdue">Overdue</option>
+                    <option value="High Priority">High Priority</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Search tasks..." style="width: 250px;">
+                <button class="btn btn-primary" (click)="openModal()" *ngIf="canManageTasks">
+                    <span>✅</span> Add Task
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Deadline</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let task of filteredTasks">
+                        <td><strong>{{ task.subject }}</strong></td>
+                        <td>{{ task.deadline | date:'medium' }}</td>
+                        <td>
+                            <div class="assignee-cell">
+                                <span class="team-tag">{{ task.owner_team }}</span>
+                                <span class="name">{{ task.owner_name || 'Unassigned' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" [class.badge-success]="task.status === 'Completed'"
+                                [class.badge-warning]="task.status === 'In Progress'"
+                                [class.badge-info]="task.status === 'Not Started'">
+                                {{ task.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" [class.badge-danger]="task.priority === 'High'">
+                                {{ task.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon edit" (click)="openModal(task)"
+                                    [title]="canManageTasks ? 'Edit Task' : 'View/Update Status'">
+                                    <i>{{ canManageTasks ? '✎' : '👁' }}</i>
+                                </button>
+                                <button class="btn-icon delete" (click)="deleteTask(task.id)" title="Delete Task"
+                                    *ngIf="canManageTasks">
+                                    <i>🗑</i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredTasks.length === 0">
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            No tasks found matching your search.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Task Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ isEditMode ? (canManageTasks ? 'Edit Task' : 'Update Task Status') : 'Create New Task' }}</h3>
+            <button class="btn-close" (click)="closeModal()">✕</button>
+        </div>
+
+        <form (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label>Task Heading <span class="required" *ngIf="canManageTasks">*</span></label>
+                <input type="text" [(ngModel)]="newTask.subject" name="subject" placeholder="What needs to be done?"
+                    required [disabled]="!canManageTasks">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="newTask.description" name="description" placeholder="Add more details..."
+                    rows="3" [disabled]="!canManageTasks"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Deadline <span class="required" *ngIf="canManageTasks">*</span></label>
+                    <input type="datetime-local" [(ngModel)]="newTask.deadline" name="deadline" required
+                        [disabled]="!canManageTasks">
+                </div>
+
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select [(ngModel)]="newTask.priority" name="priority" [disabled]="!canManageTasks">
+                        <option value="Normal">Normal</option>
+                        <option value="High">High</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Assign To <span class="required">*</span></label>
+                <div class="assignment-selector">
+                    <div class="selected-assignee" *ngIf="newTask.owner">
+                        <span class="team-chip">{{ selectedTeam }}</span>
+                        <span class="member-name">{{ getMemberName(selectedTeam, newTask.owner) }}</span>
+                        <button type="button" class="btn-remove" (click)="newTask.owner = null; selectedTeam = ''"
+                            *ngIf="canManageTasks">✕</button>
+                    </div>
+
+                    <div class="teams-list" *ngIf="!newTask.owner && canManageTasks">
+                        <div class="team-card-small" *ngFor="let team of teams"
+                            [class.active]="showTeamMembers === team.value" (click)="toggleTeamMembers(team.value)">
+                            <div class="team-header">
+                                <span class="team-label">{{ team.label }}</span>
+                                <span class="chevron">{{ showTeamMembers === team.value ? '▼' : '▶' }}</span>
+                            </div>
+
+                            <div class="members-grid" *ngIf="showTeamMembers === team.value"
+                                (click)="$event.stopPropagation()">
+                                <div class="member-option" *ngFor="let member of teamMembersMap.get(team.value)"
+                                    (click)="selectMember(member)">
+                                    {{ member.username }}
+                                </div>
+                                <div class="no-members" *ngIf="!teamMembersMap.get(team.value)?.length">
+                                    No members
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" *ngIf="isEditMode">
+                <label>Status</label>
+                <select [(ngModel)]="newTask.status" name="status">
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    {{ isEditMode ? 'Save Changes' : 'Create Task' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

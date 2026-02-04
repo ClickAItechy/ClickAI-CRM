@@ -1,0 +1,136 @@
+<div class="reports-container">
+    <!-- Header & Controls -->
+    <header class="reports-header">
+        <div>
+            <h1>Analytics & Reports</h1>
+            <p class="subtitle">overview of system performance metrics</p>
+        </div>
+
+        <div class="timeframe-selector">
+            <button [class.active]="timeframe === 'daily'" (click)="onTimeframeChange('daily')">Daily</button>
+            <button [class.active]="timeframe === 'weekly'" (click)="onTimeframeChange('weekly')">Weekly</button>
+            <button [class.active]="timeframe === 'monthly'" (click)="onTimeframeChange('monthly')">Monthly</button>
+            <button [class.active]="timeframe === 'quarterly'"
+                (click)="onTimeframeChange('quarterly')">Quarterly</button>
+            <button [class.active]="timeframe === 'yearly'" (click)="onTimeframeChange('yearly')">Annual</button>
+        </div>
+    </header>
+
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Generating Report...</p>
+    </div>
+
+    <div *ngIf="!loading && reportData" class="dashboard-grid">
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card stat-card">
+                <div class="icon-box blue">👥</div>
+                <div class="stat-content">
+                    <h3>{{ reportData.summary.total_leads }}</h3>
+                    <p>Total Leads</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="icon-box green">💰</div>
+                <div class="stat-content">
+                    <h3>{{ reportData.summary.total_revenue | currency:'AED':'symbol':'1.0-0' }}</h3>
+                    <p>Revenue Generated</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="icon-box purple">🤝</div>
+                <div class="stat-content">
+                    <h3>{{ reportData.summary.total_deals }}</h3>
+                    <p>Deals Won</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="icon-box orange">📈</div>
+                <div class="stat-content">
+                    <h3>{{ reportData.summary.conversion_rate }}%</h3>
+                    <p>Conversion Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-row">
+            <div class="card chart-card wide">
+                <h3>Acquisition & Revenue Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="charts-row split">
+            <div class="card chart-card">
+                <h3>Lead Source/Stage Distribution</h3>
+                <div class="chart-wrapper">
+                    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
+                    </canvas>
+                </div>
+            </div>
+            <div class="card chart-card">
+                <h3>Team Performance</h3>
+                <div class="chart-wrapper">
+                    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Daily Activities Section -->
+    <div class="card chart-card wide daily-activities-card">
+        <div class="card-header-row">
+            <h3>Daily Activity Log</h3>
+            <div class="controls">
+                <input type="date" [ngModel]="selectedDate" (change)="onDateChange($event)" class="date-picker">
+                <button class="btn-export" (click)="exportDailyActivities()">
+                    📥 Export CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Lead Name</th>
+                        <th>From Stage</th>
+                        <th>To Stage</th>
+                        <th>Managed By</th>
+                        <th>Time</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let activity of dailyActivities">
+                        <td>
+                            <a [routerLink]="['/dashboard/leads', activity.lead_id]" class="lead-link">
+                                {{ activity.lead_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="stage-badge">{{ activity.from_stage || 'N/A' }}</span>
+                        </td>
+                        <td>
+                            <span class="stage-badge badge-new">{{ activity.to_stage || 'N/A' }}</span>
+                        </td>
+                        <td>{{ activity.actor_name }}</td>
+                        <td>{{ activity.timestamp | date:'shortTime' }}</td>
+                        <td class="notes-col">{{ activity.notes || '-' }}</td>
+                    </tr>
+                    <tr *ngIf="dailyActivities.length === 0">
+                        <td colspan="6" class="empty-state">No activities recorded for this date.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

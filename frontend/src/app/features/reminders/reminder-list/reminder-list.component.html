@@ -1,0 +1,61 @@
+<div class="container">
+    <div class="header-row">
+        <h2>⏰ Follow-up Reminders</h2>
+        <div class="stats-row" *ngIf="stats">
+            <div class="mini-stat today">
+                <span class="val">{{ stats.today }}</span>
+                <span class="lab">Today</span>
+            </div>
+            <div class="mini-stat total">
+                <span class="val">{{ stats.total_pending }}</span>
+                <span class="lab">All Pending</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <button class="btn btn-sm" [class.btn-primary]="filter === 'all'"
+                    (click)="setFilter('all')">All</button>
+                <button class="btn btn-sm" [class.btn-primary]="filter === 'today'"
+                    (click)="setFilter('today')">Today</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table *ngIf="!loading && reminders.length > 0">
+                <thead>
+                    <tr>
+                        <th>Lead</th>
+                        <th>Message</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let reminder of reminders" [class.unread-row]="!reminder.is_read"
+                        (click)="markAsRead(reminder)">
+                        <td>
+                            <a [routerLink]="['/dashboard/leads', reminder.lead]" class="lead-link"
+                                (click)="$event.stopPropagation()">
+                                {{ reminder.lead_name }}
+                            </a>
+                        </td>
+                        <td>{{ reminder.message }}</td>
+                        <td>
+                            <span
+                                [class.overdue-text]="(reminder.due_date | date:'yyyy-MM-dd') < (today | date:'yyyy-MM-dd')">
+                                {{ reminder.due_date | date:'medium' }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div *ngIf="loading" class="loading-state">Loading reminders...</div>
+            <div *ngIf="!loading && reminders.length === 0" class="empty-state">
+                No reminders found.
+            </div>
+        </div>
+    </div>
+</div>

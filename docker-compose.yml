@@ -1,0 +1,81 @@
+services:
+  db:
+    container_name: clickai_db
+    build: ./infrastructure/db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: clickai_crm_db
+      MYSQL_USER: clickai_user
+      MYSQL_PASSWORD: clickai_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - clickai_crm_db_data:/var/lib/mysql
+    networks:
+      - clickai_net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: clickai_backend
+    build: ./backend
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+      - clickai_media_data:/app/media
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_ENGINE=django.db.backends.mysql
+      - DATABASE_NAME=clickai_crm_db
+      - DATABASE_USER=clickai_user
+      - DATABASE_PASSWORD=clickai_password
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+    networks:
+      - clickai_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    container_name: clickai_frontend
+    build: ./frontend
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4201:4200"
+    networks:
+      - clickai_net
+    depends_on:
+      - backend
+
+  gateway:
+    build: ./infrastructure/gateway
+    container_name: clickai_gateway
+    restart: unless-stopped
+    volumes:
+      - clickai_media_data:/app/media:ro
+    ports:
+      - "9001:80"
+    networks:
+      - clickai_net
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  clickai_crm_db_data:
+  clickai_media_data:
+
+
+networks:
+  clickai_net:
+    driver: bridge

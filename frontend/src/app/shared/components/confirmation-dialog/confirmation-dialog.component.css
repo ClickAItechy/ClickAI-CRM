@@ -1,0 +1,104 @@
+.dialog-container {
+    padding: 1.5rem 2rem;
+    text-align: center;
+    min-width: 340px;
+    max-width: 420px;
+    background: white;
+    border-radius: 12px;
+}
+
+/* Icon Styles */
+.icon-wrapper {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-wrapper svg {
+    width: 32px;
+    height: 32px;
+}
+
+.icon-wrapper.danger {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.icon-wrapper.warning {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.icon-wrapper.info {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+/* Content */
+.dialog-content {
+    margin-bottom: 1.5rem;
+}
+
+.dialog-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.dialog-message {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Actions */
+.dialog-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.btn {
+    flex: 1;
+    max-width: 140px;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.btn-cancel:hover {
+    background-color: #e5e7eb;
+}
+
+.btn-primary {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #4338ca;
+}
+
+.btn-danger {
+    background-color: #dc2626;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c;
+}

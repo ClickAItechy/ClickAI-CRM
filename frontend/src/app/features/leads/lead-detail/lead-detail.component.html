@@ -1,0 +1,298 @@
+<div class="glass-container" *ngIf="lead">
+  <div class="container">
+
+    <!-- Hero Header -->
+    <div class="glass-card-header hero-content">
+      <div class="hero-title">
+        <h1>{{ lead.first_name }} {{ lead.last_name }}</h1>
+        <span class="badge" [ngClass]="{
+            'badge-info': lead.stage === 'NEW_INQUIRY' || lead.stage === 'QUALIFICATION' || lead.stage === 'DISCOVERY',
+            'badge-success': lead.stage === 'WON' || lead.stage === 'PROJECT_EXECUTION' || lead.stage === 'DELIVERED',
+            'badge-danger': lead.stage === 'LOST',
+            'badge-warning': lead.stage === 'PROPOSAL' || lead.stage === 'NEGOTIATION' || lead.stage === 'ON_HOLD'
+        }">{{ lead.stage }}</span>
+      </div>
+
+      <div class="hero-meta">
+        <span>{{ lead.assigned_team | titlecase }} Team</span>
+        <span>•</span>
+        <span>{{ lead.assigned_to_name || 'Unassigned' }}</span>
+        <span>•</span>
+        <span>Added {{ lead.created_at | date:'mediumDate' }}</span>
+      </div>
+
+      <div class="hero-actions">
+        <button class="action-btn" (click)="activeTab = 'info'">
+          <span>✏️</span> Edit
+        </button>
+        <button class="action-btn" (click)="openEmailModal()">
+          <span>📧</span> Email
+        </button>
+        <a [href]="'tel:' + lead.phone" class="action-btn" style="text-decoration:none;">
+          <span>📞</span> Call
+        </a>
+      </div>
+    </div>
+
+    <!-- Pipeline Progress Bar -->
+    <div class="pipeline-bar">
+      <div *ngFor="let phase of phases; let i = index" class="pipeline-step"
+        [class.active]="phase.stages.includes(lead.stage)" [class.completed]="i < currentPhaseIndex"
+        (click)="changePhaseWithConfirm(phase.id)">
+        {{ phase.name }}
+      </div>
+    </div>
+
+    <!-- 3-Column Grid -->
+    <div class="detail-grid">
+
+      <!-- LEFT: Profile -->
+      <div class="glass-card">
+        <div class="profile-header">
+          <div class="profile-avatar" [style.background]="getAvatarColor(lead.first_name + ' ' + lead.last_name)">
+            {{ getInitials(lead.first_name, lead.last_name) }}
+          </div>
+          <div class="profile-name">{{ lead.first_name }} {{ lead.last_name }}</div>
+          <div class="profile-role">{{ lead.company_name || 'No Company' }}</div>
+        </div>
+
+        <div class="profile-details">
+          <div class="profile-row">
+            <div class="profile-icon">📧</div>
+            <div>
+              <div class="profile-label">Email Address</div>
+              <div class="profile-value">
+                <a [href]="'mailto:' + lead.email">{{ lead.email }}</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-row">
+            <div class="profile-icon">📞</div>
+            <div>
+              <div class="profile-label">Phone Number</div>
+              <div class="profile-value">
+                <a [href]="'tel:' + lead.phone">{{ lead.phone }}</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-row">
+            <div class="profile-icon">🏢</div>
+            <div>
+              <div class="profile-label">Company</div>
+              <div class="profile-value">{{ lead.company_name || '-' }}</div>
+            </div>
+          </div>
+
+          <div class="profile-row">
+            <div class="profile-icon">💻</div>
+            <div>
+              <div class="profile-label">Tech Requirements</div>
+              <div class="profile-value">{{ lead.tech_requirements || 'No requirements specified' }}</div>
+            </div>
+          </div>
+
+          <div class="profile-row">
+            <div class="profile-icon">🤝</div>
+            <div>
+              <div class="profile-label">
+                Lead Generator
+                <span *ngIf="isAdmin" (click)="editLeadGenerator()"
+                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
+              </div>
+              <div class="profile-value">{{ lead.lead_generator_name || 'Not assigned' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financials Section moved here previously, keeping it for context/consistency if it was inside this card. 
+             Wait, looking at previous file view, "Financials" was added via a previous edit but I don't see it in the snippet I replaced. 
+             The previous edit I made in Step 270 added "Financials" to "Client Profile" card.
+             Let me check if I should re-add it or if user wants it separate. 
+             The user's previous request was to "Refine Lead Detail UI" and I added Financials. 
+             The current request focuses on "Client Profile section". 
+             I will re-add the Financials block at the bottom of this profile card if it feels appropriate, 
+             OR leave it out if the "Prominent Financial Cards" in the middle column are sufficient.
+             
+             Actually, checking Step 281 file view:
+             The "Financials" was NOT in the Left Column in the latest view. 
+             In Step 281:
+             Left Column (lines 67-87) only has Email, Phone, Company, Tech Requirements.
+             Middle Column (lines 90-113) has "Financial Cards".
+             So Financials are in the Middle Column now. I will NOT add them back to the Left Profile Card.
+        -->
+      </div>
+
+      <!-- MIDDLE: Financials & Tabs -->
+      <div class="">
+        <!-- Financial Cards -->
+        <div class="fin-cards">
+          <div class="fin-card" (click)="editFinancials()">
+            <div class="fin-label">
+              Project Amount
+              <span *ngIf="isAdmin" class="edit-icon">✎</span>
+            </div>
+            <div class="fin-value">{{ lead.project_amount | currency:'USD' }}</div>
+          </div>
+
+          <div class="fin-card green" (click)="editFinancials()">
+            <div class="fin-label">
+              Advance
+              <span *ngIf="isAdmin" class="edit-icon">✎</span>
+            </div>
+            <div class="fin-value">{{ lead.advance_amount | currency:'USD' }}</div>
+          </div>
+
+          <div class="fin-card red">
+            <div class="fin-label">Remaining</div>
+            <div class="fin-value">{{ lead.remaining_amount | currency:'USD' }}</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+          <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+            <span>🕒</span> Activity
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'notes'" (click)="activeTab = 'notes'">
+            <span>📝</span> Notes
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">
+            <span>✅</span> Tasks
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div *ngIf="activeTab === 'history'">
+          <ul class="timeline-modern">
+            <li class="timeline-item-modern" *ngFor="let log of lead.audit_logs">
+              <div class="timeline-icon">
+                <span>📌</span>
+              </div>
+              <div class="timeline-content-modern">
+                <div class="timeline-header">
+                  <span class="timeline-title">{{ log.action }}</span>
+                  <span class="timeline-time">{{ log.timestamp | date:'MMM d, h:mm a' }}</span>
+                </div>
+                <div class="timeline-body" *ngIf="log.notes">{{ log.notes }}</div>
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;">by {{ log.actor_name }}</div>
+              </div>
+            </li>
+            <li *ngIf="!lead.audit_logs?.length" class="empty-state">No activity history.</li>
+          </ul>
+        </div>
+
+        <div *ngIf="activeTab === 'notes'">
+          <div class="note-input-card">
+            <textarea rows="3" [(ngModel)]="noteContent" placeholder="Type a note here..."></textarea>
+            <div style="text-align: right;">
+              <button class="btn btn-primary btn-sm" (click)="saveNote()" [disabled]="!noteContent.trim()">Add
+                Note</button>
+            </div>
+          </div>
+          <div class="notes-area">
+            <div *ngFor="let note of notes" class="note-card">
+              <div class="note-meta">
+                <span>{{ note.author_name || 'Unknown' }}</span>
+                <span>{{ note.created_at | date:'MMM d, y' }}</span>
+              </div>
+              <div class="note-text">{{ note.content }}</div>
+            </div>
+            <div *ngIf="!notes.length" class="empty-state">No notes yet.</div>
+          </div>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div *ngIf="activeTab === 'tasks'">
+          <div class="tasks-container">
+            <div class="task-input-row">
+              <input type="text" [(ngModel)]="newTaskSubject" placeholder="New Task..." class="form-control"
+                style="flex:1;">
+              <input type="date" [(ngModel)]="newTaskDeadline" class="form-control" style="width: 140px;">
+              <button class="btn btn-primary btn-sm" (click)="createTask()" [disabled]="!newTaskSubject">Add</button>
+            </div>
+            <ul class="task-list-modern">
+              <li *ngFor="let task of tasks" class="task-item-modern">
+                <div class="task-checkbox-area">
+                  <div class="task-checkbox" [class.done]="task.status === 'Completed'"
+                    (click)="toggleTaskStatus(task)">
+                    <span *ngIf="task.status === 'Completed'">✓</span>
+                  </div>
+                  <div class="task-info">
+                    <div class="task-label" [class.done]="task.status === 'Completed'">{{ task.subject }}</div>
+                    <small style="color: #6b7280;">Owner: {{ task.owner_name || 'Me' }}</small>
+                  </div>
+                </div>
+                <div class="task-due" *ngIf="task.deadline">Due: {{ task.deadline | date:'MMM d' }}</div>
+              </li>
+              <li *ngIf="!tasks.length" class="empty-state">No tasks found.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Widgets -->
+      <div class="widget-stack">
+        <!-- Documents Widget -->
+        <div class="widget-item" (click)="toggleSection('attachments')">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <i class="icon">📄</i> Documents ({{ lead.documents.length }})
+          </span>
+          <span>{{ expandedSection === 'attachments' ? '▼' : '▶' }}</span>
+        </div>
+        <div *ngIf="expandedSection === 'attachments'" class="glass-card"
+          style="margin-top: -0.5rem; border-top-left-radius: 0; border-top-right-radius: 0;">
+          <div class="doc-item" *ngFor="let doc of lead.documents">
+            <div><a [href]="doc.file_path" target="_blank">{{ doc.name || 'Document' }}</a></div>
+          </div>
+          <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 1rem;"
+            (click)="openDocumentModal()">Manage Documents</button>
+        </div>
+
+        <!-- Deals Widget -->
+        <div class="widget-item" (click)="toggleSection('deals')">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <i class="icon">💰</i> Deals
+          </span>
+          <span>{{ expandedSection === 'deals' ? '▼' : '▶' }}</span>
+        </div>
+
+        <!-- Tickets Widget -->
+        <div class="widget-item" (click)="toggleSection('tickets')">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <i class="icon">🎫</i> Tickets
+          </span>
+          <span>{{ expandedSection === 'tickets' ? '▼' : '▶' }}</span>
+        </div>
+
+        <!-- Companies Widget -->
+        <div class="widget-item" (click)="toggleSection('companies')">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <i class="icon">🏢</i> Companies
+          </span>
+          <span>{{ expandedSection === 'companies' ? '▼' : '▶' }}</span>
+        </div>
+
+        <!-- Tech Pipeline Widget (if applicable) -->
+        <div *ngIf="techPipeline" class="widget-item" (click)="toggleSection('tech')">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <i class="icon">🚀</i> Tech Pipeline
+          </span>
+          <span>{{ expandedSection === 'tech' ? '▼' : '▶' }}</span>
+        </div>
+        <div *ngIf="techPipeline && expandedSection === 'tech'" class="glass-card" style="margin-top: -0.5rem;">
+          <app-tech-pipeline [pipelineId]="techPipeline.id" [currentStage]="techPipeline.stage"
+            [initialNotes]="techPipeline.notes || ''"></app-tech-pipeline>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-email-compose-modal *ngIf="showEmailModal" [to]="lead?.email || ''" (close)="showEmailModal = false"
+  (send)="sendEmail($event)"></app-email-compose-modal>
+<app-document-upload-modal *ngIf="showDocumentModal" [leadId]="lead?.id || 0" [documents]="lead?.documents || []"
+  (close)="showDocumentModal = false" (refresh)="onDocumentUpdate()"></app-document-upload-modal>

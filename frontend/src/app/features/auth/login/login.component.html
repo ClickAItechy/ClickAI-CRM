@@ -1,0 +1,60 @@
+<div class="login-container">
+    <!-- Left Side: Brand & Visuals -->
+    <div class="brand-section">
+        <div class="brand-content">
+            <h1>ClickAI CRM</h1>
+            <p class="tagline">Empowering your digital future.</p>
+            <div class="visual-circle"></div>
+            <div class="visual-circle small"></div>
+        </div>
+        <div class="glass-overlay"></div>
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="form-section">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="assets/images/clickai_logo.jpg" alt="ClickAI" class="logo-img" style="height: 100px;">
+                <h2>Welcome Back</h2>
+                <p>Please sign in to continue</p>
+            </div>
+
+            <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <i class="icon">👤</i>
+                        <input type="text" id="username" [(ngModel)]="username" name="username" placeholder="username"
+                            required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="icon">🔒</i>
+                        <input type="password" id="password" [(ngModel)]="password" name="password"
+                            placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <a href="javascript:void(0)" class="forgot-pass">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-login" [disabled]="loading || !loginForm.form.valid">
+                    <span *ngIf="!loading">Sign In</span>
+                    <span *ngIf="loading" class="loader"></span>
+                </button>
+
+                <div *ngIf="error" class="error-alert">
+                    {{ error }}
+                </div>
+            </form>
+
+            <div class="login-footer">
+                <p>Don't have an account? <span class="contact-admin">Contact Admin</span></p>
+            </div>
+        </div>
+    </div>
+</div>

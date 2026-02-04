@@ -1,0 +1,195 @@
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Admin & RBAC Settings</h2>
+            <div
+                style="display: flex; gap: 0.5rem; background: #f1f5f9; padding: 0.5rem; border-radius: var(--border-radius-md);">
+                <button class="btn" [style.background]="activeTab === 'users' ? 'white' : 'transparent'"
+                    [style.box-shadow]="activeTab === 'users' ? 'var(--shadow-sm)' : 'none'"
+                    (click)="activeTab = 'users'">Users</button>
+                <button class="btn" [style.background]="activeTab === 'roles' ? 'white' : 'transparent'"
+                    [style.box-shadow]="activeTab === 'roles' ? 'var(--shadow-sm)' : 'none'"
+                    (click)="activeTab = 'roles'">Roles</button>
+                <button class="btn" [style.background]="activeTab === 'thresholds' ? 'white' : 'transparent'"
+                    [style.box-shadow]="activeTab === 'thresholds' ? 'var(--shadow-sm)' : 'none'"
+                    (click)="activeTab = 'thresholds'">Thresholds</button>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div *ngIf="activeTab === 'users'">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Team</th>
+                            <th>Manager?</th>
+                            <th>Roles</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of users">
+                            <td>
+                                <strong>{{ user.username }}</strong><br>
+                                <small>{{ user.email }}</small>
+                            </td>
+                            <td>{{ user.team || 'None' }}</td>
+                            <td>
+                                <span class="badge" [class.badge-success]="user.is_manager"
+                                    [class.badge-info]="!user.is_manager">
+                                    {{ user.is_manager ? 'Yes' : 'No' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                    <span class="badge badge-info" *ngFor="let role of user.roles">{{ role }}</span>
+                                    <span *ngIf="!user.roles?.length" style="color: #94a3b8; font-size: 0.8rem;">No
+                                        roles</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                    (click)="openUserRoleModal(user)">
+                                    Manage Roles
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Roles Tab -->
+        <div *ngIf="activeTab === 'roles'">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                <button class="btn btn-success" (click)="openRoleModal()">+ Create Role</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Permissions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let role of roles">
+                            <td><strong>{{ role.name }}</strong></td>
+                            <td>{{ role.description }}</td>
+                            <td>
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                    <span class="badge" style="background: #e2e8f0; color: #475569;"
+                                        *ngFor="let p of role.permissions">{{ p.name }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background: #f1f5f9;"
+                                    (click)="openRoleModal(role)">
+                                    Edit
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Thresholds Tab -->
+        <div *ngIf="activeTab === 'thresholds'">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Team</th>
+                            <th>Current Threshold</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of users">
+                            <td>
+                                <strong>{{ user.username }}</strong><br>
+                                <small>{{ user.email }}</small>
+                            </td>
+                            <td>{{ user.team || 'None' }}</td>
+                            <td>
+                                <span style="font-weight: 600; color: #0f172a;">
+                                    {{ user.revenue_threshold | currency:'USD':'symbol':'1.0-0' }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                    (click)="editThreshold(user)">
+                                    Update Limit
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Role Modal -->
+<div class="modal-overlay" *ngIf="isUserModalOpen" (click)="isUserModalOpen = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Assign Roles: {{ selectedUser?.username }}</h3>
+        <p style="color: #64748b; margin-bottom: 1.5rem;">Select roles to assign to this user.</p>
+
+        <div style="max-height: 300px; overflow-y: auto;">
+            <div *ngFor="let role of roles"
+                style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid #f1f5f9;">
+                <input type="checkbox" [id]="'role-' + role.id" [(ngModel)]="role.selected"
+                    [checked]="isRoleAssigned(selectedUser, role.name)">
+                <label [for]="'role-' + role.id" style="flex: 1; cursor: pointer;">
+                    <strong>{{ role.name }}</strong><br>
+                    <small style="color: #64748b;">{{ role.description }}</small>
+                </label>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button class="btn btn-primary" style="flex: 1;" (click)="saveUserRoles()">Save Changes</button>
+            <button class="btn" style="flex: 1; background: #f1f5f9;" (click)="isUserModalOpen = false">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Role Permission Modal -->
+<div class="modal-overlay" *ngIf="isRoleModalOpen" (click)="isRoleModalOpen = false">
+    <div class="modal-content" style="max-width: 600px;" (click)="$event.stopPropagation()">
+        <h3>{{ selectedRole?.id ? 'Edit Role' : 'Create New Role' }}</h3>
+
+        <div class="form-group" style="margin-top: 1rem;">
+            <label>Role Name</label>
+            <input type="text" class="form-control" [(ngModel)]="selectedRole.name" placeholder="e.g. Sales Manager">
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" [(ngModel)]="selectedRole.description"
+                placeholder="Briefly describe this role..."></textarea>
+        </div>
+
+        <h5 style="margin: 1.5rem 0 1rem;">Permissions</h5>
+        <div
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding: 0.5rem; background: #f8fafc; border-radius: var(--border-radius-md);">
+            <div *ngFor="let perm of permissions" class="perm-item" [class.selected]="perm.selected"
+                (click)="togglePermission(perm)">
+                <span style="font-size: 0.85rem; font-weight: 500;">{{ perm.name }}</span>
+                <span *ngIf="perm.selected">✓</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button class="btn btn-primary" style="flex: 1;" (click)="saveRole()">Save Role</button>
+            <button class="btn" style="flex: 1; background: #f1f5f9;" (click)="isRoleModalOpen = false">Cancel</button>
+        </div>
+    </div>
+</div>

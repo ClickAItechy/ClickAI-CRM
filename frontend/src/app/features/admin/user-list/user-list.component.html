@@ -1,0 +1,49 @@
+<div class="container user-list-container">
+    <div class="header">
+        <h2>User Management</h2>
+        <p>Manage permissions and roles</p>
+    </div>
+
+    <div class="table-card">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Team</th>
+                    <th>Manager Role</th>
+                    <th>View All Leads</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users">
+                    <td class="user-info">
+                        <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+                        <div>
+                            <div class="username">{{ user.username }}</div>
+                            <div class="email">{{ user.email }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge team-badge">{{ user.team }}</span>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" [(ngModel)]="user.is_manager" (change)="toggleManager(user)">
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="status-label">{{ user.is_manager ? 'Yes' : 'No' }}</span>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" [(ngModel)]="user.view_all_leads" (change)="toggleViewAll(user)">
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="status-label">{{ user.view_all_leads ? 'Yes' : 'No' }}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="loading" class="loading">Loading users...</div>
+    </div>
+</div>

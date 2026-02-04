@@ -1,0 +1,51 @@
+<div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Documents</h3>
+            <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Upload Section -->
+            <div class="upload-section" style="padding: 0; border: none; background: none;">
+                <div class="drop-zone" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
+
+                    <div class="upload-icon" *ngIf="!uploading">☁️</div>
+                    <div class="upload-spinner" *ngIf="uploading">⏳</div>
+
+                    <p *ngIf="!uploading" style="margin: 0.5rem 0; font-weight: 500;">Click or Drag files here to upload
+                    </p>
+                    <p *ngIf="uploading" style="margin: 0.5rem 0;">Uploading...</p>
+
+                    <input #fileInput type="file" (change)="onFileSelected($event)" class="file-input"
+                        style="display: none;">
+                </div>
+            </div>
+
+            <!-- List Section -->
+            <div class="documents-list">
+                <h4 style="margin-bottom: 1rem;">Uploaded Documents ({{ documents.length }})</h4>
+
+                <div *ngIf="documents.length === 0" class="empty-state">
+                    No documents uploaded yet.
+                </div>
+
+                <div class="doc-card" *ngFor="let doc of documents">
+                    <div class="doc-icon">📄</div>
+                    <div class="doc-info">
+                        <div class="doc-header">
+                            <strong class="doc-name" [title]="doc.name">{{ doc.name || 'document' }}</strong>
+                        </div>
+                        <div class="doc-meta">
+                            <span>{{ doc.uploaded_at | date:'mediumDate' }}</span>
+                            <a [href]="getFileUrl(doc.file_path)" target="_blank" class="view-link"
+                                (click)="$event.stopPropagation()">View File</a>
+                        </div>
+                    </div>
+                    <button class="btn-delete" (click)="deleteDoc(doc.id)" title="Delete Document">🗑️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

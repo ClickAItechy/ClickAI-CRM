@@ -1,0 +1,148 @@
+.kanban-container {
+    padding: 24px;
+}
+
+.kanban-header {
+    margin-bottom: 24px;
+}
+
+.kanban-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.kanban-header p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.kanban-board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+.kanban-column {
+    min-width: 280px;
+    max-width: 320px;
+    flex: 1;
+    background: #f3f4f6;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-header {
+    padding: 16px;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    border-top: 4px solid #3b82f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.stage-icon {
+    font-size: 1.25rem;
+}
+
+.stage-name {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.stage-count {
+    background: #e5e7eb;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.column-body {
+    flex: 1;
+    padding: 12px;
+    min-height: 300px;
+}
+
+.pipeline-card {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.pipeline-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.lead-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.lead-info strong {
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.card-meta {
+    color: #6b7280;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.card-notes {
+    background: #f9fafb;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #4b5563;
+}
+
+.card-notes p {
+    margin: 0;
+}
+
+.empty-state {
+    text-align: center;
+    color: #9ca3af;
+    padding: 24px;
+    font-size: 0.9rem;
+}
+
+/* Drag styles */
+.cdk-drag-preview {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.3;
+}
+
+.cdk-drop-list-dragging .pipeline-card:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

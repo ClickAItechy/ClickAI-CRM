@@ -1,0 +1,160 @@
+<div class="app-container">
+    <!-- Mobile Header -->
+    <header class="mobile-header" *ngIf="authService.isLoggedIn()">
+        <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle Menu">☰</button>
+        <div class="mobile-brand brand-gradient">
+            CLICK AI TECHY
+        </div>
+        <div class="header-actions">
+        </div>
+    </header>
+
+    <!-- Sidebar Overlay (Mobile Only) -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen && authService.isLoggedIn()" (click)="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" *ngIf="authService.isLoggedIn()" [class.open]="isSidebarOpen">
+        <div class="logo">
+            <div class="brand-gradient sidebar-brand">
+                CLICK AI TECHY
+            </div>
+            <button class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close Menu">×</button>
+        </div>
+
+        <nav>
+            <div class="menu-section">
+                <small class="section-label">General</small>
+                <a routerLink="/dashboard" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active"
+                    (click)="closeSidebar()">
+                    <i class="icon">🏠</i> Dashboard
+                </a>
+                <a routerLink="/dashboard/reports" routerLinkActive="active" (click)="closeSidebar()"
+                    *ngIf="authService.currentUserValue?.is_manager || authService.currentUserValue?.is_superuser">
+                    <i class="icon">📊</i> Reports
+                </a>
+                <a routerLink="/dashboard/leads" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active"
+                    (click)="closeSidebar()">
+                    <i class="icon">📋</i> Leads List
+                </a>
+                <a routerLink="/dashboard/leads/pipeline" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">📊</i> Pipeline
+                </a>
+                <a routerLink="/dashboard/tasks" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">✅</i> My Tasks
+                </a>
+                <a routerLink="/dashboard/reminders" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">⏰</i> Reminders
+                </a>
+                <a routerLink="/dashboard/tech-pipeline" routerLinkActive="active" (click)="closeSidebar()"
+                    *ngIf="authService.currentUserValue?.team === 'TECH' || authService.currentUserValue?.team === 'ADMIN' || authService.currentUserValue?.view_tech_pipeline">
+                    <i class="icon">🔧</i> Tech Pipeline
+                </a>
+            </div>
+
+            <!-- Management Section (Admin/Manager Only) -->
+            <div class="menu-section"
+                *ngIf="authService.currentUserValue?.is_manager || authService.currentUserValue?.is_superuser">
+                <small class="section-label">Management</small>
+                <a routerLink="/dashboard/leads" [queryParams]="{unassigned: 'true'}" routerLinkActive="active"
+                    (click)="closeSidebar()">
+                    <i class="icon">⚠️</i> Unassigned Leads
+                </a>
+
+                <!-- Dynamic Teams Menu -->
+                <div class="collapsible-menu">
+                    <a class="collapsible-toggle" (click)="toggleTeamsMenu()">
+                        <i class="icon">👥</i> Teams
+                        <span class="toggle-icon">{{ isTeamsMenuOpen ? '▼' : '▶' }}</span>
+                    </a>
+                    <div class="collapsible-content" *ngIf="isTeamsMenuOpen">
+                        <a routerLink="/dashboard/teams" [routerLinkActiveOptions]="{exact: true}"
+                            routerLinkActive="active" (click)="closeSidebar()" class="all-teams-link">
+                            <strong>All Teams Dashboard</strong>
+                        </a>
+                        <a *ngFor="let team of teams" [routerLink]="['/dashboard/teams', team.value]"
+                            routerLinkActive="active" (click)="closeSidebar()">
+                            <i class="icon">📁</i> {{ team.label }}
+                        </a>
+                    </div>
+                </div>
+
+                <a routerLink="/dashboard/admin/users" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">🛡️</i> User Management
+                </a>
+                <a routerLink="/dashboard/admin/onboarding" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">👋</i> User Onboarding
+                </a>
+            </div>
+
+
+            <div class="menu-section">
+                <small class="section-label">Resources</small>
+                <a routerLink="/dashboard/deals" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">💰</i> Deals & Projects
+                </a>
+                <a routerLink="/dashboard/accounts" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">🏢</i> Business Accounts
+                </a>
+                <a routerLink="/dashboard/contacts" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">👥</i> Contacts
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a (click)="logout()" style="cursor: pointer;">
+                    <i class="icon">🚪</i> Logout
+                </a>
+            </div>
+        </nav>
+
+        <div class="user-profile" *ngIf="authService.currentUserValue as user">
+            <strong>{{ user.username | titlecase }}</strong>
+            <small>{{ user.team }}</small>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Desktop Top Bar -->
+        <header class="top-bar" *ngIf="authService.isLoggedIn()">
+            <div class="header-right-actions" style="margin-left: auto; display: flex; gap: 1rem; align-items: center;">
+                <!-- Settings Dropdown -->
+                <div class="settings-wrapper">
+                    <button class="settings-btn" (click)="toggleSettings()">
+                        ⚙️
+                    </button>
+                    <div class="settings-dropdown" *ngIf="isSettingsOpen">
+                        <ng-container *ngIf="authService.currentUserValue as user">
+                            <div class="user-card">
+                                <div class="user-avatar-large">
+                                    {{ (user.username | slice:0:1) | uppercase }}
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">{{ user.username | titlecase }}</span>
+                                    <span class="user-role">{{ user.team || 'User' }}</span>
+                                </div>
+                            </div>
+                            <div class="settings-menu">
+                                <button (click)="openChangePassword()">
+                                    <i class="icon">🔒</i> Change Password
+                                </button>
+                                <div class="menu-divider"></div>
+                                <button class="text-danger" (click)="logout()">
+                                    <i class="icon">🚪</i> Logout
+                                </button>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-view">
+            <app-breadcrumb *ngIf="!isDashboardRoute"></app-breadcrumb>
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+
+    <app-change-password-modal [isOpen]="isChangePasswordOpen" (close)="isChangePasswordOpen = false">
+    </app-change-password-modal>
+</div>

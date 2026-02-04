@@ -1,0 +1,36 @@
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Contacts</h2>
+            <div style="display: flex; gap: 0.75rem;">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Search contacts..." style="width: 250px;">
+                <button class="btn btn-primary">
+                    <span>➕</span> Add Contact
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let contact of filteredContacts">
+                        <td><strong>{{ contact.first_name }} {{ contact.last_name }}</strong></td>
+                        <td>{{ contact.email }}</td>
+                        <td>{{ contact.phone || '-' }}</td>
+                    </tr>
+                    <tr *ngIf="filteredContacts.length === 0">
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No
+                            contacts found matching your search.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

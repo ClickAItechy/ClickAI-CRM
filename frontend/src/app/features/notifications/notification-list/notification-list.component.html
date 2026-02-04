@@ -1,0 +1,47 @@
+<div class="notifications-container">
+    <header class="page-header">
+        <div class="header-content">
+            <h1>Notifications</h1>
+            <button class="mark-all-btn" *ngIf="notifications.length > 0" (click)="markAllAsRead()">
+                Mark all as read
+            </button>
+        </div>
+    </header>
+
+    <div class="notifications-list" *ngIf="!loading; else loadingState">
+        <ng-container *ngIf="notifications.length > 0; else noNotifications">
+            <div class="notification-item" *ngFor="let n of notifications" [class.unread]="!n.is_read"
+                (click)="markAsRead(n)">
+                <div class="notification-body">
+                    <div class="notification-header">
+                        <span class="sender" *ngIf="n.sender_name">
+                            <strong>From:</strong> {{ n.sender_name | titlecase }}
+                        </span>
+                        <span class="time">{{ n.created_at | date:'medium' }}</span>
+                    </div>
+                    <div class="message">{{ n.message }}</div>
+                    <div class="meta-info" *ngIf="n.task_subject || n.lead_name">
+                        <span class="task-badge" *ngIf="n.task_subject">📋 {{ n.task_subject }}</span>
+                        <span class="lead-badge" *ngIf="n.lead_name">👤 {{ n.lead_name }}</span>
+                    </div>
+                </div>
+                <div class="status-indicator"></div>
+            </div>
+        </ng-container>
+    </div>
+
+    <ng-template #noNotifications>
+        <div class="empty-state">
+            <div class="empty-icon">🔔</div>
+            <h3>No notifications yet</h3>
+            <p>When you receive alerts or reminders, they'll show up here.</p>
+        </div>
+    </ng-template>
+
+    <ng-template #loadingState>
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading your notifications...</p>
+        </div>
+    </ng-template>
+</div>

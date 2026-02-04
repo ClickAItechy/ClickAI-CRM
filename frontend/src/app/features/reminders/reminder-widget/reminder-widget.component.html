@@ -1,0 +1,38 @@
+<div class="card reminder-card">
+    <div class="card-header">
+        <h3>⏰ Follow-up Reminders</h3>
+        <div class="stats-badges" *ngIf="stats">
+            <span class="stat-badge overdue" *ngIf="stats.overdue > 0">{{ stats.overdue }} Overdue</span>
+            <span class="stat-badge today" *ngIf="stats.today > 0">{{ stats.today }} Today</span>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div *ngIf="loading" class="loading-state">Loading reminders...</div>
+
+        <div *ngIf="!loading && reminders.length === 0" class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <p>All caught up for today!</p>
+        </div>
+
+        <ul class="reminder-list" *ngIf="!loading && reminders.length > 0">
+            <li *ngFor="let reminder of reminders.slice(0, 5)" class="reminder-item"
+                [routerLink]="['/dashboard/leads', reminder.lead]">
+                <div class="reminder-content">
+                    <div class="lead-info">
+                        <span class="lead-name">{{ reminder.lead_name }}</span>
+                    </div>
+                    <p class="reminder-msg">{{ reminder.message }}</p>
+                    <small class="due-time">Due: {{ reminder.due_date | date:'shortTime' }}</small>
+                </div>
+                <button class="complete-btn" (click)="completeReminder(reminder.id, $event)" title="Mark as Done">
+                    ✓
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-footer" *ngIf="!loading">
+        <a routerLink="/dashboard/reminders" class="view-all">View all reminders →</a>
+    </div>
+</div>

@@ -1,0 +1,5 @@
+/* Main container for the app */
+:host {
+    display: block;
+    height: 100vh;
+}

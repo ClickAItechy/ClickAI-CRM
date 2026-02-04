@@ -1,0 +1,34 @@
+<div class="pipeline-container" *ngIf="visible">
+    <h3>Tech Pipeline</h3>
+
+    <div *ngIf="!canEdit" class="permission-warning">
+        You have read-only access to this pipeline.
+    </div>
+
+    <div class="stages-wrapper">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+        </div>
+
+        <!-- Stages -->
+        <div *ngFor="let stage of stages; let i = index" class="stage-node"
+            [class.active]="currentStage === stage.value" [class.completed]="isCompleted(stage.value)"
+            [class.disabled]="!canEdit" (click)="setStage(stage.value)">
+            <div class="circle">
+                <span *ngIf="isCompleted(stage.value)">✓</span>
+                <span *ngIf="!isCompleted(stage.value)">{{ i + 1 }}</span>
+            </div>
+            <span class="stage-label">{{ stage.label }}</span>
+        </div>
+    </div>
+
+    <div class="notes-section">
+        <label for="tech-notes">Technical Notes</label>
+        <textarea id="tech-notes" [(ngModel)]="notes" [disabled]="!canEdit"
+            placeholder="Enter technical details, requirements, or progress updates here..."></textarea>
+        <button class="save-btn" (click)="saveNotes()" [disabled]="!canEdit || saving">
+            {{ saving ? 'Saving...' : 'Save Notes' }}
+        </button>
+    </div>
+</div>

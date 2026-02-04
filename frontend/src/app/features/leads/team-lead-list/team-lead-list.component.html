@@ -1,0 +1,115 @@
+<div class="container">
+    <div class="card">
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>
+                    <span *ngIf="teamName">{{ teamName | titlecase }} Team Leads</span>
+                    <span *ngIf="showUnassigned">Unassigned Leads</span>
+                    <span *ngIf="!teamName && !showUnassigned">All Team Leads</span>
+                </h2>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="btn" style="background: white; border: 1px solid #e5e7eb;" (click)="exportCsv()">
+                        <span>📥</span> Export
+                    </button>
+                    <button class="btn btn-primary" routerLink="/dashboard/leads/new" *ngIf="isAdmin">
+                        <span>➕</span> Add Lead
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div style="position: relative; max-width: 400px;">
+                <input type="text" class="form-control" placeholder="Search by name, email, or phone..."
+                    [ngModel]="searchTerm" (ngModelChange)="onSearch($event)" style="padding-left: 2.5rem;">
+                <span
+                    style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;">🔍</span>
+            </div>
+
+            <!-- Filter Buttons (Admin Only) -->
+            <div *ngIf="isAdmin" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <button class="btn btn-sm" [class.btn-primary]="filterType === 'ALL'"
+                    (click)="setFilter('ALL')">All</button>
+                <button class="btn btn-sm" [class.btn-primary]="filterType === 'UNASSIGNED'"
+                    (click)="setFilter('UNASSIGNED')">Unassigned</button>
+                <button class="btn btn-sm" [class.btn-primary]="filterType === 'ASSIGNED'"
+                    (click)="setFilter('ASSIGNED')">Assigned</button>
+                <button class="btn btn-sm" [class.btn-primary]="filterType === 'NEW_TODAY'"
+                    (click)="setFilter('NEW_TODAY')">New Today</button>
+            </div>
+
+            <!-- Bulk Actions (Visible when selection > 0 AND Admin) -->
+            <div *ngIf="isAdmin && selectedLeadIds.size > 0"
+                style="margin-top: 1rem; padding: 0.75rem; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-weight: 500; color: #1e40af;">{{ selectedLeadIds.size }} selected</span>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select class="form-control" [(ngModel)]="selectedUserId" style="width: 200px; font-size: 0.9rem;">
+                        <option [ngValue]="null">-- Assign To --</option>
+                        <option *ngFor="let user of users" [ngValue]="user.id">{{ user.username }}</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" (click)="assignSelectedLeads()" [disabled]="!selectedUserId">
+                        Assign
+                    </button>
+                    <!-- Future: <button class="btn btn-sm">Email</button> -->
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="loading" style="text-align: center; padding: 2rem;">
+            Loading...
+        </div>
+
+        <div class="table-container" *ngIf="!loading">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;" *ngIf="isAdmin">
+                            <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll($event)">
+                        </th>
+                        <th>Name</th>
+                        <th>Stage</th>
+                        <th>Assigned To</th>
+                        <th>Added On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let lead of leads" [class.selected-row]="isSelected(lead.id)">
+                        <td *ngIf="isAdmin">
+                            <input type="checkbox" [checked]="isSelected(lead.id)" (change)="toggleSelection(lead.id)">
+                        </td>
+                        <td>
+                            <strong>{{ lead.first_name }} {{ lead.last_name }}</strong><br>
+                            <small>{{ lead.email }}</small>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="getStageColor(lead.stage)">{{ lead.stage }}</span>
+                        </td>
+
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div
+                                    style="width: 24px; height: 24px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">
+                                    {{ (lead.assigned_to_name || '?').charAt(0).toUpperCase() }}
+                                </div>
+                                {{ lead.assigned_to_name || 'Unassigned' }}
+                            </div>
+                        </td>
+                        <td>{{ lead.created_at | date:'mediumDate' }}</td>
+                        <td>
+                            <a [routerLink]="['/dashboard/leads', lead.id]" class="btn"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background: #f3f4f6;">View</a>
+                        </td>
+                    </tr>
+                    <tr *ngIf="leads.length === 0">
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            No leads found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

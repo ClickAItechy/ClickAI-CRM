@@ -1,0 +1,44 @@
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Accounts</h2>
+            <div style="display: flex; gap: 0.75rem;">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Search accounts..." style="width: 250px;">
+                <button class="btn btn-primary">
+                    <span>🏢</span> Add Account
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Industry</th>
+                        <th>Website</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let account of filteredAccounts">
+                        <td><strong>{{ account.name }}</strong></td>
+                        <td>
+                            <span class="badge badge-info">{{ account.industry || 'N/A' }}</span>
+                        </td>
+                        <td>
+                            <a *ngIf="account.website" [href]="account.website" target="_blank"
+                                style="color: var(--primary-color);">
+                                {{ account.website }}
+                            </a>
+                            <span *ngIf="!account.website">-</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredAccounts.length === 0">
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No
+                            accounts found matching your search.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="revenue-card" *ngIf="!loading && stats">
+    <div class="grid-layout">
+        <!-- Main Info: Title, Amount, Progress -->
+        <div class="main-section">
+            <div class="header">
+                <div class="title">
+                    <span>💰</span> Monthly Revenue Target
+                </div>
+            </div>
+
+            <div class="amount-display">
+                <div class="amount">
+                    {{ stats.current_month_revenue | currency:'USD':'symbol':'1.0-0' }}
+                </div>
+                <div class="threshold">
+                    / {{ stats.threshold | currency:'USD':'symbol':'1.0-0' }}
+                </div>
+            </div>
+
+            <div>
+                <div class="progress-track">
+                    <div class="progress-fill" [style.width.%]="stats.progress_percentage"
+                        [class.target-met]="stats.target_met">
+                    </div>
+                </div>
+                <div class="progress-label-row">
+                    <span class="label-xs">Progress</span>
+                    <span class="val-xs">{{ stats.progress_percentage }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Info: Incentive & History -->
+        <div class="side-section">
+            <div class="stat-row">
+                <span class="stat-label">Incentive Status</span>
+                <div *ngIf="stats.target_met" class="incentive-badge">
+                    Unlocked
+                </div>
+                <span *ngIf="!stats.target_met" class="locked-label">Locked</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Incentive Earned</span>
+                <span class="stat-value" [class.success]="stats.target_met">
+                    {{ stats.incentive_amount | currency:'USD':'symbol':'1.0-0' }}
+                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading" class="revenue-card loading-state flex flex-col items-center justify-center gap-3">
+    <div class="spinning"></div>
+    <span>Analyzing revenue data...</span>
+</div>
+
+<div *ngIf="error" class="revenue-card flex items-center justify-center gap-2 text-rose-500 text-sm font-medium">
+    <span>⚠️</span> {{ error }}
+</div>

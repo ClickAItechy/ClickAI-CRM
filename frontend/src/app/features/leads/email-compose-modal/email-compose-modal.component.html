@@ -1,0 +1,35 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Compose Email</h3>
+            <button class="close-btn" (click)="onClose()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>To:</label>
+                <input type="email" class="form-control" [(ngModel)]="to" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Template:</label>
+                <div class="template-chips">
+                    <button *ngFor="let t of templates" class="chip" (click)="selectTemplate(t)">{{ t.name }}</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Subject:</label>
+                <input type="text" class="form-control" [(ngModel)]="subject">
+            </div>
+
+            <div class="form-group">
+                <label>Message:</label>
+                <textarea class="form-control" rows="8" [(ngModel)]="body"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="onClose()">Cancel</button>
+            <button class="btn btn-primary" (click)="onSend()">Send Email</button>
+        </div>
+    </div>
+</div>

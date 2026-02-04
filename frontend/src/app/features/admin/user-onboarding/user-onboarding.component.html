@@ -1,0 +1,105 @@
+<div class="container">
+    <div class="card">
+        <h2>User Onboarding</h2>
+        <p class="subtitle">Create a new user and assign them to a team.</p>
+
+        <div *ngIf="successMessage" class="alert alert-success">
+            {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="onboardingForm" (ngSubmit)="onSubmit()">
+
+            <div class="form-group">
+                <label for="full_name">Full Name <span class="required">*</span></label>
+                <input type="text" id="full_name" formControlName="full_name" class="form-control"
+                    placeholder="e.g. John Doe">
+                <div *ngIf="onboardingForm.get('full_name')?.invalid && onboardingForm.get('full_name')?.touched"
+                    class="error-text">
+                    Full Name is required (min 3 chars).
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username <span class="required">*</span></label>
+                <input type="text" id="username" formControlName="username" class="form-control"
+                    placeholder="e.g. jdoe">
+                <div *ngIf="onboardingForm.get('username')?.invalid && onboardingForm.get('username')?.touched"
+                    class="error-text">
+                    Username is required.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address <span class="required">*</span></label>
+                <input type="email" id="email" formControlName="email" class="form-control"
+                    placeholder="e.g. john@example.com">
+                <div *ngIf="onboardingForm.get('email')?.invalid && onboardingForm.get('email')?.touched"
+                    class="error-text">
+                    Valid email is required.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="team">Assign Team <span class="required">*</span></label>
+                <select id="team" formControlName="team" class="form-control">
+                    <option value="" disabled>Select a team</option>
+                    <option *ngFor="let team of teams" [value]="team.value">{{ team.label }}</option>
+                </select>
+                <div *ngIf="onboardingForm.get('team')?.invalid && onboardingForm.get('team')?.touched"
+                    class="error-text">
+                    Team is required.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Role</label>
+                <div class="role-selector">
+                    <label class="radio-label">
+                        <input type="radio" formControlName="is_manager" [value]="false">
+                        <span>Teammate</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" formControlName="is_manager" [value]="true">
+                        <span>Manager</span>
+                    </label>
+                </div>
+                <small style="color: #64748b;">Managers can assign leads and view team performance.</small>
+            </div>
+
+            <style>
+                .role-selector {
+                    display: flex;
+                    gap: 1.5rem;
+                    margin-top: 0.5rem;
+                }
+
+                .radio-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    cursor: pointer;
+                }
+
+                .radio-label input[type="radio"] {
+                    width: 1.2rem;
+                    height: 1.2rem;
+                    accent-color: var(--primary-color);
+                }
+            </style>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="loading || onboardingForm.invalid">
+                    {{ loading ? 'Creating User...' : 'Create User' }}
+                </button>
+            </div>
+
+            <p class="info-note" style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+                ℹ️ Default password will be set to <strong>password123</strong>.
+            </p>
+        </form>
+    </div>
+</div>
