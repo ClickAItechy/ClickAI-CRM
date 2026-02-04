@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: clickai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clickai_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: clickai_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/static
+    env_file:
+      - .env.prod
+    networks:
+      - clickai_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend-builder:
+    container_name: clickai_frontend_builder
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    volumes:
+      - frontend_dist:/frontend/dist
+    networks:
+      - clickai_net
+    # This container's job is just to populate the volume, but we keep it alive specifically so it doesn't just exit immediately if we want to check logs.
+    # Actually, the CMD in Dockerfile.prod tails null, so it stays alive.
+
+  gateway:
+    image: nginx:alpine
+    container_name: clickai_gateway
+    restart: unless-stopped
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_data:/app/static
+      - media_data:/app/media
+      - frontend_dist:/app/frontend/dist
+    ports:
+      - "80:80"
+    networks:
+      - clickai_net
+    depends_on:
+      - backend
+      - frontend-builder
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
+  frontend_dist:
+
+
+networks:
+  clickai_net:
+    driver: bridge

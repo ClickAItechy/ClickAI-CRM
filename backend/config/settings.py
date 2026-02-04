@@ -13,6 +13,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8001',
     'http://localhost:9001',
     'http://localhost:4201',
+    'https://crm.clickaitech.ae',
+    'http://crm.clickaitech.ae',
 ]
 
 INSTALLED_APPS = [

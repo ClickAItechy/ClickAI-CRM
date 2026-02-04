@@ -1,0 +1,26 @@
+# Stage 1: Build the Angular application
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Install Angular CLI globally
+RUN npm install -g @angular/cli@17
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps
+
+# Copy project files
+COPY . .
+
+# Build the application for production
+# This creates dist/finkey-crm-frontend/browser
+RUN ng build --configuration production
+
+# Stage 2: We don't need a running container for the frontend code in this setup,
+# because Nginx (gateway) will serve the static files.
+# However, to easily extract the files in docker-compose, we can just keep a minimal alpine image
+# or use this image to copy files to a shared volume.
+CMD ["sh", "-c", "cp -r /app/dist/finkey-crm-frontend/browser/* /frontend/dist/ && tail -f /dev/null"]
