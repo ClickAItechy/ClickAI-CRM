@@ -16,6 +16,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4201',
     'https://crm.clickaitech.ae',
     'http://crm.clickaitech.ae',
+    'https://click-ai-crm.vercel.app',
 ]
 
 INSTALLED_APPS = [
@@ -101,6 +102,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'https://crm.clickaitech.ae',
+    'https://click-ai-crm.vercel.app',
 ]
 
 REST_FRAMEWORK = {
