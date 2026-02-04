@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "finkey-crm-frontend": {
+    "clickai-crm-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/finkey-crm-frontend",
+            "outputPath": "dist/clickai-crm-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -63,10 +63,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "finkey-crm-frontend:build:production"
+              "buildTarget": "clickai-crm-frontend:build:production"
             },
             "development": {
-              "buildTarget": "finkey-crm-frontend:build:development",
+              "buildTarget": "clickai-crm-frontend:build:development",
               "proxyConfig": "proxy.conf.json"
             }
           },
@@ -75,7 +75,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "finkey-crm-frontend:build"
+            "buildTarget": "clickai-crm-frontend:build"
           }
         },
         "test": {
