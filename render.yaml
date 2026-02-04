@@ -5,6 +5,7 @@ services:
     plan: free
     region: singapore
     dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
