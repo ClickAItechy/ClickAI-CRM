@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python dependencies
-COPY requirements.txt /app/
+COPY backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gunicorn
 
@@ -20,12 +20,12 @@ RUN pip install gunicorn
 RUN mkdir -p /app/static
 
 # Copy project files
-COPY . /app/
+COPY backend /app/
 
 # Expose port for backend
 EXPOSE 8000
 
 # Entrypoint
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY backend/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
