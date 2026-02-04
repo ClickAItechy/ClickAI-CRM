@@ -16,5 +16,3 @@ services:
         value: 4
       - key: DEBUG
         value: "False"
-      - key: PORT
-        value: 8000
