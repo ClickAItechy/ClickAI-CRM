@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: '/api/v1'
+    apiUrl: 'https://clickai-crm.onrender.com/api/v1'
 };
