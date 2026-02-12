@@ -57,7 +57,36 @@ export class CreateLeadComponent implements OnInit {
             },
             error: (err) => {
                 console.error(err);
-                this.toastService.error('Error creating lead.');
+
+                // Extract specific error message from backend response
+                let errorMessage = 'Error creating lead.';
+
+                if (err.error) {
+                    // If error.error is an object with field-specific errors
+                    if (typeof err.error === 'object' && !Array.isArray(err.error)) {
+                        const errors: string[] = [];
+                        for (const [field, messages] of Object.entries(err.error)) {
+                            if (Array.isArray(messages)) {
+                                errors.push(`${field}: ${messages.join(', ')}`);
+                            } else {
+                                errors.push(`${field}: ${messages}`);
+                            }
+                        }
+                        if (errors.length > 0) {
+                            errorMessage = errors.join('; ');
+                        }
+                    }
+                    // If error.error is a string message
+                    else if (typeof err.error === 'string') {
+                        errorMessage = err.error;
+                    }
+                    // If there's a detail field (common in DRF)
+                    else if (err.error.detail) {
+                        errorMessage = err.error.detail;
+                    }
+                }
+
+                this.toastService.error(errorMessage);
                 this.loading = false;
             }
         });

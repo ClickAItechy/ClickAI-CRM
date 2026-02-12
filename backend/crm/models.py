@@ -46,8 +46,8 @@ class Lead(models.Model):
     # Customer Info
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=20, unique=True)
+    email = models.EmailField(unique=False, blank=True, null=True)
+    phone = models.CharField(max_length=20, unique=False, blank=True, null=True)
     
     # IT/Agency Specifics
     company_name = models.CharField(max_length=200, blank=True, null=True)
