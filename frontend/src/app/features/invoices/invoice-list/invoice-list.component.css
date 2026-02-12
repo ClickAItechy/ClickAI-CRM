@@ -1,0 +1,204 @@
+/* ─── Invoice List – Colorful Theme ─── */
+
+.invoice-list-container {
+    padding: 2rem;
+    min-height: 100%;
+}
+
+/* ── Page Header ── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.btn-create {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-create:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Table Card ── */
+.table-responsive {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #e8ecf4;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: linear-gradient(180deg, #f0f4ff 0%, #e8ecf8 100%);
+    color: #5b6a8a;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 2px solid #dce3f0;
+}
+
+.data-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f0f2f7;
+    color: #334155;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background: #f8f9ff;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ── Invoice Number ── */
+.invoice-number {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.9rem;
+}
+
+/* ── Client Info ── */
+.client-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.client-info .name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.client-info .email {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+/* ── Date ── */
+.date-cell {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* ── Amount ── */
+.amount {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 0.95rem;
+}
+
+/* ── Action Buttons ── */
+.actions-cell {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.btn-icon.download {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.btn-icon.download:hover {
+    background: #7c3aed;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-icon.edit {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.btn-icon.edit:hover {
+    background: #0284c7;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.btn-icon.danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-icon.danger:hover {
+    background: #dc2626;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* ── States ── */
+.loading-state,
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #94a3b8;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf4;
+}
+
+.empty-state p {
+    font-size: 1.05rem;
+    margin: 0;
+}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.5;
+            font-size: 10pt;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .company-info h1 {
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e6e6e6;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .meta-table td {
+            padding: 2px 0;
+        }
+
+        .meta-label {
+            font-weight: bold;
+            padding-right: 15px;
+            color: #7f8c8d;
+        }
+
+        .bill-to {
+            margin-bottom: 40px;
+        }
+
+        .bill-to h3 {
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: bold;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid #ddd;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+
+        .items-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .items-table .col-desc {
+            width: 50%;
+        }
+
+        .items-table .col-price {
+            width: 15%;
+            text-align: right;
+        }
+
+        .items-table .col-qty {
+            width: 10%;
+            text-align: center;
+        }
+
+        .items-table .col-total {
+            width: 25%;
+            text-align: right;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .totals-table {
+            width: 40%;
+            border-collapse: collapse;
+        }
+
+        .totals-table td {
+            padding: 8px 0;
+            text-align: right;
+        }
+
+        .totals-table .label {
+            color: #7f8c8d;
+            padding-right: 20px;
+        }
+
+        .totals-table .amount {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .grand-total {
+            font-size: 16px;
+            border-top: 2px solid #2c3e50;
+            padding-top: 10px !important;
+            margin-top: 10px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9px;
+            color: #95a5a6;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="company-info">
+            <h1>ClickAI Techy</h1>
+            <div>Dubai, UAE</div>
+            <div>info@clickaitech.ae</div>
+            <div>+971 50 123 4567</div>
+        </div>
+        <div class="invoice-details">
+            <div class="invoice-title">INVOICE</div>
+            <table class="meta-table" align="right">
+                <tr>
+                    <td class="meta-label">Invoice Number:</td>
+                    <td>{{ invoice_number }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Date:</td>
+                    <td>{{ date }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="bill-to">
+        <h3>Bill To:</h3>
+        <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">{{ client_name }}</div>
+        {% if client_address %}
+        <div style="white-space: pre-line; color: #555;">{{ client_address }}</div>
+        {% endif %}
+        {% if client_email %}
+        <div style="margin-top: 5px; color: #555;">{{ client_email }}</div>
+        {% endif %}
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="col-desc">Description</th>
+                <th class="col-price">Unit Price</th>
+                <th class="col-qty">Qty</th>
+                <th class="col-total">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td style="text-align: right;">AED {{ item.price|floatformat:2 }}</td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td style="text-align: right;">AED {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr class="grand-total">
+                <td class="label" style="color: #2c3e50;">Grand Total</td>
+                <td class="amount">AED {{ grand_total|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p>ClickAI Techy | Dubai, UAE | www.clickaitech.ae</p>
+    </div>
+</body>
+
+</html>

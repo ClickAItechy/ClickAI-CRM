@@ -6,4 +6,6 @@ psycopg2-binary>=2.9
 Faker
 gunicorn
 dj-database-url
+weasyprint
+
 

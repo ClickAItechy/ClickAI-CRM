@@ -1,3 +1,13 @@
 ._*
 .DS_Store
 .env.prod
+.env.dev
+.env
+docker-compose.dev.yml
+node_modules/
+__pycache__/
+*.pyc
+.angular/
+dist/
+/backend/media/
+/backend/static/

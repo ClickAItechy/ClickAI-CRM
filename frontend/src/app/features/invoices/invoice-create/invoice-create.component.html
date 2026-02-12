@@ -1,0 +1,98 @@
+<div class="invoice-container">
+    <div class="page-header">
+        <div class="title-section">
+            <button [routerLink]="['/dashboard/invoices']" class="btn-back">← Back</button>
+            <h1>{{ isEditMode ? '✏️ Edit Invoice' : '📝 Create New Invoice' }}</h1>
+        </div>
+        <p>Fill in the details below to {{ isEditMode ? 'update' : 'create' }} the invoice.</p>
+    </div>
+
+    <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()" class="invoice-form">
+
+        <!-- Client Details Section -->
+        <div class="section-card">
+            <h2>👤 Client Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Client Name *</label>
+                    <input type="text" formControlName="client_name" placeholder="Enter client name">
+                    <div class="error"
+                        *ngIf="invoiceForm.get('client_name')?.touched && invoiceForm.get('client_name')?.invalid">
+                        Client name is required.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Client Email</label>
+                    <input type="email" formControlName="client_email" placeholder="client@example.com">
+                    <div class="error"
+                        *ngIf="invoiceForm.get('client_email')?.touched && invoiceForm.get('client_email')?.invalid">
+                        Please enter a valid email.
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Client Address</label>
+                    <textarea formControlName="client_address" rows="3" placeholder="Enter billing address"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2>🧾 Services / Items</h2>
+                <button type="button" class="btn-secondary" (click)="addItem()">+ Add Item</button>
+            </div>
+
+            <div class="items-list" formArrayName="items">
+                <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" class="item-row">
+                    <div class="form-group item-name">
+                        <label *ngIf="i===0">Service Name</label>
+                        <input type="text" formControlName="name" placeholder="Service description">
+                    </div>
+
+                    <div class="form-group item-price">
+                        <label *ngIf="i===0">Price (AED)</label>
+                        <input type="number" formControlName="price" min="0">
+                    </div>
+
+                    <div class="form-group item-qty">
+                        <label *ngIf="i===0">Qty</label>
+                        <input type="number" formControlName="quantity" min="1">
+                    </div>
+
+                    <div class="form-group item-total">
+                        <label *ngIf="i===0">Subtotal</label>
+                        <input type="number" formControlName="subtotal" readonly>
+                    </div>
+
+                    <div class="item-actions">
+                        <label *ngIf="i===0">&nbsp;</label>
+                        <button type="button" class="btn-icon danger" (click)="removeItem(i)" *ngIf="items.length > 1"
+                            title="Remove Item">
+                            🗑
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="grand-total-card">
+                <span>Grand Total:</span>
+                <span class="currency">AED {{ grandTotal | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="actions">
+                <button type="button" class="btn-cancel" [routerLink]="['/dashboard/invoices']">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isGenerating || invoiceForm.invalid">
+                    <span *ngIf="!isGenerating">{{ isEditMode ? 'Update Invoice' : '💾 Save Invoice' }}</span>
+                    <span *ngIf="isGenerating">Saving...</span>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>

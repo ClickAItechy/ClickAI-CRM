@@ -1,0 +1,55 @@
+<div class="invoice-list-container">
+    <div class="page-header">
+        <h1>📄 Invoices</h1>
+        <button [routerLink]="['/dashboard/invoices/create']" class="btn-create">
+            + Create New Invoice
+        </button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+        Loading invoices...
+    </div>
+
+    <div *ngIf="!isLoading && invoices.length === 0" class="empty-state">
+        <p>No invoices found. Create your first invoice!</p>
+    </div>
+
+    <div *ngIf="!isLoading && invoices.length > 0" class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let invoice of invoices">
+                    <td><span class="invoice-number">{{ invoice.invoice_number }}</span></td>
+                    <td>
+                        <div class="client-info">
+                            <span class="name">{{ invoice.client_name }}</span>
+                            <small class="email">{{ invoice.client_email }}</small>
+                        </div>
+                    </td>
+                    <td class="date-cell">{{ invoice.issued_date | date:'mediumDate' }}</td>
+                    <td class="amount">AED {{ invoice.grand_total | number:'1.2-2' }}</td>
+                    <td class="actions-cell">
+                        <button class="btn-icon download" (click)="downloadPdf(invoice.id)" title="Download PDF">
+                            ⬇
+                        </button>
+                        <button class="btn-icon edit" [routerLink]="['/dashboard/invoices', invoice.id, 'edit']"
+                            title="Edit">
+                            ✏
+                        </button>
+                        <button class="btn-icon danger" (click)="deleteInvoice(invoice.id)" title="Delete">
+                            🗑
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

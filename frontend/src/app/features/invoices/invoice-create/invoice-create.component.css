@@ -1,0 +1,321 @@
+/* ─── Invoice Create / Edit – Colorful Theme ─── */
+
+.invoice-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ── Page Header ── */
+.page-header {
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+}
+
+.title-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.page-header h1 {
+    font-size: 1.6rem;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 700;
+}
+
+.page-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.btn-back {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-right: 1rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Section Cards ── */
+.section-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e8ecf4;
+}
+
+h2 {
+    color: #334155;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #ede9fe;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Form Fields ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+label {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+input,
+textarea {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: #1e293b;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #818cf8;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.12);
+}
+
+input:read-only {
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: default;
+    border-style: dashed;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* ── Section Header (Items) ── */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #ede9fe;
+    padding-bottom: 0.75rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* ── Item Rows ── */
+.item-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%);
+    border: 1px solid #e8ecf4;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.item-row:hover {
+    border-color: #c4b5fd;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06);
+}
+
+.item-name {
+    flex: 4;
+}
+
+.item-price {
+    flex: 2;
+}
+
+.item-qty {
+    flex: 1;
+}
+
+.item-total {
+    flex: 2;
+}
+
+.item-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding-top: 1.6rem;
+}
+
+/* ── Buttons ── */
+.btn-secondary {
+    background: #ffffff;
+    color: #667eea;
+    border: 1.5px solid #c7d2fe;
+    padding: 0.5rem 1.25rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #eef2ff;
+    border-color: #818cf8;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-icon.danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 0.4rem;
+    border-radius: 8px;
+    height: 34px;
+    width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon.danger:hover {
+    background: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+/* ── Summary Section ── */
+.summary-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.grand-total-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem 2.5rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+}
+
+.grand-total-card span:first-child {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.grand-total-card .currency {
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-cancel {
+    background: #ffffff;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-cancel:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}

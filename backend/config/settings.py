@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['crm.clickaitech.ae', '.onrender.com', 'localhost', '127.0.0.1']
 
@@ -100,10 +100,10 @@ MEDIA_ROOT = "/app/media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    'https://crm.clickaitech.ae',
-    'https://click-ai-crm.vercel.app',
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS',
+    'https://crm.clickaitech.ae,https://click-ai-crm.vercel.app'
+).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 

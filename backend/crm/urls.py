@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import LeadViewSet, LeadIngestView, LeadDocumentViewSet, AccountViewSet, ContactViewSet, UserViewSet, DealViewSet, TaskViewSet, DashboardStatsView, NoteViewSet, NotificationViewSet, TeamsListView, ReportsView, ReminderViewSet, DailyActivityView, TechPipelineViewSet, RevenueStatsView
+from .invoice_views import InvoiceViewSet
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -18,6 +20,7 @@ router.register(r'notes', NoteViewSet)
 router.register(r'notifications', NotificationViewSet, basename='notification')
 router.register(r'reminders', ReminderViewSet, basename='reminder')
 router.register(r'tech-pipeline', TechPipelineViewSet)
+router.register(r'invoices', InvoiceViewSet, basename='invoice')
 
 
 urlpatterns = [
@@ -30,4 +33,5 @@ urlpatterns = [
     path('teams/', TeamsListView.as_view(), name='teams-list'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]

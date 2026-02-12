@@ -10,3 +10,4 @@ backend/venv
 frontend/dist
 frontend/.angular
 infrastructure/db/data
+._*

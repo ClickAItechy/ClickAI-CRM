@@ -50,7 +50,15 @@ export const routes: Routes = [
             { path: 'teams/:teamName', component: TeamMembersComponent },
             { path: 'teams/:teamName/member/:memberId', component: MemberTasksComponent },
             { path: 'notifications', component: NotificationListComponent },
-            { path: 'tech-pipeline', component: TechPipelineKanbanComponent }
+            { path: 'tech-pipeline', component: TechPipelineKanbanComponent },
+            {
+                path: 'invoices',
+                children: [
+                    { path: '', loadComponent: () => import('./features/invoices/invoice-list/invoice-list.component').then(m => m.InvoiceListComponent) },
+                    { path: 'create', loadComponent: () => import('./features/invoices/invoice-create/invoice-create.component').then(m => m.InvoiceCreateComponent) },
+                    { path: ':id/edit', loadComponent: () => import('./features/invoices/invoice-create/invoice-create.component').then(m => m.InvoiceCreateComponent) }
+                ]
+            }
         ]
     },
 
