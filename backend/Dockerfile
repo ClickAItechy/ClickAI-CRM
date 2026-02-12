@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# System dependencies
+# System dependencies (includes WeasyPrint libs for PDF generation)
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
@@ -22,24 +22,22 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python dependencies
-COPY requirements.txt /app/
+COPY backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gunicorn
 
-# Create static folder for Nginx
+# Create static folder
 RUN mkdir -p /app/static
 
-# Copy project files
-COPY . /app/
+# Copy backend project files
+COPY backend/ /app/
+
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Expose port (Render uses 10000 by default)
 EXPOSE 10000
 
-# Entrypoint
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Default command - runs after entrypoint
-# Default command - use $PORT if available, else default to 10000
-CMD ["sh", "-c", "python -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --log-level debug --access-logfile - --error-logfile -"]
+# Start Gunicorn – use $PORT env var provided by Render
+CMD ["sh", "-c", "python -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 1 --log-level info --access-logfile - --error-logfile -"]
