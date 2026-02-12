@@ -21,5 +21,5 @@ else:
 "
 
 # Start server
-echo "Starting server with command: $@"
+echo "READY TO START SERVER"
 exec "$@"

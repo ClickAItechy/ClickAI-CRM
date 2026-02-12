@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libjpeg-dev \
     libopenjp2-7-dev \
+    libglib2.0-0 \
+    libgdk-pixbuf2.0-0 \
+    shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
 
 # Python dependencies
@@ -29,8 +32,8 @@ RUN mkdir -p /app/static
 # Copy project files
 COPY . /app/
 
-# Expose port for backend
-EXPOSE 8000
+# Expose port (Render uses 10000 by default)
+EXPOSE 10000
 
 # Entrypoint
 COPY entrypoint.sh /app/entrypoint.sh
@@ -38,4 +41,5 @@ RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command - runs after entrypoint
-CMD ["python", "-m", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:10000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-"]
+# Default command - use $PORT if available, else default to 10000
+CMD ["sh", "-c", "python -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --log-level debug --access-logfile - --error-logfile -"]
