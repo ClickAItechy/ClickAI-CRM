@@ -4,8 +4,8 @@ services:
     env: docker
     plan: free
     region: singapore
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
