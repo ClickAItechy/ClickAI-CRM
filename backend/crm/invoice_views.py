@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import Invoice
 from .serializers import InvoiceSerializer
 from .utils import generate_pdf
+from .num2words import num2words
 import random
 
 class InvoiceViewSet(viewsets.ModelViewSet):
@@ -29,7 +30,19 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             'client_address': invoice.client_address,
             'items': invoice.items,
             'grand_total': invoice.grand_total,
+            'grand_total_words': num2words(invoice.grand_total),
         }
+        
+        # Add logo if exists
+        import base64
+        import os
+        from django.conf import settings
+        
+        logo_path = os.path.join(settings.BASE_DIR, 'crm/static/crm/img/clickai_logo.jpg')
+        if os.path.exists(logo_path):
+            with open(logo_path, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                context['logo_data'] = encoded_string
         
         try:
             pdf_content = generate_pdf('crm/invoice.html', context, request)

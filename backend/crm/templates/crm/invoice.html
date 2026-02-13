@@ -7,63 +7,115 @@
     <style>
         @page {
             size: A4;
-            margin: 2cm;
+            margin: 0;
         }
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #333;
+            color: #334155;
             line-height: 1.5;
             font-size: 10pt;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 15px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .container {
+            padding: 50px 60px;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
+            margin-bottom: 50px;
         }
 
-        .company-info h1 {
-            color: #2c3e50;
-            margin: 0 0 5px 0;
-            font-size: 24px;
+        .company-info img {
+            max-height: 100px;
+            /* Made logo bigger */
+            margin-bottom: 15px;
         }
 
-        .invoice-details {
-            text-align: right;
+        .company-details {
+            font-size: 11px;
+            color: #64748b;
         }
 
         .invoice-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #e6e6e6;
-            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .invoice-title h1 {
+            color: #764ba2;
+            font-size: 38px;
+            margin: 0 0 5px 0;
+            font-weight: 800;
+            letter-spacing: -1px;
             text-transform: uppercase;
         }
 
-        .meta-table td {
-            padding: 2px 0;
+        .invoice-meta {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .meta-item {
+            margin-bottom: 5px;
         }
 
         .meta-label {
             font-weight: bold;
-            padding-right: 15px;
-            color: #7f8c8d;
-        }
-
-        .bill-to {
-            margin-bottom: 40px;
-        }
-
-        .bill-to h3 {
-            margin: 0 0 10px 0;
+            color: #94a3b8;
+            font-size: 10px;
             text-transform: uppercase;
+            margin-right: 10px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: #334155;
+            font-size: 12px;
+        }
+
+        .bill-to-section {
+            background-color: #f8fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 40px;
+            width: 45%;
+        }
+
+        .bill-to-label {
+            font-weight: bold;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 10px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .client-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .client-address {
+            color: #64748b;
             font-size: 11px;
-            color: #7f8c8d;
-            letter-spacing: 1px;
+            white-space: pre-line;
+            line-height: 1.4;
         }
 
         .items-table {
@@ -73,44 +125,58 @@
         }
 
         .items-table th {
-            background-color: #f8f9fa;
-            color: #2c3e50;
-            font-weight: bold;
+            background: #667eea;
+            color: white;
+            font-weight: 600;
             text-align: left;
             padding: 12px 15px;
-            border-bottom: 2px solid #ddd;
             text-transform: uppercase;
             font-size: 9px;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+        }
+
+        .items-table th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .items-table th:last-child {
+            border-radius: 0 8px 8px 0;
+            text-align: right;
         }
 
         .items-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            vertical-align: top;
         }
 
-        .items-table .col-desc {
-            width: 50%;
+        .items-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .items-table .col-price {
-            width: 15%;
+        .items-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .col-price,
+        .col-total {
             text-align: right;
         }
 
-        .items-table .col-qty {
-            width: 10%;
+        .col-qty {
             text-align: center;
         }
 
-        .items-table .col-total {
-            width: 25%;
-            text-align: right;
+        .item-name {
+            font-weight: 600;
+            color: #1e293b;
         }
 
         .totals-section {
             display: flex;
             justify-content: flex-end;
+            margin-bottom: 30px;
         }
 
         .totals-table {
@@ -119,108 +185,212 @@
         }
 
         .totals-table td {
-            padding: 8px 0;
+            padding: 10px 0;
             text-align: right;
         }
 
         .totals-table .label {
-            color: #7f8c8d;
+            color: #64748b;
             padding-right: 20px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .totals-table .amount {
-            font-weight: bold;
-            color: #2c3e50;
+            color: #1e293b;
+            font-weight: 600;
         }
 
-        .grand-total {
-            font-size: 16px;
-            border-top: 2px solid #2c3e50;
-            padding-top: 10px !important;
-            margin-top: 10px;
+        .grand-total-row td {
+            padding-top: 15px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .grand-total-label {
+            color: #764ba2;
+            font-size: 14px;
+        }
+
+        .grand-total-amount {
+            color: #764ba2;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .amount-in-words {
+            background: #f1f5f9;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .amount-in-words strong {
+            color: #667eea;
+            text-transform: uppercase;
+        }
+
+        .terms-section {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+            margin-bottom: 60px;
+        }
+
+        .terms-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .terms-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .terms-list li {
+            margin-bottom: 5px;
         }
 
         .footer {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            text-align: center;
+            background-color: #f8fafc;
+            padding: 20px 60px;
+            border-top: 1px solid #e2e8f0;
             font-size: 9px;
-            color: #95a5a6;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            text-align: left;
+        }
+
+        .footer-right {
+            text-align: right;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <div class="company-info">
-            <h1>ClickAI Techy</h1>
-            <div>Dubai, UAE</div>
-            <div>info@clickaitech.ae</div>
-            <div>+971 50 123 4567</div>
+    <div class="header-bg"></div>
+
+    <div class="container">
+        <!-- Header: Logo & Title -->
+        <div class="header">
+            <div class="company-info">
+                {% if logo_data %}
+                <img src="data:image/jpeg;base64,{{ logo_data }}" alt="ClickAI Techy">
+                {% else %}
+                <h1 style="color: #667eea; margin:0;">ClickAI Techy</h1>
+                {% endif %}
+                <div class="company-details">
+                    <div>Dubai, UAE</div>
+                    <div>info@clickaitech.ae | +971 54 257 2247</div>
+                </div>
+            </div>
+
+            <div class="invoice-title">
+                <h1>Invoice</h1>
+                <div class="invoice-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Invoice #</span>
+                        <span class="meta-value" style="color: #667eea;">{{ invoice_number }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">{{ date }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="invoice-details">
-            <div class="invoice-title">INVOICE</div>
-            <table class="meta-table" align="right">
+
+        <!-- Bill To -->
+        <div class="bill-to-section">
+            <div class="bill-to-label">Bill To</div>
+            <div class="client-name">{{ client_name }}</div>
+            {% if client_address %}
+            <div class="client-address">{{ client_address }}</div>
+            {% endif %}
+            {% if client_email %}
+            <div class="client-address" style="margin-top:5px;">{{ client_email }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
                 <tr>
-                    <td class="meta-label">Invoice Number:</td>
-                    <td>{{ invoice_number }}</td>
+                    <th style="width: 50%;">Description</th>
+                    <th style="width: 15%; text-align: right;">Unit Price</th>
+                    <th style="width: 10%; text-align: center;">Qty</th>
+                    <th style="width: 25%; text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <div class="item-name">{{ item.name }}</div>
+                    </td>
+                    <td class="col-price">AED {{ item.price|floatformat:2 }}</td>
+                    <td class="col-qty">{{ item.quantity }}</td>
+                    <td class="col-total">AED {{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals-section">
+            <table class="totals-table">
+                <tr>
+                    <td class="label">Subtotal</td>
+                    <td class="amount">AED {{ grand_total|floatformat:2 }}</td>
                 </tr>
                 <tr>
-                    <td class="meta-label">Date:</td>
-                    <td>{{ date }}</td>
+                    <td class="label">Tax (0%)</td>
+                    <td class="amount">AED 0.00</td>
+                </tr>
+                <tr class="grand-total-row">
+                    <td class="label grand-total-label">Grand Total</td>
+                    <td class="amount grand-total-amount">AED {{ grand_total|floatformat:2 }}</td>
                 </tr>
             </table>
         </div>
+
+        <!-- Amount in Words -->
+        <div class="amount-in-words">
+            <strong>Amount in Words:</strong> {{ grand_total_words }}
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="terms-section">
+            <h3>Terms and Conditions</h3>
+            <ul class="terms-list">
+                <li>Payment is due within 14 days of invoice date.</li>
+                <li>Please send all payments to the bank account details provided upon request.</li>
+            </ul>
+        </div>
     </div>
 
-    <div class="bill-to">
-        <h3>Bill To:</h3>
-        <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">{{ client_name }}</div>
-        {% if client_address %}
-        <div style="white-space: pre-line; color: #555;">{{ client_address }}</div>
-        {% endif %}
-        {% if client_email %}
-        <div style="margin-top: 5px; color: #555;">{{ client_email }}</div>
-        {% endif %}
-    </div>
-
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th class="col-desc">Description</th>
-                <th class="col-price">Unit Price</th>
-                <th class="col-qty">Qty</th>
-                <th class="col-total">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td style="text-align: right;">AED {{ item.price|floatformat:2 }}</td>
-                <td style="text-align: center;">{{ item.quantity }}</td>
-                <td style="text-align: right;">AED {{ item.subtotal|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="totals-section">
-        <table class="totals-table">
-            <tr class="grand-total">
-                <td class="label" style="color: #2c3e50;">Grand Total</td>
-                <td class="amount">AED {{ grand_total|floatformat:2 }}</td>
-            </tr>
-        </table>
-    </div>
-
+    <!-- Footer -->
     <div class="footer">
-        <p>Thank you for your business!</p>
-        <p>ClickAI Techy | Dubai, UAE | www.clickaitech.ae</p>
+        <div class="footer-left">
+            Thank you for your business!
+        </div>
+        <div class="footer-right">
+            <strong>ClickAI Techy Solutions</strong><br>
+            www.clickaitech.ae
+        </div>
     </div>
 </body>
 
