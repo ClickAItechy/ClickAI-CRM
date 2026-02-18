@@ -101,6 +101,16 @@ label {
     letter-spacing: 0.04em;
 }
 
+.desktop-hide {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-hide {
+        display: block !important;
+    }
+}
+
 input,
 textarea {
     background: #f8fafc;
@@ -151,15 +161,52 @@ input:read-only {
 
 /* ── Item Rows ── */
 .item-row {
-    display: flex;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: 4fr 2fr 1fr 2fr auto;
+    gap: 1rem;
     margin-bottom: 0.75rem;
-    align-items: flex-start;
-    padding: 1rem;
+    padding: 1.25rem;
     background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%);
     border: 1px solid #e8ecf4;
     border-radius: 12px;
+    align-items: end;
     transition: all 0.2s ease;
+}
+
+@media (max-width: 1320px) {
+    .item-row {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "name name"
+            "price qty"
+            "total action";
+        gap: 1.25rem;
+    }
+
+    .item-name {
+        grid-area: name;
+    }
+
+    .item-price {
+        grid-area: price;
+    }
+
+    .item-qty {
+        grid-area: qty;
+    }
+
+    .item-total {
+        grid-area: total;
+    }
+
+    .item-actions {
+        grid-area: action;
+    }
+
+    .item-actions {
+        padding-top: 0 !important;
+        justify-content: flex-end;
+    }
 }
 
 .item-row:hover {
@@ -167,27 +214,19 @@ input:read-only {
     box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06);
 }
 
-.item-name {
-    flex: 4;
-}
-
-.item-price {
-    flex: 2;
-}
-
-.item-qty {
-    flex: 1;
-}
-
+.item-name,
+.item-price,
+.item-qty,
 .item-total {
-    flex: 2;
+    flex: none;
+    /* Reset flex if any */
+    width: 100%;
 }
 
 .item-actions {
-    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    padding-top: 1.6rem;
+    padding-top: 0;
 }
 
 /* ── Buttons ── */
@@ -318,4 +357,96 @@ input:read-only {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+/* ─── Responsive Design ─── */
+
+@media (max-width: 850px) {
+    .grand-total-card {
+        padding: 1.25rem 1.75rem;
+        gap: 1.5rem;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .grand-total-card .currency {
+        font-size: 1.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .invoice-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .page-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .section-card {
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    /* Stack item rows vertically */
+    .item-row {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .item-row .form-group {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .item-actions {
+        padding-top: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .summary-section {
+        align-items: center;
+        width: 100%;
+    }
+
+    .actions {
+        width: 100%;
+        flex-direction: column-reverse;
+    }
+
+    .actions button,
+    .actions a {
+        width: 100%;
+        text-align: center;
+        padding: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .grand-total-card {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+        padding: 1rem 1.5rem;
+    }
+
+    .grand-total-card .currency {
+        font-size: 1.5rem;
+    }
 }
