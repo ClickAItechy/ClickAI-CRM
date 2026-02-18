@@ -31,8 +31,8 @@ export class InvoiceListComponent implements OnInit {
                 this.isLoading = false;
             },
             error: (err) => {
-                console.error('Error loading invoices', err);
-                this.showToast('error', 'Failed to load invoices');
+                console.error('Error loading quotations', err);
+                this.showToast('error', 'Failed to load quotations');
                 this.isLoading = false;
             }
         });
@@ -54,11 +54,11 @@ export class InvoiceListComponent implements OnInit {
                 this.invoiceService.deleteInvoice(id).subscribe({
                     next: () => {
                         this.invoices = this.invoices.filter(inv => inv.id !== id);
-                        this.showToast('success', 'Invoice deleted successfully');
+                        this.showToast('success', 'Quotation deleted successfully');
                     },
                     error: (err) => {
-                        console.error('Error deleting invoice', err);
-                        this.showToast('error', 'Failed to delete invoice');
+                        console.error('Error deleting quotation', err);
+                        this.showToast('error', 'Failed to delete quotation');
                     }
                 });
             }

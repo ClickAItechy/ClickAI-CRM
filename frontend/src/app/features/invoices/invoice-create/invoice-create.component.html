@@ -2,9 +2,9 @@
     <div class="page-header">
         <div class="title-section">
             <button [routerLink]="['/dashboard/invoices']" class="btn-back">← Back</button>
-            <h1>{{ isEditMode ? '✏️ Edit Invoice' : '📝 Create New Invoice' }}</h1>
+            <h1>{{ isEditMode ? '✏️ Edit Quotation' : '📝 Create New Quotation' }}</h1>
         </div>
-        <p>Fill in the details below to {{ isEditMode ? 'update' : 'create' }} the invoice.</p>
+        <p>Fill in the details below to {{ isEditMode ? 'update' : 'create' }} the quotation.</p>
     </div>
 
     <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()" class="invoice-form">
@@ -88,7 +88,7 @@
             <div class="actions">
                 <button type="button" class="btn-cancel" [routerLink]="['/dashboard/invoices']">Cancel</button>
                 <button type="submit" class="btn-primary" [disabled]="isGenerating || invoiceForm.invalid">
-                    <span *ngIf="!isGenerating">{{ isEditMode ? 'Update Invoice' : '💾 Save Invoice' }}</span>
+                    <span *ngIf="!isGenerating">{{ isEditMode ? 'Update Quotation' : '💾 Save Quotation' }}</span>
                     <span *ngIf="isGenerating">Saving...</span>
                 </button>
             </div>

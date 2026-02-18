@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Invoice</title>
+    <title>Quotation</title>
     <style>
         @page {
             size: A4;
@@ -299,15 +299,19 @@
             </div>
 
             <div class="invoice-title">
-                <h1>Invoice</h1>
+                <h1>Quotation</h1>
                 <div class="invoice-meta">
                     <div class="meta-item">
-                        <span class="meta-label">Invoice #</span>
-                        <span class="meta-value" style="color: #667eea;">{{ invoice_number }}</span>
+                        <span class="meta-label">Quotation #</span>
+                        <span class="meta-value" style="color: #667eea;">{{ quotation_number }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Date</span>
+                        <span class="meta-label">Quotation Date</span>
                         <span class="meta-value">{{ date }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Valid Until</span>
+                        <span class="meta-value" style="color: #ef4444;">{{ valid_until }}</span>
                     </div>
                 </div>
             </div>
@@ -315,7 +319,7 @@
 
         <!-- Bill To -->
         <div class="bill-to-section">
-            <div class="bill-to-label">Bill To</div>
+            <div class="bill-to-label">Quoted To</div>
             <div class="client-name">{{ client_name }}</div>
             {% if client_address %}
             <div class="client-address">{{ client_address }}</div>
@@ -376,8 +380,11 @@
         <div class="terms-section">
             <h3>Terms and Conditions</h3>
             <ul class="terms-list">
-                <li>Payment is due within 14 days of invoice date.</li>
+                <li>This quotation is valid for <strong>10 days</strong> from the quotation date ({{ date }}). It will
+                    expire on {{ valid_until }}.</li>
+                <li>Prices are subject to change after the validity period.</li>
                 <li>Please send all payments to the bank account details provided upon request.</li>
+                <li>Work will commence upon written acceptance of this quotation and receipt of the agreed deposit.</li>
             </ul>
         </div>
     </div>

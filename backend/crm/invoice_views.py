@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.http import HttpResponse
 from django.utils import timezone
+from datetime import timedelta
 from .models import Invoice
 from .serializers import InvoiceSerializer
 from .utils import generate_pdf
@@ -21,10 +22,15 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     def download(self, request, pk=None):
         invoice = self.get_object()
         
+        # Calculate validity date (10 days from issued date)
+        issued_date = invoice.issued_date
+        valid_until_date = issued_date + timedelta(days=10)
+        
         # Prepare context for template
         context = {
-            'invoice_number': invoice.invoice_number,
-            'date': invoice.issued_date.strftime("%B %d, %Y"),
+            'quotation_number': invoice.invoice_number,
+            'date': issued_date.strftime("%B %d, %Y"),
+            'valid_until': valid_until_date.strftime("%B %d, %Y"),
             'client_name': invoice.client_name,
             'client_email': invoice.client_email,
             'client_address': invoice.client_address,
@@ -53,16 +59,16 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             return response
             
         except Exception as e:
-            print(f"Error generating PDF: {str(e)}")
-            return Response({"error": "Failed to generate PDF invoice"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print(f"Error generating PDF: {str(e)}") 
+            return Response({"error": "Failed to generate PDF quotation"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def perform_create(self, serializer):
-        # Auto-generate invoice number if not provided
+        # Auto-generate quotation number if not provided
         if not serializer.validated_data.get('invoice_number'):
             today = timezone.now()
             # Simple unique ID generation
             random_suffix = random.randint(1000, 9999)
-            invoice_number = f"INV-{today.year}-{random_suffix}"
-            serializer.save(created_by=self.request.user, invoice_number=invoice_number)
+            quotation_number = f"QUO-{today.year}-{random_suffix}"
+            serializer.save(created_by=self.request.user, invoice_number=quotation_number)
         else:
             serializer.save(created_by=self.request.user)

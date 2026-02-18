@@ -1,0 +1,42 @@
+# Test environment compose override
+# Builds images fresh from Dockerfile (no bind mounts from external SSD)
+# Uses a completely separate test database - production DB is never touched
+
+services:
+  db:
+    env_file:
+      - .env.test
+    ports:
+      - "5434:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env.test
+    ports:
+      - "8000:8000"
+    # No bind mount - code is baked into the image via Dockerfile COPY
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    # No bind mount - code is baked into the image
+    depends_on:
+      - backend
+
+  gateway:
+    ports:
+      - "8088:80"
+    # Override base compose port 80 binding
+    expose:
+      - "80"

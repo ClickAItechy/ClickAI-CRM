@@ -22,9 +22,8 @@ services:
     restart: unless-stopped
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./backend:/app
       - media_data:/app/media
-      - ./backend/static:/app/static
+      - static_data:/app/static
     env_file:
       - .env.prod
     networks:
@@ -36,9 +35,7 @@ services:
     container_name: clickai_frontend
     build: ./frontend
     restart: unless-stopped
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    # No volumes needed - code is baked into the image
     networks:
       - clickai_net
     depends_on:
@@ -49,11 +46,11 @@ services:
     container_name: clickai_gateway
     restart: unless-stopped
     volumes:
-      - ./backend/static:/app/static
+      - static_data:/app/static
       - media_data:/app/media
-      - ./frontend/dist:/app/frontend/dist
+      - frontend_dist:/app/frontend/dist
     ports:
-      - "80:80"
+      - "8088:80"
     networks:
       - clickai_net
     depends_on:
@@ -63,6 +60,8 @@ services:
 volumes:
   postgres_data:
   media_data:
+  static_data:
+  frontend_dist:
 
 
 networks:

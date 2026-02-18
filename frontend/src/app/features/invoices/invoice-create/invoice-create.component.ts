@@ -70,8 +70,8 @@ export class InvoiceCreateComponent implements OnInit {
                 });
             },
             error: (err) => {
-                console.error('Error loading invoice', err);
-                this.showToast('error', 'Could not load invoice details.');
+                console.error('Error loading quotation', err);
+                this.showToast('error', 'Could not load quotation details.');
                 this.router.navigate(['/dashboard/invoices']);
             }
         });
@@ -159,7 +159,7 @@ export class InvoiceCreateComponent implements OnInit {
                 this.isGenerating = false;
 
                 Swal.fire({
-                    title: 'Invoice Saved!',
+                    title: 'Quotation Saved!',
                     text: 'What would you like to do next?',
                     icon: 'success',
                     showCancelButton: true,
@@ -188,8 +188,8 @@ export class InvoiceCreateComponent implements OnInit {
                 });
             },
             error: (err) => {
-                console.error('Error saving invoice', err);
-                this.showToast('error', 'Failed to save invoice.');
+                console.error('Error saving quotation', err);
+                this.showToast('error', 'Failed to save quotation.');
                 this.isGenerating = false;
             }
         });
