@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -18,15 +18,24 @@ export class InvoiceCreateComponent implements OnInit {
     isEditMode = false;
     invoiceId: number | null = null;
 
+    // Custom dropdown state
+    activeDropdownIndex: number | null = null;
+    activeDropdownType: 'service' | 'qty' | null = null;
+
+    qtyOptions = ['1', 'Per Month', 'Per Year'];
+
     serviceOptions: string[] = [
-        'Static Website',
-        'Portfolio Websites',
-        'Professional E-mails',
+        'AI-ChatBots',
+        'CRMs',
         'Domain',
         'E-commerce',
+        'Portfolio Websites',
+        'Professional E-mails',
         'Professional E-commerce',
-        'CRMs',
-        'Social Media Package'
+        'SEO',
+        'Service Charge',
+        'Social Media Package',
+        'Static Website'
     ];
 
     constructor(
@@ -70,7 +79,7 @@ export class InvoiceCreateComponent implements OnInit {
                     const itemGroup = this.fb.group({
                         name: [item.name, Validators.required],
                         price: [item.price, [Validators.required, Validators.min(0)]],
-                        quantity: [item.quantity, [Validators.required, Validators.min(1)]],
+                        quantity: [item.quantity, Validators.required],
                         subtotal: [{ value: item.subtotal, disabled: true }]
                     });
                     // Subscribe to changes for this item
@@ -96,7 +105,7 @@ export class InvoiceCreateComponent implements OnInit {
         return this.fb.group({
             name: ['', Validators.required],
             price: [0, [Validators.required, Validators.min(0)]],
-            quantity: [1, [Validators.required, Validators.min(1)]],
+            quantity: ['1', Validators.required],
             subtotal: [{ value: 0, disabled: true }]
         });
     }
@@ -115,8 +124,17 @@ export class InvoiceCreateComponent implements OnInit {
 
     updateSubtotal(itemGroup: FormGroup) {
         const price = itemGroup.get('price')?.value || 0;
-        const quantity = itemGroup.get('quantity')?.value || 0;
-        const subtotal = price * quantity;
+        const qtyValue = itemGroup.get('quantity')?.value;
+
+        // Multiplier is 1 for periodic billing, otherwise numeric quantity
+        let multiplier = 1;
+        if (qtyValue === 'Per Month' || qtyValue === 'Per Year') {
+            multiplier = 1;
+        } else {
+            multiplier = parseFloat(qtyValue) || 0;
+        }
+
+        const subtotal = price * multiplier;
         const subtotalControl = itemGroup.get('subtotal');
 
         if (subtotalControl?.value !== subtotal) {
@@ -126,6 +144,38 @@ export class InvoiceCreateComponent implements OnInit {
 
     getAsFormGroup(control: any): FormGroup {
         return control as FormGroup;
+    }
+
+    // Custom Dropdown Logic
+    toggleDropdown(index: number, type: 'service' | 'qty', event: Event) {
+        event.stopPropagation();
+        if (this.activeDropdownIndex === index && this.activeDropdownType === type) {
+            this.closeAllDropdowns();
+        } else {
+            this.activeDropdownIndex = index;
+            this.activeDropdownType = type;
+        }
+    }
+
+    selectOption(index: number, type: 'service' | 'qty', value: string) {
+        const itemGroup = this.items.at(index) as FormGroup;
+        if (type === 'service') {
+            itemGroup.get('name')?.setValue(value);
+        } else {
+            itemGroup.get('quantity')?.setValue(value);
+            this.updateSubtotal(itemGroup);
+        }
+        this.closeAllDropdowns();
+    }
+
+    closeAllDropdowns() {
+        this.activeDropdownIndex = null;
+        this.activeDropdownType = null;
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+        this.closeAllDropdowns();
     }
 
     get subtotal(): number {
@@ -154,12 +204,21 @@ export class InvoiceCreateComponent implements OnInit {
         const formValue = this.invoiceForm.getRawValue();
 
         // Map items to include subtotal manually since it's disabled
-        const items: InvoiceItem[] = formValue.items.map((item: any) => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.price * item.quantity
-        }));
+        const items: any[] = formValue.items.map((item: any) => {
+            const qtyValue = item.quantity;
+            let multiplier = 1;
+            if (qtyValue === 'Per Month' || qtyValue === 'Per Year') {
+                multiplier = 1;
+            } else {
+                multiplier = parseFloat(qtyValue) || 0;
+            }
+            return {
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.price * multiplier
+            };
+        });
 
         const invoiceData: Invoice = {
             client_name: formValue.client_name,

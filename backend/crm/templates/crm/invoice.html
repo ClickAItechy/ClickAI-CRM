@@ -410,8 +410,8 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 50%;">Description</th>
-                <th style="width: 15%; text-align: right;">Unit Price</th>
+                <th style="width: 55%;">Description</th>
+                <th style="width: 10%; text-align: right;">Unit Price</th>
                 <th style="width: 10%; text-align: center;">Qty</th>
                 <th style="width: 25%; text-align: right;">Amount</th>
             </tr>
@@ -423,7 +423,9 @@
                     <div class="item-name">{{ item.name }}</div>
                 </td>
                 <td class="col-price">AED {{ item.price|floatformat:2 }}</td>
-                <td class="col-qty">{{ item.quantity }}</td>
+                <td class="col-qty">
+                    {{ item.quantity }}
+                </td>
                 <td class="col-total">AED {{ item.subtotal|floatformat:2 }}</td>
             </tr>
             {% endfor %}

@@ -10,7 +10,7 @@ from django.db.models.functions import TruncDay, TruncMonth, TruncYear, Coalesce
 from django.db.models import Count, Sum, F, ExpressionWrapper, FloatField, Q
 from django.db import models
 from django.db.models import Count, Sum # Added aggregation imports
-from .models import Lead, LeadDocument, AuditLog, Team, User, Account, Contact, Deal, Task, Note, Notification, FollowUpReminder, TechPipeline, RevenueRecord
+from .models import Lead, LeadDocument, LeadStage, AuditLog, Team, User, Account, Contact, Deal, Task, Note, Notification, FollowUpReminder, TechPipeline, RevenueRecord
 from .services import TransitionService
 from rbac.models import Role  # Move here to fix NameError in UserSerializer
 

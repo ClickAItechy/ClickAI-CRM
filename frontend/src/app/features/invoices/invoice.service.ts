@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 export interface InvoiceItem {
     name: string;
     price: number;
-    quantity: number;
+    quantity: string | number;
     subtotal: number;
 }
 

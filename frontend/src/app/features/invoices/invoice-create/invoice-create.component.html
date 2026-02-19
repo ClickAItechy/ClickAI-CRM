@@ -49,11 +49,21 @@
                 <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" class="item-row">
                     <div class="form-group item-name">
                         <label [class.desktop-hide]="i > 0">Service Name</label>
-                        <input type="text" formControlName="name" placeholder="Type or select a service"
-                            [attr.list]="'serviceOptions-' + i" autocomplete="off">
-                        <datalist [id]="'serviceOptions-' + i">
-                            <option *ngFor="let option of serviceOptions" [value]="option"></option>
-                        </datalist>
+                        <div class="custom-dropdown">
+                            <input type="text" formControlName="name" placeholder="Type or select a service"
+                                autocomplete="off" (click)="toggleDropdown(i, 'service', $event)">
+                            <button type="button" class="dropdown-toggle"
+                                (click)="toggleDropdown(i, 'service', $event)">
+                                ▾
+                            </button>
+                            <div class="dropdown-options"
+                                *ngIf="activeDropdownIndex === i && activeDropdownType === 'service'">
+                                <div class="option-item" *ngFor="let option of serviceOptions"
+                                    (click)="selectOption(i, 'service', option)">
+                                    {{ option }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group item-price">
@@ -63,7 +73,20 @@
 
                     <div class="form-group item-qty">
                         <label [class.desktop-hide]="i > 0">Qty</label>
-                        <input type="number" formControlName="quantity" min="1">
+                        <div class="custom-dropdown">
+                            <input type="text" formControlName="quantity" placeholder="Qty" autocomplete="off"
+                                (click)="toggleDropdown(i, 'qty', $event)">
+                            <button type="button" class="dropdown-toggle" (click)="toggleDropdown(i, 'qty', $event)">
+                                ▾
+                            </button>
+                            <div class="dropdown-options"
+                                *ngIf="activeDropdownIndex === i && activeDropdownType === 'qty'">
+                                <div class="option-item" *ngFor="let option of qtyOptions"
+                                    (click)="selectOption(i, 'qty', option)">
+                                    {{ option }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group item-total">
