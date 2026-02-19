@@ -26,6 +26,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         issued_date = invoice.issued_date
         valid_until_date = issued_date + timedelta(days=10)
         
+        # Calculate VAT
+        subtotal = float(invoice.grand_total)
+        vat_amount = round(subtotal * 0.05, 2)
+        grand_total_with_vat = round(subtotal + vat_amount, 2)
+        
         # Prepare context for template
         context = {
             'quotation_number': invoice.invoice_number,
@@ -35,8 +40,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             'client_email': invoice.client_email,
             'client_address': invoice.client_address,
             'items': invoice.items,
-            'grand_total': invoice.grand_total,
-            'grand_total_words': num2words(invoice.grand_total),
+            'subtotal': subtotal,
+            'vat_amount': vat_amount,
+            'grand_total_with_vat': grand_total_with_vat,
+            'grand_total_words': num2words(grand_total_with_vat),
         }
         
         # Add logo if exists

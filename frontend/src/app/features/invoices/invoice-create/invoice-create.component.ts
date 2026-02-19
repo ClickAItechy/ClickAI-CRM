@@ -18,6 +18,17 @@ export class InvoiceCreateComponent implements OnInit {
     isEditMode = false;
     invoiceId: number | null = null;
 
+    serviceOptions: string[] = [
+        'Static Website',
+        'Portfolio Websites',
+        'Professional E-mails',
+        'Domain',
+        'E-commerce',
+        'Professional E-commerce',
+        'CRMs',
+        'Social Media Package'
+    ];
+
     constructor(
         private fb: FormBuilder,
         private invoiceService: InvoiceService,
@@ -117,11 +128,19 @@ export class InvoiceCreateComponent implements OnInit {
         return control as FormGroup;
     }
 
-    get grandTotal(): number {
+    get subtotal(): number {
         return this.items.controls.reduce((acc, curr) => {
             const group = curr as FormGroup;
             return acc + (group.get('subtotal')?.value || 0);
         }, 0);
+    }
+
+    get vatAmount(): number {
+        return this.subtotal * 0.05;
+    }
+
+    get grandTotal(): number {
+        return this.subtotal + this.vatAmount;
     }
 
     saveInvoice() {

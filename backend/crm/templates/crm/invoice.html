@@ -5,9 +5,26 @@
     <meta charset="UTF-8">
     <title>Quotation</title>
     <style>
+        /* ── Running header/footer elements ── */
+        .page-header-content {
+            position: running(pageHeader);
+        }
+
+        .page-footer-content {
+            position: running(pageFooter);
+        }
+
         @page {
             size: A4;
-            margin: 0;
+            margin: 230px 50px 70px 50px;
+
+            @top-center {
+                content: element(pageHeader);
+            }
+
+            @bottom-center {
+                content: element(pageFooter);
+            }
         }
 
         body {
@@ -19,109 +36,163 @@
             padding: 0;
         }
 
-        .header-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 15px;
+        /* ── Header Styles ── */
+        .page-header-content {
             width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
+            padding: 0;
         }
 
-        .container {
-            padding: 50px 60px;
+        .header-accent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 10px;
+            width: 100%;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 50px;
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            padding: 0;
         }
 
-        .company-info img {
-            max-height: 100px;
-            /* Made logo bigger */
-            margin-bottom: 15px;
+        .header-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .logo-cell {
+            width: 30%;
+            padding-top: 10px;
+        }
+
+        .logo-cell img {
+            max-height: 120px;
+            display: block;
         }
 
         .company-details {
-            font-size: 11px;
+            font-size: 9px;
             color: #64748b;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
-        .invoice-title {
-            text-align: right;
+        .title-cell {
+            width: 40%;
+            text-align: center;
+            padding-top: 15px;
         }
 
-        .invoice-title h1 {
+        .title-cell h1 {
             color: #764ba2;
-            font-size: 38px;
-            margin: 0 0 5px 0;
+            font-size: 32px;
+            margin: 0;
             font-weight: 800;
             letter-spacing: -1px;
             text-transform: uppercase;
         }
 
-        .invoice-meta {
+        .meta-cell {
+            width: 30%;
             text-align: right;
-            margin-top: 10px;
+            padding-top: 15px;
         }
 
         .meta-item {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .meta-label {
             font-weight: bold;
             color: #94a3b8;
-            font-size: 10px;
+            font-size: 8px;
             text-transform: uppercase;
-            margin-right: 10px;
+            margin-right: 6px;
         }
 
         .meta-value {
             font-weight: 600;
             color: #334155;
-            font-size: 12px;
+            font-size: 11px;
         }
 
+        .header-separator {
+            border: none;
+            border-top: 1.5px solid #cbd5e1;
+            margin: 8px 0 0 0;
+        }
+
+        /* ── Footer Styles ── */
+        .page-footer-content {
+            width: 100%;
+            padding: 0;
+        }
+
+        .footer-separator {
+            border: none;
+            border-top: 1.5px solid #cbd5e1;
+            margin: 0 0 8px 0;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-table td {
+            padding: 0;
+            font-size: 9px;
+            color: #94a3b8;
+            vertical-align: middle;
+        }
+
+        .footer-left {
+            text-align: left;
+            width: 50%;
+        }
+
+        .footer-right {
+            text-align: right;
+            width: 50%;
+        }
+
+        /* ── Bill-To Section ── */
         .bill-to-section {
             background-color: #f8fafc;
             border-left: 4px solid #667eea;
-            padding: 20px;
+            padding: 15px 20px;
             border-radius: 0 8px 8px 0;
-            margin-bottom: 40px;
-            width: 45%;
+            margin-bottom: 25px;
+            width: 50%;
         }
 
         .bill-to-label {
             font-weight: bold;
             color: #667eea;
             text-transform: uppercase;
-            font-size: 10px;
-            margin-bottom: 10px;
+            font-size: 9px;
+            margin-bottom: 8px;
             letter-spacing: 0.5px;
         }
 
         .client-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #1e293b;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .client-address {
             color: #64748b;
-            font-size: 11px;
+            font-size: 10px;
             white-space: pre-line;
             line-height: 1.4;
         }
 
+        /* ── Items Table ── */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .items-table th {
@@ -129,26 +200,27 @@
             color: white;
             font-weight: 600;
             text-align: left;
-            padding: 12px 15px;
+            padding: 10px 12px;
             text-transform: uppercase;
-            font-size: 9px;
+            font-size: 8px;
             letter-spacing: 1px;
         }
 
         .items-table th:first-child {
-            border-radius: 8px 0 0 8px;
+            border-radius: 6px 0 0 6px;
         }
 
         .items-table th:last-child {
-            border-radius: 0 8px 8px 0;
+            border-radius: 0 6px 6px 0;
             text-align: right;
         }
 
         .items-table td {
-            padding: 15px;
+            padding: 12px;
             border-bottom: 1px solid #e2e8f0;
             color: #334155;
             vertical-align: top;
+            font-size: 10px;
         }
 
         .items-table tr:last-child td {
@@ -173,10 +245,11 @@
             color: #1e293b;
         }
 
+        /* ── Totals Section ── */
         .totals-section {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .totals-table {
@@ -185,44 +258,50 @@
         }
 
         .totals-table td {
-            padding: 10px 0;
+            padding: 8px 0;
             text-align: right;
         }
 
         .totals-table .label {
             color: #64748b;
             padding-right: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
 
         .totals-table .amount {
             color: #1e293b;
             font-weight: 600;
+            font-size: 11px;
+        }
+
+        .vat-row td {
+            color: #667eea !important;
         }
 
         .grand-total-row td {
-            padding-top: 15px;
+            padding-top: 12px;
             border-top: 2px solid #e2e8f0;
         }
 
         .grand-total-label {
             color: #764ba2;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .grand-total-amount {
             color: #764ba2;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
         }
 
+        /* ── Amount in Words ── */
         .amount-in-words {
             background: #f1f5f9;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-            font-size: 11px;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            font-size: 10px;
             color: #475569;
         }
 
@@ -231,174 +310,158 @@
             text-transform: uppercase;
         }
 
+        /* ── Terms ── */
         .terms-section {
             border-top: 1px solid #e2e8f0;
-            padding-top: 20px;
-            margin-bottom: 60px;
+            padding-top: 15px;
+            margin-bottom: 15px;
         }
 
         .terms-section h3 {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .terms-list {
             margin: 0;
-            padding-left: 20px;
-            font-size: 10px;
+            padding-left: 18px;
+            font-size: 9px;
             color: #64748b;
         }
 
         .terms-list li {
-            margin-bottom: 5px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #f8fafc;
-            padding: 20px 60px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 9px;
-            color: #94a3b8;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-left {
-            text-align: left;
-        }
-
-        .footer-right {
-            text-align: right;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 
 <body>
-    <div class="header-bg"></div>
-
-    <div class="container">
-        <!-- Header: Logo & Title -->
-        <div class="header">
-            <div class="company-info">
-                {% if logo_data %}
-                <img src="data:image/jpeg;base64,{{ logo_data }}" alt="ClickAI Techy">
-                {% else %}
-                <h1 style="color: #667eea; margin:0;">ClickAI Techy</h1>
-                {% endif %}
-                <div class="company-details">
-                    <div>Dubai, UAE</div>
-                    <div>info@clickaitech.ae | +971 54 257 2247</div>
-                </div>
-            </div>
-
-            <div class="invoice-title">
-                <h1>Quotation</h1>
-                <div class="invoice-meta">
+    <!-- Running Header (repeats on every page) -->
+    <div class="page-header-content">
+        <div class="header-accent"></div>
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell">
+                    {% if logo_data %}
+                    <img src="data:image/jpeg;base64,{{ logo_data }}" alt="ClickAI Techy">
+                    {% else %}
+                    <strong style="color: #667eea; font-size: 18px;">ClickAI Techy</strong>
+                    {% endif %}
+                    <div class="company-details">
+                        Dubai, UAE<br>
+                        info@clickaitech.ae<br>
+                        +971 54 257 2247
+                    </div>
+                </td>
+                <td class="title-cell">
+                    <h1>Quotation</h1>
+                </td>
+                <td class="meta-cell">
                     <div class="meta-item">
-                        <span class="meta-label">Quotation #</span>
+                        <span class="meta-label">Quotation #</span><br>
                         <span class="meta-value" style="color: #667eea;">{{ quotation_number }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Quotation Date</span>
+                        <span class="meta-label">Date</span><br>
                         <span class="meta-value">{{ date }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Valid Until</span>
+                        <span class="meta-label">Valid Until</span><br>
                         <span class="meta-value" style="color: #ef4444;">{{ valid_until }}</span>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bill To -->
-        <div class="bill-to-section">
-            <div class="bill-to-label">Quoted To</div>
-            <div class="client-name">{{ client_name }}</div>
-            {% if client_address %}
-            <div class="client-address">{{ client_address }}</div>
-            {% endif %}
-            {% if client_email %}
-            <div class="client-address" style="margin-top:5px;">{{ client_email }}</div>
-            {% endif %}
-        </div>
-
-        <!-- Items Table -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th style="width: 50%;">Description</th>
-                    <th style="width: 15%; text-align: right;">Unit Price</th>
-                    <th style="width: 10%; text-align: center;">Qty</th>
-                    <th style="width: 25%; text-align: right;">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>
-                        <div class="item-name">{{ item.name }}</div>
-                    </td>
-                    <td class="col-price">AED {{ item.price|floatformat:2 }}</td>
-                    <td class="col-qty">{{ item.quantity }}</td>
-                    <td class="col-total">AED {{ item.subtotal|floatformat:2 }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                </td>
+            </tr>
         </table>
-
-        <!-- Totals -->
-        <div class="totals-section">
-            <table class="totals-table">
-                <tr>
-                    <td class="label">Subtotal</td>
-                    <td class="amount">AED {{ grand_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Tax (0%)</td>
-                    <td class="amount">AED 0.00</td>
-                </tr>
-                <tr class="grand-total-row">
-                    <td class="label grand-total-label">Grand Total</td>
-                    <td class="amount grand-total-amount">AED {{ grand_total|floatformat:2 }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Amount in Words -->
-        <div class="amount-in-words">
-            <strong>Amount in Words:</strong> {{ grand_total_words }}
-        </div>
-
-        <!-- Terms and Conditions -->
-        <div class="terms-section">
-            <h3>Terms and Conditions</h3>
-            <ul class="terms-list">
-                <li>This quotation is valid for <strong>10 days</strong> from the quotation date ({{ date }}). It will
-                    expire on {{ valid_until }}.</li>
-                <li>Prices are subject to change after the validity period.</li>
-                <li>Please send all payments to the bank account details provided upon request.</li>
-                <li>Work will commence upon written acceptance of this quotation and receipt of the agreed deposit.</li>
-                <li>The prices quoted are excluding VAT charges, VAT will be charged as per the UAE law.</li>
-            </ul>
-        </div>
+        <hr class="header-separator">
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-left">
-            Thank you for your business!
-        </div>
-        <div class="footer-right">
-            <strong>ClickAI Techy Solutions</strong><br>
-            www.clickaitech.ae
-        </div>
+    <!-- Running Footer (repeats on every page) -->
+    <div class="page-footer-content">
+        <hr class="footer-separator">
+        <table class="footer-table">
+            <tr>
+                <td class="footer-left">
+                    Thank you for your business!
+                </td>
+                <td class="footer-right">
+                    <strong>ClickAI Techy Solutions</strong> &nbsp;|&nbsp; www.clickaitech.ae
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Main Content (flows between header and footer) -->
+
+    <!-- Bill To -->
+    <div class="bill-to-section">
+        <div class="bill-to-label">Quoted To</div>
+        <div class="client-name">{{ client_name }}</div>
+        {% if client_address %}
+        <div class="client-address">{{ client_address }}</div>
+        {% endif %}
+        {% if client_email %}
+        <div class="client-address" style="margin-top:4px;">{{ client_email }}</div>
+        {% endif %}
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 50%;">Description</th>
+                <th style="width: 15%; text-align: right;">Unit Price</th>
+                <th style="width: 10%; text-align: center;">Qty</th>
+                <th style="width: 25%; text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <div class="item-name">{{ item.name }}</div>
+                </td>
+                <td class="col-price">AED {{ item.price|floatformat:2 }}</td>
+                <td class="col-qty">{{ item.quantity }}</td>
+                <td class="col-total">AED {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td class="label">Subtotal</td>
+                <td class="amount">AED {{ subtotal|floatformat:2 }}</td>
+            </tr>
+            <tr class="vat-row">
+                <td class="label" style="color: #667eea;">VAT (5%)</td>
+                <td class="amount" style="color: #667eea;">AED {{ vat_amount|floatformat:2 }}</td>
+            </tr>
+            <tr class="grand-total-row">
+                <td class="label grand-total-label">Grand Total</td>
+                <td class="amount grand-total-amount">AED {{ grand_total_with_vat|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Amount in Words -->
+    <div class="amount-in-words">
+        <strong>Amount in Words:</strong> {{ grand_total_words }}
+    </div>
+
+    <!-- Terms and Conditions -->
+    <div class="terms-section">
+        <h3>Terms and Conditions</h3>
+        <ul class="terms-list">
+            <li>This quotation is valid for <strong>10 days</strong> from the quotation date ({{ date }}). It will
+                expire on {{ valid_until }}.</li>
+            <li>Please send all payments to the bank account details provided upon request.</li>
+            <li>Work will commence upon written acceptance of this quotation and receipt of the agreed deposit.</li>
+        </ul>
     </div>
 </body>
 

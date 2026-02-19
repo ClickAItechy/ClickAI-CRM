@@ -49,7 +49,11 @@
                 <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" class="item-row">
                     <div class="form-group item-name">
                         <label [class.desktop-hide]="i > 0">Service Name</label>
-                        <input type="text" formControlName="name" placeholder="Service description">
+                        <input type="text" formControlName="name" placeholder="Type or select a service"
+                            [attr.list]="'serviceOptions-' + i" autocomplete="off">
+                        <datalist [id]="'serviceOptions-' + i">
+                            <option *ngFor="let option of serviceOptions" [value]="option"></option>
+                        </datalist>
                     </div>
 
                     <div class="form-group item-price">
@@ -80,8 +84,18 @@
 
         <!-- Summary Section -->
         <div class="summary-section">
+            <div class="totals-breakdown">
+                <div class="totals-row">
+                    <span class="totals-label">Subtotal</span>
+                    <span class="totals-value">AED {{ subtotal | number:'1.2-2' }}</span>
+                </div>
+                <div class="totals-row vat-row">
+                    <span class="totals-label">VAT (5%)</span>
+                    <span class="totals-value">AED {{ vatAmount | number:'1.2-2' }}</span>
+                </div>
+            </div>
             <div class="grand-total-card">
-                <span>Grand Total:</span>
+                <span>Grand Total (incl. VAT):</span>
                 <span class="currency">AED {{ grandTotal | number:'1.2-2' }}</span>
             </div>
 
