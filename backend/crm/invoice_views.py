@@ -26,10 +26,13 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         issued_date = invoice.issued_date
         valid_until_date = issued_date + timedelta(days=10)
         
-        # Calculate VAT
-        subtotal = float(invoice.grand_total)
-        vat_amount = round(subtotal * 0.05, 2)
-        grand_total_with_vat = round(subtotal + vat_amount, 2)
+        # Calculate VAT (assuming grand_total already includes the 5% VAT)
+        # grand_total = subtotal * 1.05
+        # subtotal = grand_total / 1.05
+        # vat_amount = grand_total - subtotal
+        grand_total_with_vat = float(invoice.grand_total)
+        subtotal = round(grand_total_with_vat / 1.05, 2)
+        vat_amount = round(grand_total_with_vat - subtotal, 2)
         
         # Prepare context for template
         context = {

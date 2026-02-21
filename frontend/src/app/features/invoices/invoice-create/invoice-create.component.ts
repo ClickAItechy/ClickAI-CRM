@@ -78,9 +78,9 @@ export class InvoiceCreateComponent implements OnInit {
                 invoice.items.forEach(item => {
                     const itemGroup = this.fb.group({
                         name: [item.name, Validators.required],
-                        price: [item.price, [Validators.required, Validators.min(0)]],
+                        price: [Number(item.price) || 0, [Validators.required, Validators.min(0)]],
                         quantity: [item.quantity, Validators.required],
-                        subtotal: [{ value: item.subtotal, disabled: true }]
+                        subtotal: [{ value: Number(item.subtotal) || 0, disabled: true }]
                     });
                     // Subscribe to changes for this item
                     itemGroup.valueChanges.subscribe(() => {
@@ -123,7 +123,7 @@ export class InvoiceCreateComponent implements OnInit {
     }
 
     updateSubtotal(itemGroup: FormGroup) {
-        const price = itemGroup.get('price')?.value || 0;
+        const price = Number(itemGroup.get('price')?.value) || 0;
         const qtyValue = itemGroup.get('quantity')?.value;
 
         // Multiplier is 1 for periodic billing, otherwise numeric quantity
@@ -181,7 +181,8 @@ export class InvoiceCreateComponent implements OnInit {
     get subtotal(): number {
         return this.items.controls.reduce((acc, curr) => {
             const group = curr as FormGroup;
-            return acc + (group.get('subtotal')?.value || 0);
+            const itemSubtotal = Number(group.get('subtotal')?.value) || 0;
+            return acc + itemSubtotal;
         }, 0);
     }
 
@@ -214,9 +215,9 @@ export class InvoiceCreateComponent implements OnInit {
             }
             return {
                 name: item.name,
-                price: item.price,
+                price: Number(item.price) || 0,
                 quantity: item.quantity,
-                subtotal: item.price * multiplier
+                subtotal: (Number(item.price) || 0) * multiplier
             };
         });
 
