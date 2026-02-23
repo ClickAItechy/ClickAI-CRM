@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear, Coalesce
-from django.db.models import Count, Sum, F, ExpressionWrapper, FloatField, Q
+from django.db.models import Count, Sum, F, ExpressionWrapper, FloatField, Q, Prefetch
 from django.db import models
 from django.db.models import Count, Sum # Added aggregation imports
 from .models import Lead, LeadDocument, LeadStage, AuditLog, Team, User, Account, Contact, Deal, Task, Note, Notification, FollowUpReminder, TechPipeline, RevenueRecord
@@ -154,6 +154,17 @@ class LeadViewSet(viewsets.ModelViewSet):
                 models.Q(email__icontains=search_query) |
                 models.Q(phone__icontains=search_query)
             )
+
+        # Optimise: fetch all related data in a few queries instead of N+1
+        # This is a read-only optimisation — no data is written or changed.
+        queryset = queryset.select_related(
+            'assigned_to',
+            'lead_generator',
+            'tech_pipeline',
+        ).prefetch_related(
+            'documents',
+            Prefetch('audit_logs', queryset=AuditLog.objects.select_related('actor')),
+        )
 
         return queryset
 
