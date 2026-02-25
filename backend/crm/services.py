@@ -108,7 +108,6 @@ class StagnationService:
         threshold = timezone.now() - timedelta(days=2)
         
         # 2. Find Stagnant Leads
-        # Criteria: Assigned to user, updated > 1 day ago, NOT in terminal state
         stagnant_leads = Lead.objects.filter(
             assigned_to=user,
             updated_at__lt=threshold
@@ -116,26 +115,31 @@ class StagnationService:
             stage__in=[LeadStage.WON, LeadStage.LOST, LeadStage.DELIVERED]
         )
         
+        # 3. Optimization: Get all pending reminder lead IDs for this user in one query
+        existing_reminder_lead_ids = set(FollowUpReminder.objects.filter(
+            assigned_to=user,
+            status=FollowUpReminder.Status.PENDING,
+            lead__in=stagnant_leads
+        ).values_list('lead_id', flat=True))
+        
         count = 0
+        reminders_to_create = []
+        
         for lead in stagnant_leads:
-            # 3. Deduplication: Check if we already have a PENDING reminder for this lead
-            # We want to avoid spamming reminders. If one exists, we assume it's being handled.
-            has_pending_reminder = FollowUpReminder.objects.filter(
-                assigned_to=user,
-                lead=lead,
-                status=FollowUpReminder.Status.PENDING
-            ).exists()
-            
-            if not has_pending_reminder:
-                # 4. Create FollowUpReminder
-                FollowUpReminder.objects.create(
+            # Check if we already have a PENDING reminder for this lead in our fetched set
+            if lead.id not in existing_reminder_lead_ids:
+                # 4. Prepare FollowUpReminder for bulk creation (or just create if few)
+                reminders_to_create.append(FollowUpReminder(
                     lead=lead,
                     assigned_to=user,
                     reminder_type=FollowUpReminder.Type.AUTO,
                     status=FollowUpReminder.Status.PENDING,
                     due_date=timezone.now(),
                     message=f"Stagnant Lead: {lead.first_name} {lead.last_name} has been in {lead.get_stage_display()} since {lead.updated_at.strftime('%Y-%m-%d')}."
-                )
+                ))
                 count += 1
+        
+        if reminders_to_create:
+            FollowUpReminder.objects.bulk_create(reminders_to_create)
                 
         return count

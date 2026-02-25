@@ -11,28 +11,40 @@
     <div class="stats-grid">
         <div class="stat-card card-indigo" routerLink="/dashboard/leads">
             <div class="stat-value">{{ stats.total_leads || 0 }}</div>
-            <div class="stat-label">{{ isAdmin ? 'Total Leads' : 'My Leads' }}</div>
-            <div class="stat-trend" *ngIf="stats.new_leads_today > 0">
-                <span class="trend-up">↑ {{ stats.new_leads_today }} today</span>
-            </div>
+            <div class="stat-label">Total Leads</div>
         </div>
 
-        <div class="stat-card card-cyan" routerLink="/dashboard/leads" [queryParams]="{status: 'open'}">
-            <div class="stat-value">{{ stats.open_leads || 0 }}</div>
-            <div class="stat-label">Active Pipeline</div>
+        <div class="stat-card card-amber" routerLink="/dashboard/leads" [queryParams]="{new_today: 'true'}">
+            <div class="stat-value">{{ stats.new_leads_today || 0 }}</div>
+            <div class="stat-label">New Leads Today</div>
+            <div class="stat-trend" *ngIf="stats.new_leads_today > 0">
+                <span class="trend-up">Fresh context</span>
+            </div>
         </div>
 
         <div class="stat-card card-emerald" routerLink="/dashboard/deals">
             <div class="stat-value">{{ stats.total_deals || 0 }}</div>
             <div class="stat-label">Active Deals</div>
-            <div class="stat-trend">
-                <span>{{ stats.deals_closing_this_month || 0 }} closing soon</span>
-            </div>
         </div>
 
-        <div class="stat-card card-rose" routerLink="/dashboard/tasks">
-            <div class="stat-value">{{ stats.total_tasks || 0 }}</div>
-            <div class="stat-label">Pending Tasks</div>
+        <div class="stat-card card-rose" routerLink="/dashboard/leads" [queryParams]="{stage: 'DELIVERED'}">
+            <div class="stat-value">{{ stats.completed_leads || 0 }}</div>
+            <div class="stat-label">Deals Closed</div>
+        </div>
+    </div>
+
+    <!-- Shortcut Row -->
+    <div class="shortcut-section mb-6">
+        <div class="shortcut-grid">
+            <button class="shortcut-btn btn-indigo" routerLink="/dashboard/leads/new">
+                <span class="icon">➕</span> Add Lead
+            </button>
+            <button class="shortcut-btn btn-emerald" routerLink="/dashboard/invoices/create">
+                <span class="icon">📝</span> Add Quotation
+            </button>
+            <button class="shortcut-btn btn-amber" routerLink="/dashboard/leads" [queryParams]="{new_today: 'true'}">
+                <span class="icon">📅</span> New Leads Today
+            </button>
         </div>
     </div>
 

@@ -145,6 +145,11 @@ class LeadViewSet(viewsets.ModelViewSet):
         if new_today_param == 'true':
             queryset = queryset.filter(created_at__date=timezone.now().date())
 
+        # Sorting
+        ordering = self.request.query_params.get('ordering', '-created_at')
+        if ordering:
+            queryset = queryset.order_by(ordering)
+
         # Search
         search_query = self.request.query_params.get('search')
         if search_query:
@@ -174,7 +179,10 @@ class LeadViewSet(viewsets.ModelViewSet):
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_export_leads', False)):
              return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
         
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
+        # Apply filters that get_queryset might miss if they are handled by filter_backends
+        # but here we manually filtered in get_queryset so it's fine.
+        # Ensure we filter by what the user sees.
         
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="leads_export.csv"'
@@ -477,6 +485,11 @@ class DashboardStatsView(APIView):
             tasks = Task.objects.filter(owner=user)
 
         # Aggregations
+        # Use more efficient counts where possible
+        total_leads_count = leads.count()
+        total_deals_count = deals.count()
+        total_tasks_count = tasks.count()
+        
         lead_stats = leads.values('stage').annotate(count=Count('id'))
         deal_stats = deals.values('stage').annotate(count=Count('id'), total_amount=Sum('amount'))
         task_stats = tasks.values('status').annotate(count=Count('id'))
@@ -487,7 +500,7 @@ class DashboardStatsView(APIView):
         current_year = today.year
         
         # Admin/User KPIs
-        open_leads_count = leads.exclude(stage__in=[LeadStage.DELIVERED, LeadStage.LOST]).count()
+        open_leads_count = leads.exclude(stage__in=[LeadStage.DELIVERED, LeadStage.LOST, LeadStage.ON_HOLD]).count()
         completed_leads_count = leads.filter(stage=LeadStage.DELIVERED).count()
         deals_closing_month = deals.filter(closing_date__month=current_month, closing_date__year=current_year).count()
         new_leads_today = leads.filter(created_at__date=today).count()
@@ -503,9 +516,9 @@ class DashboardStatsView(APIView):
             'deals_by_stage': {item['stage']: item['count'] for item in deal_stats},
             'deals_amount_by_stage': {item['stage']: item['total_amount'] or 0 for item in deal_stats},
             'tasks_by_status': {item['status']: item['count'] for item in task_stats},
-            'total_leads': leads.count(),
-            'total_deals': deals.count(),
-            'total_tasks': tasks.count(),
+            'total_leads': total_leads_count,
+            'total_deals': total_deals_count,
+            'total_tasks': total_tasks_count,
             'open_leads': open_leads_count,
             'completed_leads': completed_leads_count,
             'deals_closing_this_month': deals_closing_month,
@@ -514,7 +527,7 @@ class DashboardStatsView(APIView):
             'todays_tasks': [{'id': t.id, 'subject': t.subject, 'priority': t.priority, 'status': t.status} for t in todays_tasks],
             'recent_leads': [{'id': l.id, 'name': f"{l.first_name} {l.last_name}", 'stage': l.stage, 'created_at': l.created_at} for l in recent_leads],
             'recent_completed_leads': [{'id': l.id, 'name': f"{l.first_name} {l.last_name}", 'stage': l.stage, 'updated_at': l.updated_at} for l in recent_completed_leads],
-            'stagnant_leads_count': stagnant_count, # Kept for backward compatibility if needed, but UI will likely ignore
+            'stagnant_leads_count': stagnant_count,
             'pending_reminders_count': FollowUpReminder.objects.filter(assigned_to=user, status='PENDING').count(),
         }
         return Response(data)

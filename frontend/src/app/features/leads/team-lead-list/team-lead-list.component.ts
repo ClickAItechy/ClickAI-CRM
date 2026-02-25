@@ -38,6 +38,8 @@ export class TeamLeadListComponent implements OnInit {
     // Search & Filter
     searchTerm: string = '';
     searchSubject = new Subject<string>();
+    sortOrder: string = '-created_at'; // Default: Newest first
+    filterType: 'ALL' | 'UNASSIGNED' | 'ASSIGNED' | 'NEW_TODAY' = 'ALL';
 
     // Bulk Selection
     selectedLeadIds: Set<number> = new Set();
@@ -67,6 +69,12 @@ export class TeamLeadListComponent implements OnInit {
         this.route.queryParams.subscribe(params => {
             this.teamName = params['team'];
             this.showUnassigned = params['unassigned'] === 'true';
+
+            // Handle 'new_today' from dashboard shortcut
+            if (params['new_today'] === 'true') {
+                this.filterType = 'NEW_TODAY';
+            }
+
             this.fetchLeads();
         });
         this.loadUsers();
@@ -82,9 +90,6 @@ export class TeamLeadListComponent implements OnInit {
         this.searchSubject.next(term);
     }
 
-    // Filters
-    filterType: 'ALL' | 'UNASSIGNED' | 'ASSIGNED' | 'NEW_TODAY' = 'ALL';
-
     fetchLeads() {
         this.loading = true;
         let url = `${environment.apiUrl}/leads/`;
@@ -92,6 +97,7 @@ export class TeamLeadListComponent implements OnInit {
 
         if (this.teamName) params.team = this.teamName;
         if (this.searchTerm) params.search = this.searchTerm;
+        if (this.sortOrder) params.ordering = this.sortOrder;
 
         // Granular Filter Logic
         switch (this.filterType) {
@@ -137,14 +143,33 @@ export class TeamLeadListComponent implements OnInit {
         const params: any = {};
         if (this.teamName) params.team = this.teamName;
         if (this.searchTerm) params.search = this.searchTerm;
+        if (this.sortOrder) params.ordering = this.sortOrder;
 
-        this.http.get(url, { params, responseType: 'blob' }).subscribe(blob => {
-            const a = document.createElement('a');
-            const objectUrl = URL.createObjectURL(blob);
-            a.href = objectUrl;
-            a.download = 'leads.csv';
-            a.click();
-            URL.revokeObjectURL(objectUrl);
+        // Apply filters to export as well
+        switch (this.filterType) {
+            case 'UNASSIGNED':
+                params.unassigned = 'true';
+                break;
+            case 'ASSIGNED':
+                params.assigned = 'true';
+                break;
+            case 'NEW_TODAY':
+                params.new_today = 'true';
+                break;
+        }
+
+        this.http.get(url, { params, responseType: 'blob' }).subscribe({
+            next: (blob) => {
+                const a = document.createElement('a');
+                const objectUrl = URL.createObjectURL(blob);
+                a.href = objectUrl;
+                a.download = `leads_export_${this.filterType.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(objectUrl);
+            },
+            error: (err) => {
+                this.toastService.error('Export failed: ' + err.message);
+            }
         });
     }
 
