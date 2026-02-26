@@ -118,9 +118,9 @@ export class TeamLeadListComponent implements OnInit {
             params.unassigned = 'true';
         }
 
-        this.http.get<any[]>(url, { params }).subscribe({
+        this.http.get<any>(url, { params }).subscribe({
             next: (data) => {
-                this.leads = data;
+                this.leads = data.results || data; // Handle both paginated and non-paginated (for safety)
                 this.loading = false;
                 this.selectedLeadIds.clear();
                 this.isAllSelected = false;
@@ -139,7 +139,7 @@ export class TeamLeadListComponent implements OnInit {
     }
 
     exportCsv() {
-        const url = `${environment.apiUrl}/leads/export_csv/`;
+        const url = `${environment.apiUrl}/leads/export_xlsx/`;
         const params: any = {};
         if (this.teamName) params.team = this.teamName;
         if (this.searchTerm) params.search = this.searchTerm;
@@ -162,8 +162,12 @@ export class TeamLeadListComponent implements OnInit {
             next: (blob) => {
                 const a = document.createElement('a');
                 const objectUrl = URL.createObjectURL(blob);
+                const isNewToday = this.filterType === 'NEW_TODAY';
+                const baseName = isNewToday ? "new leads" : "all leads";
+                const dateStr = new Date().toISOString().split('T')[0];
+
                 a.href = objectUrl;
-                a.download = `leads_export_${this.filterType.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+                a.download = `${baseName} - ${dateStr}.xlsx`;
                 a.click();
                 URL.revokeObjectURL(objectUrl);
             },

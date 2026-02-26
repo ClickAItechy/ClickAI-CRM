@@ -7,5 +7,6 @@ Faker
 gunicorn
 dj-database-url
 weasyprint
+openpyxl
 
 

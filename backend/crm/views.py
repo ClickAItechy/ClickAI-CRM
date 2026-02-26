@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import openpyxl
+from openpyxl import Workbook
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear, Coalesce
@@ -56,6 +58,13 @@ class TechPipelineSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['lead', 'created_at', 'updated_at']
 
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
 # --- Views ---
 
 class IsTeamOwnerOrManager(permissions.BasePermission):
@@ -96,6 +105,7 @@ class LeadViewSet(viewsets.ModelViewSet):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
     permission_classes = [permissions.IsAuthenticated, IsTeamOwnerOrManager]
+    pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -174,36 +184,54 @@ class LeadViewSet(viewsets.ModelViewSet):
         return queryset
 
     @action(detail=False, methods=['get'])
-    def export_csv(self, request):
+    def export_xlsx(self, request):
         user = request.user
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_export_leads', False)):
              return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
         
         queryset = self.get_queryset()
-        # Apply filters that get_queryset might miss if they are handled by filter_backends
-        # but here we manually filtered in get_queryset so it's fine.
-        # Ensure we filter by what the user sees.
         
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="leads_export.csv"'
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Leads Export"
         
-        writer = csv.writer(response)
-        writer.writerow(['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Stage', 'Team', 'Assigned To', 'Created At'])
+        # Headers
+        headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Stage', 'Team', 'Assigned To', 'Created Date', 'Created Time']
+        ws.append(headers)
         
         for lead in queryset:
-            writer.writerow([
+            # Handle timezone
+            local_created_at = timezone.localtime(lead.created_at)
+            created_date = local_created_at.date().strftime('%Y-%m-%d')
+            created_time = local_created_at.time().strftime('%H:%M:%S')
+            
+            ws.append([
                 lead.id,
                 lead.first_name,
                 lead.last_name,
-                lead.email,
-                lead.phone,
+                lead.email or '',
+                lead.phone or '',
                 lead.stage,
                 lead.assigned_team,
                 lead.assigned_to.username if lead.assigned_to else '',
-                lead.created_at
+                created_date,
+                created_time
             ])
-            
+        
+        # Determine dynamic filename
+        is_new_today = request.query_params.get('new_today') == 'true'
+        base_name = "new leads" if is_new_today else "all leads"
+        date_str = timezone.now().strftime('%Y-%m-%d')
+        filename = f"{base_name} - {date_str}.xlsx"
+        
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb.save(response)
+        
         return response
+
 
     @action(detail=False, methods=['post'])
     def bulk_assign(self, request):
@@ -710,51 +738,55 @@ class ReportsView(APIView):
         stage_stats = leads.values('stage').annotate(count=Count('id')).order_by('count')
         
         # --- Chart 3: Team Performance (Bar) ---
-        # Top 5 performing users in this period
-        # Leads assigned vs Deals Won
+        # Top 10 performing users in this period
+        # Optimized with annotations to avoid N+1
+        from django.db.models import OuterRef, Subquery
         
-        team_stats_qs = User.objects.filter(leads__created_at__gte=start_date).annotate(
-            leads_count=Count('leads', distinct=True),
-            # Ideally we want deals won by this user. 
-            # Assuming Deal.owner is the closer.
-        ).distinct()
-        
-        # This is tricky because we want to filter deals by date too. 
-        # Easier to aggregation manually or subqueries.
-        # Let's simple query: 
-        
-        team_performance = []
-        users = User.objects.filter(is_active=True, team__in=['SALES', 'OPERATIONS']) # Filter relevant users
-        for user in users:
-            l_count = Lead.objects.filter(assigned_to=user, created_at__gte=start_date).count()
-            
-            # Count DELIVERED leads as "Deals" for the chart
-            d_count = Lead.objects.filter(
-                assigned_to=user, 
-                stage=LeadStage.DELIVERED
-            ).filter(
-               updated_at__gte=start_date # When they were transferred
-            ).count()
-            
-            rev = Deal.objects.filter(
-                owner=user, 
-                stage='WON'
-            ).filter(
-                Q(closing_date__gte=start_date) | 
-                Q(closing_date__isnull=True, updated_at__gte=start_date)
-            ).aggregate(s=Sum('amount'))['s'] or 0
-            
-            if l_count > 0 or d_count > 0:
-                team_performance.append({
-                    'username': user.username,
-                    'leads': l_count,
-                    'deals': d_count,
-                    'revenue': rev
-                })
-        
-        # Sort by Revenue des
-        team_performance.sort(key=lambda x: x['revenue'], reverse=True)
-        team_performance = team_performance[:10] # Top 10
+        # Subquery for revenue (Won deals in timeframe)
+        won_deals_subquery = Deal.objects.filter(
+            owner=OuterRef('pk'),
+            stage='WON'
+        ).filter(
+            Q(closing_date__gte=start_date) | 
+            Q(closing_date__isnull=True, updated_at__gte=start_date)
+        ).values('owner').annotate(
+            total=Sum('amount')
+        ).values('total')
+
+        # Subquery for delivered leads count
+        delivered_leads_subquery = Lead.objects.filter(
+            assigned_to=OuterRef('pk'),
+            stage=LeadStage.DELIVERED,
+            updated_at__gte=start_date
+        ).values('assigned_to').annotate(
+            total=Count('id')
+        ).values('total')
+
+        # Subquery for assigned leads count
+        assigned_leads_subquery = Lead.objects.filter(
+            assigned_to=OuterRef('pk'),
+            created_at__gte=start_date
+        ).values('assigned_to').annotate(
+            total=Count('id')
+        ).values('total')
+
+        users_stats = User.objects.filter(
+            is_active=True, 
+            team__in=['SALES', 'OPERATIONS']
+        ).annotate(
+            revenue=Subquery(won_deals_subquery, output_field=models.DecimalField()),
+            deals=Subquery(delivered_leads_subquery, output_field=models.IntegerField()),
+            leads=Subquery(assigned_leads_subquery, output_field=models.IntegerField()),
+        ).values('username', 'leads', 'deals', 'revenue').order_by('-revenue')[:10]
+
+        team_performance = [
+            {
+                'username': item['username'],
+                'leads': item['leads'] or 0,
+                'deals': item['deals'] or 0,
+                'revenue': item['revenue'] or 0
+            } for item in users_stats
+        ]
 
 
         data = {

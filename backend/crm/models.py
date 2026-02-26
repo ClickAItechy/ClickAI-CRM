@@ -58,12 +58,14 @@ class Lead(models.Model):
     stage = models.CharField(
         max_length=30,
         choices=LeadStage.choices,
-        default=LeadStage.NEW_INQUIRY
+        default=LeadStage.NEW_INQUIRY,
+        db_index=True
     )
     assigned_team = models.CharField(
         max_length=20,
         choices=Team.choices,
-        default=Team.SALES
+        default=Team.SALES,
+        db_index=True
     )
     assigned_to = models.ForeignKey(
         User, 
@@ -81,8 +83,8 @@ class Lead(models.Model):
         help_text=_('Team member who brought in this lead')
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
     last_active = models.DateTimeField(auto_now_add=True)
 
     # Follow-up tracking fields
@@ -151,8 +153,8 @@ class Contact(models.Model):
 class Deal(models.Model):
     name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    stage = models.CharField(max_length=50, default='New')
-    closing_date = models.DateField(null=True, blank=True)
+    stage = models.CharField(max_length=50, default='New', db_index=True)
+    closing_date = models.DateField(null=True, blank=True, db_index=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='deals', null=True, blank=True)
     contact = models.ForeignKey(Contact, on_delete=models.SET_NULL, related_name='deals', null=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='deals')
