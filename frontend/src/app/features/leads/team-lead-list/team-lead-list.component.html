@@ -122,5 +122,33 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <div *ngIf="!loading && totalCount > pageSize"
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+            <div style="font-size: 0.85rem; color: #64748b;">
+                Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalCount) }} of
+                {{ totalCount }} leads
+            </div>
+            <div style="display: flex; gap: 0.25rem;">
+                <button class="btn btn-sm" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)"
+                    style="background: white; border: 1px solid #e5e7eb; color: #374151;">
+                    Previous
+                </button>
+
+                <ng-container *ngFor="let p of [].constructor(getTotalPages()); let i = index">
+                    <button class="btn btn-sm" [class.btn-primary]="currentPage === i + 1" (click)="onPageChange(i + 1)"
+                        style="min-width: 32px;">
+                        {{ i + 1 }}
+                    </button>
+                </ng-container>
+
+                <button class="btn btn-sm" [disabled]="currentPage === getTotalPages()"
+                    (click)="onPageChange(currentPage + 1)"
+                    style="background: white; border: 1px solid #e5e7eb; color: #374151;">
+                    Next
+                </button>
+            </div>
+        </div>
     </div>
 </div>

@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { InvoiceService, Invoice } from '../invoice.service';
+import { QuotationService, Quotation } from '../quotation.service';
 import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-invoice-list',
+    selector: 'app-quotation-list',
     standalone: true,
     imports: [CommonModule, RouterModule],
-    templateUrl: './invoice-list.component.html',
-    styleUrls: ['./invoice-list.component.css']
+    templateUrl: './quotation-list.component.html',
+    styleUrls: ['./quotation-list.component.css']
 })
-export class InvoiceListComponent implements OnInit {
-    invoices: Invoice[] = [];
+export class QuotationListComponent implements OnInit {
+    quotations: Quotation[] = [];
     isLoading = true;
     currentPage = 1;
     totalCount = 0;
@@ -20,38 +20,31 @@ export class InvoiceListComponent implements OnInit {
     Math = Math;
 
     constructor(
-        private invoiceService: InvoiceService
+        private quotationService: QuotationService
     ) { }
 
     ngOnInit(): void {
-        this.loadInvoices();
+        this.loadQuotations();
     }
 
-    loadInvoices(page: number = 1) {
+    loadQuotations(page: number = 1) {
         this.isLoading = true;
-        this.invoiceService.getInvoices(page).subscribe({
+        this.quotationService.getQuotations(page).subscribe({
             next: (data) => {
-                this.invoices = data.results || data;
-                this.totalCount = data.count || this.invoices.length;
+                this.quotations = data.results || data;
+                this.totalCount = data.count || this.quotations.length;
                 this.currentPage = page;
                 this.isLoading = false;
             },
             error: (err) => {
-                console.error('Error loading invoices', err);
-                this.showToast('error', 'Failed to load invoices');
+                console.error('Error loading quotations', err);
+                this.showToast('error', 'Failed to load quotations');
                 this.isLoading = false;
             }
         });
     }
-    onPageChange(page: number) {
-        this.loadInvoices(page);
-    }
 
-    getTotalPages(): number {
-        return Math.ceil(this.totalCount / this.pageSize);
-    }
-
-    deleteInvoice(id: number | undefined) {
+    deleteQuotation(id: number | undefined) {
         if (!id) return;
 
         Swal.fire({
@@ -64,14 +57,14 @@ export class InvoiceListComponent implements OnInit {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                this.invoiceService.deleteInvoice(id).subscribe({
+                this.quotationService.deleteQuotation(id).subscribe({
                     next: () => {
-                        this.invoices = this.invoices.filter(inv => inv.id !== id);
-                        this.showToast('success', 'Invoice deleted successfully');
+                        this.quotations = this.quotations.filter(quo => quo.id !== id);
+                        this.showToast('success', 'Quotation deleted successfully');
                     },
                     error: (err) => {
-                        console.error('Error deleting invoice', err);
-                        this.showToast('error', 'Failed to delete invoice');
+                        console.error('Error deleting quotation', err);
+                        this.showToast('error', 'Failed to delete quotation');
                     }
                 });
             }
@@ -81,12 +74,12 @@ export class InvoiceListComponent implements OnInit {
     downloadPdf(id: number | undefined) {
         if (!id) return;
 
-        this.invoiceService.downloadPdf(id).subscribe({
+        this.quotationService.downloadPdf(id).subscribe({
             next: (blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `Invoice-${id}.pdf`;
+                link.download = `Quotation-${id}.pdf`;
                 link.click();
                 window.URL.revokeObjectURL(url);
             },
@@ -97,8 +90,12 @@ export class InvoiceListComponent implements OnInit {
         });
     }
 
-    editInvoice(id: number | undefined) {
-        // Handled via routerLink in template mostly, but kept for consistency if needed
+    onPageChange(page: number) {
+        this.loadQuotations(page);
+    }
+
+    getTotalPages(): number {
+        return Math.ceil(this.totalCount / this.pageSize);
     }
 
     private showToast(icon: 'success' | 'error' | 'warning' | 'info', title: string) {

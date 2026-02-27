@@ -58,6 +58,14 @@ export const routes: Routes = [
                     { path: 'create', loadComponent: () => import('./features/invoices/invoice-create/invoice-create.component').then(m => m.InvoiceCreateComponent) },
                     { path: ':id/edit', loadComponent: () => import('./features/invoices/invoice-create/invoice-create.component').then(m => m.InvoiceCreateComponent) }
                 ]
+            },
+            {
+                path: 'quotations',
+                children: [
+                    { path: '', loadComponent: () => import('./features/quotations/quotation-list/quotation-list.component').then(m => m.QuotationListComponent) },
+                    { path: 'create', loadComponent: () => import('./features/quotations/quotation-create/quotation-create.component').then(m => m.QuotationCreateComponent) },
+                    { path: ':id/edit', loadComponent: () => import('./features/quotations/quotation-create/quotation-create.component').then(m => m.QuotationCreateComponent) }
+                ]
             }
         ]
     },

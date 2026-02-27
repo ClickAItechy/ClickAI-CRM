@@ -2,21 +2,21 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { InvoiceService, Invoice, InvoiceItem } from '../invoice.service';
+import { QuotationService, Quotation, QuotationItem } from '../quotation.service';
 import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-invoice-create',
+    selector: 'app-quotation-create',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, RouterModule],
-    templateUrl: './invoice-create.component.html',
-    styleUrls: ['./invoice-create.component.css']
+    templateUrl: './quotation-create.component.html',
+    styleUrls: ['./quotation-create.component.css']
 })
-export class InvoiceCreateComponent implements OnInit {
-    invoiceForm: FormGroup;
+export class QuotationCreateComponent implements OnInit {
+    quotationForm: FormGroup;
     isGenerating = false;
     isEditMode = false;
-    invoiceId: number | null = null;
+    quotationId: number | null = null;
 
     // Custom dropdown state
     activeDropdownIndex: number | null = null;
@@ -40,11 +40,11 @@ export class InvoiceCreateComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private invoiceService: InvoiceService,
+        private quotationService: QuotationService,
         private route: ActivatedRoute,
         private router: Router
     ) {
-        this.invoiceForm = this.fb.group({
+        this.quotationForm = this.fb.group({
             client_name: ['', Validators.required],
             client_email: ['', [Validators.email]],
             client_address: [''],
@@ -56,26 +56,26 @@ export class InvoiceCreateComponent implements OnInit {
         const idParam = this.route.snapshot.paramMap.get('id');
         if (idParam) {
             this.isEditMode = true;
-            this.invoiceId = +idParam;
-            this.loadInvoice(this.invoiceId);
+            this.quotationId = +idParam;
+            this.loadQuotation(this.quotationId);
         } else {
             this.addItem();
         }
     }
 
-    loadInvoice(id: number) {
-        this.invoiceService.getInvoice(id).subscribe({
-            next: (invoice) => {
-                this.invoiceForm.patchValue({
-                    client_name: invoice.client_name,
-                    client_email: invoice.client_email,
-                    client_address: invoice.client_address
+    loadQuotation(id: number) {
+        this.quotationService.getQuotation(id).subscribe({
+            next: (quotation) => {
+                this.quotationForm.patchValue({
+                    client_name: quotation.client_name,
+                    client_email: quotation.client_email,
+                    client_address: quotation.client_address
                 });
 
-                const itemsArray = this.invoiceForm.get('items') as FormArray;
+                const itemsArray = this.quotationForm.get('items') as FormArray;
                 itemsArray.clear();
 
-                invoice.items.forEach(item => {
+                quotation.items.forEach(item => {
                     const itemGroup = this.fb.group({
                         name: [item.name, Validators.required],
                         price: [Number(item.price) || 0, [Validators.required, Validators.min(0)]],
@@ -90,15 +90,15 @@ export class InvoiceCreateComponent implements OnInit {
                 });
             },
             error: (err) => {
-                console.error('Error loading invoice', err);
-                this.showToast('error', 'Could not load invoice details.');
-                this.router.navigate(['/dashboard/invoices']);
+                console.error('Error loading quotation', err);
+                this.showToast('error', 'Could not load quotation details.');
+                this.router.navigate(['/dashboard/quotations']);
             }
         });
     }
 
     get items(): FormArray {
-        return this.invoiceForm.get('items') as FormArray;
+        return this.quotationForm.get('items') as FormArray;
     }
 
     newItem(): FormGroup {
@@ -194,15 +194,15 @@ export class InvoiceCreateComponent implements OnInit {
         return this.subtotal + this.vatAmount;
     }
 
-    saveInvoice() {
-        if (this.invoiceForm.invalid) {
-            this.invoiceForm.markAllAsTouched();
+    saveQuotation() {
+        if (this.quotationForm.invalid) {
+            this.quotationForm.markAllAsTouched();
             this.showToast('warning', 'Please fill in all required fields.');
             return;
         }
 
         this.isGenerating = true;
-        const formValue = this.invoiceForm.getRawValue();
+        const formValue = this.quotationForm.getRawValue();
 
         // Map items to include subtotal manually since it's disabled
         const items: any[] = formValue.items.map((item: any) => {
@@ -221,7 +221,7 @@ export class InvoiceCreateComponent implements OnInit {
             };
         });
 
-        const invoiceData: Invoice = {
+        const quotationData: Quotation = {
             client_name: formValue.client_name,
             client_email: formValue.client_email,
             client_address: formValue.client_address,
@@ -229,16 +229,16 @@ export class InvoiceCreateComponent implements OnInit {
             grand_total: this.grandTotal
         };
 
-        const request = this.isEditMode && this.invoiceId
-            ? this.invoiceService.updateInvoice(this.invoiceId, invoiceData)
-            : this.invoiceService.createInvoice(invoiceData);
+        const request = this.isEditMode && this.quotationId
+            ? this.quotationService.updateQuotation(this.quotationId, quotationData)
+            : this.quotationService.createQuotation(quotationData);
 
         request.subscribe({
-            next: (savedInvoice) => {
+            next: (savedQuotation) => {
                 this.isGenerating = false;
 
                 Swal.fire({
-                    title: 'Invoice Saved!',
+                    title: 'Quotation Saved!',
                     text: 'What would you like to do next?',
                     icon: 'success',
                     showCancelButton: true,
@@ -248,16 +248,16 @@ export class InvoiceCreateComponent implements OnInit {
                     cancelButtonText: 'Go to List'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (savedInvoice.id) {
-                            this.invoiceService.downloadPdf(savedInvoice.id).subscribe({
+                        if (savedQuotation.id) {
+                            this.quotationService.downloadPdf(savedQuotation.id).subscribe({
                                 next: (blob) => {
                                     const url = window.URL.createObjectURL(blob);
                                     const link = document.createElement('a');
                                     link.href = url;
-                                    link.download = `Invoice-${savedInvoice.id}.pdf`;
+                                    link.download = `Quotation-${savedQuotation.id}.pdf`;
                                     link.click();
                                     window.URL.revokeObjectURL(url);
-                                    this.router.navigate(['/dashboard/invoices']);
+                                    this.router.navigate(['/dashboard/quotations']);
                                 },
                                 error: (err) => {
                                     console.error('PDF download error', err);
@@ -266,13 +266,13 @@ export class InvoiceCreateComponent implements OnInit {
                             });
                         }
                     } else {
-                        this.router.navigate(['/dashboard/invoices']);
+                        this.router.navigate(['/dashboard/quotations']);
                     }
                 });
             },
             error: (err) => {
-                console.error('Error saving invoice', err);
-                this.showToast('error', 'Failed to save invoice.');
+                console.error('Error saving quotation', err);
+                this.showToast('error', 'Failed to save quotation.');
                 this.isGenerating = false;
             }
         });

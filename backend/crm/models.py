@@ -267,6 +267,37 @@ class RevenueRecord(models.Model):
     def __str__(self):
         return f"Revenue: {self.user.username} - {self.amount} ({self.month}/{self.year})"
 
+class Quotation(models.Model):
+    quotation_number = models.CharField(max_length=50, unique=True)
+    client_name = models.CharField(max_length=255)
+    client_email = models.EmailField(blank=True, null=True)
+    client_address = models.TextField(blank=True, null=True)
+    payment_terms = models.TextField(blank=True, null=True, help_text="Payment terms, bank details, etc.")
+    
+    # JSONField to store line items: [{name, price, quantity, subtotal}, ...]
+    items = models.JSONField(default=list)
+    
+    grand_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    
+    issued_date = models.DateField(default=timezone.localdate)
+    valid_until = models.DateField(null=True, blank=True)
+    
+    status = models.CharField(
+        max_length=20, 
+        choices=[('DRAFT', 'Draft'), ('SENT', 'Sent'), ('ACCEPTED', 'Accepted'), ('REJECTED', 'Rejected'), ('EXPIRED', 'Expired')],
+        default='SENT'
+    )
+    
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='quotations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-issued_date', '-created_at']
+
+    def __str__(self):
+        return f"{self.quotation_number} - {self.client_name}"
+
 class Invoice(models.Model):
     invoice_number = models.CharField(max_length=50, unique=True)
     client_name = models.CharField(max_length=255)

@@ -1,13 +1,13 @@
 <div class="invoice-container">
     <div class="page-header">
         <div class="title-section">
-            <button [routerLink]="['/dashboard/invoices']" class="btn-back">← Back</button>
-            <h1>{{ isEditMode ? '✏️ Edit Invoice' : '🧾 Create New Invoice' }}</h1>
+            <button [routerLink]="['/dashboard/quotations']" class="btn-back">← Back</button>
+            <h1>{{ isEditMode ? '✏️ Edit Quotation' : '📝 Create New Quotation' }}</h1>
         </div>
-        <p>Fill in the details below to {{ isEditMode ? 'update' : 'create' }} the invoice.</p>
+        <p>Fill in the details below to {{ isEditMode ? 'update' : 'create' }} the quotation.</p>
     </div>
 
-    <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()" class="invoice-form">
+    <form [formGroup]="quotationForm" (ngSubmit)="saveQuotation()" class="invoice-form">
 
         <!-- Client Details Section -->
         <div class="section-card">
@@ -17,7 +17,7 @@
                     <label>Client Name *</label>
                     <input type="text" formControlName="client_name" placeholder="Enter client name">
                     <div class="error"
-                        *ngIf="invoiceForm.get('client_name')?.touched && invoiceForm.get('client_name')?.invalid">
+                        *ngIf="quotationForm.get('client_name')?.touched && quotationForm.get('client_name')?.invalid">
                         Client name is required.
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                     <label>Client Email</label>
                     <input type="email" formControlName="client_email" placeholder="client@example.com">
                     <div class="error"
-                        *ngIf="invoiceForm.get('client_email')?.touched && invoiceForm.get('client_email')?.invalid">
+                        *ngIf="quotationForm.get('client_email')?.touched && quotationForm.get('client_email')?.invalid">
                         Please enter a valid email.
                     </div>
                 </div>
@@ -123,9 +123,9 @@
             </div>
 
             <div class="actions">
-                <button type="button" class="btn-cancel" [routerLink]="['/dashboard/invoices']">Cancel</button>
-                <button type="submit" class="btn-primary" [disabled]="isGenerating || invoiceForm.invalid">
-                    <span *ngIf="!isGenerating">{{ isEditMode ? 'Update Invoice' : '💾 Save Invoice' }}</span>
+                <button type="button" class="btn-cancel" [routerLink]="['/dashboard/quotations']">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isGenerating || quotationForm.invalid">
+                    <span *ngIf="!isGenerating">{{ isEditMode ? 'Update Quotation' : '💾 Save Quotation' }}</span>
                     <span *ngIf="isGenerating">Saving...</span>
                 </button>
             </div>

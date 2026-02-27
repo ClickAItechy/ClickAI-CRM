@@ -89,8 +89,11 @@
 
             <div class="menu-section">
                 <small class="section-label">Resources</small>
+                <a routerLink="/dashboard/quotations" routerLinkActive="active" (click)="closeSidebar()">
+                    <i class="icon">📄</i> Quotations
+                </a>
                 <a routerLink="/dashboard/invoices" routerLinkActive="active" (click)="closeSidebar()">
-                    <i class="icon">🧾</i> Quotations
+                    <i class="icon">🧾</i> Invoices
                 </a>
                 <a routerLink="/dashboard/deals" routerLinkActive="active" (click)="closeSidebar()">
                     <i class="icon">💰</i> Deals & Projects

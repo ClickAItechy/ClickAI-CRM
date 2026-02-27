@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Quotation</title>
+    <title>{{ title }}</title>
     <style>
         /* ── Running header/footer elements ── */
         .page-header-content {
@@ -16,7 +16,7 @@
 
         @page {
             size: A4;
-            margin: 230px 50px 70px 50px;
+            margin: 210px 50px 70px 50px;
 
             @top-center {
                 content: element(pageHeader);
@@ -65,7 +65,7 @@
         }
 
         .logo-cell img {
-            max-height: 120px;
+            max-height: 100px;
             display: block;
         }
 
@@ -84,7 +84,7 @@
 
         .title-cell h1 {
             color: #764ba2;
-            font-size: 32px;
+            font-size: 28px;
             margin: 0;
             font-weight: 800;
             letter-spacing: -1px;
@@ -356,21 +356,23 @@
                     </div>
                 </td>
                 <td class="title-cell">
-                    <h1>Quotation</h1>
+                    <h1>{{ title }}</h1>
                 </td>
                 <td class="meta-cell">
                     <div class="meta-item">
-                        <span class="meta-label">Quotation #</span><br>
-                        <span class="meta-value" style="color: #667eea;">{{ quotation_number }}</span>
+                        <span class="meta-label">{{ number_label }}</span><br>
+                        <span class="meta-value" style="color: #667eea;">{{ number }}</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Date</span><br>
                         <span class="meta-value">{{ date }}</span>
                     </div>
+                    {% if not is_invoice %}
                     <div class="meta-item">
                         <span class="meta-label">Valid Until</span><br>
-                        <span class="meta-value" style="color: #ef4444;">{{ valid_until }}</span>
+                        <span class="meta-value" style="color: #ef4444;">{{ due_date }}</span>
                     </div>
+                    {% endif %}
                 </td>
             </tr>
         </table>
@@ -396,7 +398,7 @@
 
     <!-- Bill To -->
     <div class="bill-to-section">
-        <div class="bill-to-label">Quoted To</div>
+        <div class="bill-to-label">{% if is_invoice %}Bill To{% else %}Quoted To{% endif %}</div>
         <div class="client-name">{{ client_name }}</div>
         {% if client_address %}
         <div class="client-address">{{ client_address }}</div>
@@ -455,14 +457,42 @@
         <strong>Amount in Words:</strong> {{ grand_total_words }}
     </div>
 
+    <!-- Bank Details -->
+    <div class="terms-section"
+        style="margin-top: 20px; border-top: 2px solid #667eea; background: #f8fafc; padding: 15px; border-radius: 8px;">
+        <h3 style="color: #667eea; font-size: 11px;">Bank Transfer Details</h3>
+        <table style="width: 100%; font-size: 10px; color: #334155; border-collapse: collapse;">
+            <tr>
+                <td style="width: 120px; font-weight: bold; padding: 4px 0;">Account Name:</td>
+                <td style="padding: 4px 0;">click Ai techy FZE LLC</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold; padding: 4px 0;">Account Number:</td>
+                <td style="padding: 4px 0;">9470136744</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold; padding: 4px 0;">IBAN:</td>
+                <td style="padding: 4px 0; font-family: monospace; font-size: 11px; letter-spacing: 1px;">AE27 0860 0000
+                    0947 0136 744</td>
+            </tr>
+        </table>
+    </div>
+
     <!-- Terms and Conditions -->
     <div class="terms-section">
         <h3>Terms and Conditions</h3>
         <ul class="terms-list">
-            <li>This quotation is valid for <strong>10 days</strong> from the quotation date ({{ date }}). It will
-                expire on {{ valid_until }}.</li>
-            <li>Please send all payments to the bank account details provided upon request.</li>
+            {% if is_invoice %}
+            <li>This invoice is for payment acknowledgment of the services provided.</li>
+            <li>Any discrepancy in this invoice should be reported within 24 hours of receipt.</li>
+            <li>Support and maintenance will be provided as per the signed service agreement.</li>
+            <li>All payments are subject to the terms of your contract and are generally non-refundable.</li>
+            {% else %}
+            <li>This quotation is valid for <strong>10 days</strong> from the date issued ({{ date }}). It will expire
+                on {{ due_date }}.</li>
             <li>Work will commence upon written acceptance of this quotation and receipt of the agreed deposit.</li>
+            <li>Please send all payments to the bank account details provided below.</li>
+            {% endif %}
         </ul>
     </div>
 </body>

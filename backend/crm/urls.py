@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import LeadViewSet, LeadIngestView, LeadDocumentViewSet, AccountViewSet, ContactViewSet, UserViewSet, DealViewSet, TaskViewSet, DashboardStatsView, NoteViewSet, NotificationViewSet, TeamsListView, ReportsView, ReminderViewSet, DailyActivityView, TechPipelineViewSet, RevenueStatsView
-from .invoice_views import InvoiceViewSet
+from .invoice_views import InvoiceViewSet, QuotationViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -21,6 +21,7 @@ router.register(r'notifications', NotificationViewSet, basename='notification')
 router.register(r'reminders', ReminderViewSet, basename='reminder')
 router.register(r'tech-pipeline', TechPipelineViewSet)
 router.register(r'invoices', InvoiceViewSet, basename='invoice')
+router.register(r'quotations', QuotationViewSet, basename='quotation')
 
 
 urlpatterns = [

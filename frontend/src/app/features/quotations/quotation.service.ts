@@ -3,51 +3,52 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface InvoiceItem {
+export interface QuotationItem {
     name: string;
     price: number;
     quantity: string | number;
     subtotal: number;
 }
 
-export interface Invoice {
+export interface Quotation {
     id?: number;
-    invoice_number?: string;
+    quotation_number?: string;
     client_name: string;
     client_email?: string;
     client_address?: string;
-    items: InvoiceItem[];
+    items: QuotationItem[];
     grand_total: number;
     issued_date?: string;
+    valid_until?: string;
+    status?: string;
     created_at?: string;
-    // Add other fields as needed
 }
 
 @Injectable({
     providedIn: 'root'
 })
-export class InvoiceService {
-    private apiUrl = `${environment.apiUrl}/invoices/`;
+export class QuotationService {
+    private apiUrl = `${environment.apiUrl}/quotations/`;
 
     constructor(private http: HttpClient) { }
 
-    getInvoices(page: number = 1): Observable<any> {
+    getQuotations(page: number = 1): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}?page=${page}`);
     }
 
-    getInvoice(id: number): Observable<Invoice> {
-        return this.http.get<Invoice>(`${this.apiUrl}${id}/`);
+    getQuotation(id: number): Observable<Quotation> {
+        return this.http.get<Quotation>(`${this.apiUrl}${id}/`);
     }
 
-    createInvoice(invoice: Invoice): Observable<Invoice> {
-        return this.http.post<Invoice>(this.apiUrl, invoice);
+    createQuotation(quotation: Quotation): Observable<Quotation> {
+        return this.http.post<Quotation>(this.apiUrl, quotation);
     }
 
-    updateInvoice(id: number, invoice: Invoice): Observable<Invoice> {
-        return this.http.put<Invoice>(`${this.apiUrl}${id}/`, invoice);
+    updateQuotation(id: number, quotation: Quotation): Observable<Quotation> {
+        return this.http.put<Quotation>(`${this.apiUrl}${id}/`, quotation);
     }
 
-    deleteInvoice(id: number): Observable<any> {
+    deleteQuotation(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}${id}/`);
     }
 

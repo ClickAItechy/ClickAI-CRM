@@ -1,24 +1,24 @@
 <div class="invoice-list-container">
     <div class="page-header">
-        <h1>🧾 Invoices</h1>
-        <button [routerLink]="['/dashboard/invoices/create']" class="btn-create">
-            + Create New Invoice
+        <h1>📄 Quotations</h1>
+        <button [routerLink]="['/dashboard/quotations/create']" class="btn-create">
+            + Create New Quotation
         </button>
     </div>
 
     <div *ngIf="isLoading" class="loading-state">
-        Loading invoices...
+        Loading quotations...
     </div>
 
-    <div *ngIf="!isLoading && invoices.length === 0" class="empty-state">
-        <p>No invoices found. Create your first invoice!</p>
+    <div *ngIf="!isLoading && quotations.length === 0" class="empty-state">
+        <p>No quotations found. Create your first quotation!</p>
     </div>
 
-    <div *ngIf="!isLoading && invoices.length > 0" class="table-responsive">
+    <div *ngIf="!isLoading && quotations.length > 0" class="table-responsive">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Invoice #</th>
+                    <th>Quotation #</th>
                     <th>Client</th>
                     <th>Date</th>
                     <th>Amount</th>
@@ -26,25 +26,25 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let invoice of invoices">
-                    <td><span class="invoice-number">{{ invoice.invoice_number }}</span></td>
+                <tr *ngFor="let quotation of quotations">
+                    <td><span class="invoice-number">{{ quotation.quotation_number }}</span></td>
                     <td>
                         <div class="client-info">
-                            <span class="name">{{ invoice.client_name }}</span>
-                            <small class="email">{{ invoice.client_email }}</small>
+                            <span class="name">{{ quotation.client_name }}</span>
+                            <small class="email">{{ quotation.client_email }}</small>
                         </div>
                     </td>
-                    <td class="date-cell">{{ invoice.issued_date | date:'mediumDate' }}</td>
-                    <td class="amount">AED {{ invoice.grand_total | number:'1.2-2' }}</td>
+                    <td class="date-cell">{{ quotation.issued_date | date:'mediumDate' }}</td>
+                    <td class="amount">AED {{ quotation.grand_total | number:'1.2-2' }}</td>
                     <td class="actions-cell">
-                        <button class="btn-icon download" (click)="downloadPdf(invoice.id)" title="Download PDF">
+                        <button class="btn-icon download" (click)="downloadPdf(quotation.id)" title="Download PDF">
                             ⬇
                         </button>
-                        <button class="btn-icon edit" [routerLink]="['/dashboard/invoices', invoice.id, 'edit']"
+                        <button class="btn-icon edit" [routerLink]="['/dashboard/quotations', quotation.id, 'edit']"
                             title="Edit">
                             ✏
                         </button>
-                        <button class="btn-icon danger" (click)="deleteInvoice(invoice.id)" title="Delete">
+                        <button class="btn-icon danger" (click)="deleteQuotation(quotation.id)" title="Delete">
                             🗑
                         </button>
                     </td>
@@ -58,7 +58,7 @@
         style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
         <div style="font-size: 0.85rem; color: #64748b;">
             Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalCount) }} of {{
-            totalCount }} invoices
+            totalCount }} quotations
         </div>
         <div style="display: flex; gap: 0.25rem;">
             <button class="btn-pagination" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">

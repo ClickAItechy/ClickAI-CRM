@@ -40,6 +40,9 @@ export class TeamLeadListComponent implements OnInit {
     searchSubject = new Subject<string>();
     sortOrder: string = '-created_at'; // Default: Newest first
     filterType: 'ALL' | 'UNASSIGNED' | 'ASSIGNED' | 'NEW_TODAY' = 'ALL';
+    currentPage: number = 1;
+    pageSize: number = 10;
+    totalCount: number = 0;
 
     // Bulk Selection
     selectedLeadIds: Set<number> = new Set();
@@ -61,6 +64,7 @@ export class TeamLeadListComponent implements OnInit {
             distinctUntilChanged()
         ).subscribe(term => {
             this.searchTerm = term;
+            this.currentPage = 1; // Reset to page 1 on search
             this.fetchLeads();
         });
     }
@@ -120,7 +124,8 @@ export class TeamLeadListComponent implements OnInit {
 
         this.http.get<any>(url, { params }).subscribe({
             next: (data) => {
-                this.leads = data.results || data; // Handle both paginated and non-paginated (for safety)
+                this.leads = data.results || data;
+                this.totalCount = data.count || this.leads.length;
                 this.loading = false;
                 this.selectedLeadIds.clear();
                 this.isAllSelected = false;
@@ -135,7 +140,17 @@ export class TeamLeadListComponent implements OnInit {
     setFilter(type: 'ALL' | 'UNASSIGNED' | 'ASSIGNED' | 'NEW_TODAY') {
         this.filterType = type;
         this.showUnassigned = false; // Reset query param override
+        this.currentPage = 1; // Reset to page 1
         this.fetchLeads();
+    }
+
+    onPageChange(page: number) {
+        this.currentPage = page;
+        this.fetchLeads();
+    }
+
+    getTotalPages(): number {
+        return Math.ceil(this.totalCount / this.pageSize);
     }
 
     exportCsv() {
