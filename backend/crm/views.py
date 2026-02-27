@@ -123,15 +123,7 @@ class LeadViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Lead.objects.all().select_related(
-            'assigned_to', 
-            'lead_generator', 
-            'tech_pipeline'
-        ).prefetch_related(
-            'documents', 
-            'audit_logs',
-            'audit_logs__actor'
-        )
+        queryset = Lead.objects.all()
         
         # RBAC: If not admin/manager/view_all, limit to assigned
         if not (user.is_superuser or user.is_manager or getattr(user, 'view_all_leads', False)):
