@@ -144,3 +144,27 @@ input:checked+.slider:before {
     text-align: center;
     color: #64748b;
 }
+
+.delete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #fecaca;
+    color: #b91c1c;
+}
+
+.delete-btn svg {
+    margin-bottom: -1px;
+}

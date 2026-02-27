@@ -1,4 +1,4 @@
-from rest_framework import serializers, viewsets, status, permissions, filters
+from rest_framework import serializers, viewsets, status, permissions, filters, exceptions
 import csv
 from django.http import HttpResponse
 from rest_framework.decorators import action
@@ -401,6 +401,11 @@ class UserViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(team=team_param)
         
         return queryset.order_by('username')
+
+    def destroy(self, request, *args, **kwargs):
+        if not (request.user.is_superuser or request.user.team == 'ADMIN'):
+            raise exceptions.PermissionDenied("Only the Admin team can delete users.")
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'])
     def me(self, request):

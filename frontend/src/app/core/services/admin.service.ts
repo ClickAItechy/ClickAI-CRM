@@ -32,6 +32,10 @@ export class AdminService {
         return this.http.post(`${this.apiUrl}/users/onboard/`, userData);
     }
 
+    deleteUser(userId: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/users/${userId}/`);
+    }
+
     // Role Management
     getRoles(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/rbac/roles/`);

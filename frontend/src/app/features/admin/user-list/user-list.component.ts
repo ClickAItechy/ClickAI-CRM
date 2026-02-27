@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../core/services/admin.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { FormsModule } from '@angular/forms';
 
@@ -23,13 +24,19 @@ interface User {
 export class UserListComponent implements OnInit {
     users: User[] = [];
     loading = true;
+    currentUserTeam: string = '';
+    isSuperUser: boolean = false;
 
     constructor(
         private adminService: AdminService,
+        private authService: AuthService,
         private toastService: ToastService
     ) { }
 
     ngOnInit() {
+        const user = this.authService.currentUserValue;
+        this.currentUserTeam = user?.team || '';
+        this.isSuperUser = user?.is_superuser || false;
         this.loadUsers();
     }
 
@@ -59,6 +66,23 @@ export class UserListComponent implements OnInit {
         this.adminService.updateUser(id, data).subscribe({
             next: () => this.toastService.success('User updated successfully'),
             error: () => this.toastService.error('Failed to update user')
+        });
+    }
+
+    deleteUser(user: User) {
+        if (!confirm(`Are you sure you want to delete user "${user.username}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        this.adminService.deleteUser(user.id).subscribe({
+            next: () => {
+                this.toastService.success('User deleted successfully');
+                this.loadUsers();
+            },
+            error: (err: any) => {
+                const errorMsg = err.error?.detail || 'Failed to delete user';
+                this.toastService.error(errorMsg);
+            }
         });
     }
 }
