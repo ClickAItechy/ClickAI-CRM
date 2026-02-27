@@ -43,6 +43,7 @@ export class TeamLeadListComponent implements OnInit {
     currentPage: number = 1;
     pageSize: number = 10;
     totalCount: number = 0;
+    Math = Math;
 
     // Bulk Selection
     selectedLeadIds: Set<number> = new Set();
@@ -102,6 +103,7 @@ export class TeamLeadListComponent implements OnInit {
         if (this.teamName) params.team = this.teamName;
         if (this.searchTerm) params.search = this.searchTerm;
         if (this.sortOrder) params.ordering = this.sortOrder;
+        params.page = this.currentPage;
 
         // Granular Filter Logic
         switch (this.filterType) {
