@@ -12,7 +12,7 @@
                     <th>Team</th>
                     <th>Manager Role</th>
                     <th>View All Leads</th>
-                    <th *ngIf="currentUserTeam === 'ADMIN' || isSuperUser">Actions</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +20,8 @@
                     <td class="user-info">
                         <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
                         <div>
-                            <div class="username">{{ user.username }}</div>
+                            <a class="username user-link" [routerLink]="['/dashboard/admin/users', user.id]">{{
+                                user.username }}</a>
                             <div class="email">{{ user.email }}</div>
                         </div>
                     </td>
@@ -41,15 +42,7 @@
                         </label>
                         <span class="status-label">{{ user.view_all_leads ? 'Yes' : 'No' }}</span>
                     </td>
-                    <td *ngIf="currentUserTeam === 'ADMIN' || isSuperUser">
-                        <button class="delete-btn" (click)="deleteUser(user)" title="Delete User">
-                            <svg viewBox="0 0 24 24" width="18" height="18">
-                                <path fill="currentColor"
-                                    d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-                            </svg>
-                            Delete
-                        </button>
-                    </td>
+
                 </tr>
             </tbody>
         </table>

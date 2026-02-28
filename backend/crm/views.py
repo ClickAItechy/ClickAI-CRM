@@ -25,7 +25,8 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'team', 'is_manager', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'team', 'is_manager', 'is_superuser', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
+        read_only_fields = ['is_superuser']
 
 class LeadDocumentSerializer(serializers.ModelSerializer):
     class Meta:

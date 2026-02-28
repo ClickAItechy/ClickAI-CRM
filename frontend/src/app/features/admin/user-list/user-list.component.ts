@@ -4,6 +4,7 @@ import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 interface User {
     id: number;
@@ -17,7 +18,7 @@ interface User {
 @Component({
     selector: 'app-user-list',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterModule],
     templateUrl: './user-list.component.html',
     styleUrls: ['./user-list.component.css']
 })
@@ -69,20 +70,5 @@ export class UserListComponent implements OnInit {
         });
     }
 
-    deleteUser(user: User) {
-        if (!confirm(`Are you sure you want to delete user "${user.username}"? This action cannot be undone.`)) {
-            return;
-        }
 
-        this.adminService.deleteUser(user.id).subscribe({
-            next: () => {
-                this.toastService.success('User deleted successfully');
-                this.loadUsers();
-            },
-            error: (err: any) => {
-                const errorMsg = err.error?.detail || 'Failed to delete user';
-                this.toastService.error(errorMsg);
-            }
-        });
-    }
 }

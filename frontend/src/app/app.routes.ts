@@ -21,6 +21,7 @@ import { ReportsComponent } from './features/reports/reports/reports.component';
 import { UserOnboardingComponent } from './features/admin/user-onboarding/user-onboarding.component';
 import { ReminderListComponent } from './features/reminders/reminder-list/reminder-list.component';
 import { UserListComponent } from './features/admin/user-list/user-list.component';
+import { UserDetailComponent } from './features/admin/user-detail/user-detail.component';
 import { TechPipelineKanbanComponent } from './features/tech-pipeline/kanban/tech-pipeline-kanban.component';
 
 export const routes: Routes = [
@@ -45,6 +46,7 @@ export const routes: Routes = [
             { path: 'reports', component: ReportsComponent },
             { path: 'admin/settings', component: AdminSettingsComponent },
             { path: 'admin/users', component: UserListComponent },
+            { path: 'admin/users/:id', component: UserDetailComponent },
             { path: 'admin/onboarding', component: UserOnboardingComponent },
             { path: 'teams', component: TeamsDashboardComponent },
             { path: 'teams/:teamName', component: TeamMembersComponent },

@@ -71,6 +71,18 @@
     color: #64748b;
 }
 
+.user-link {
+    text-decoration: none;
+    color: #1e293b;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.user-link:hover {
+    color: #6366f1;
+    text-decoration: underline;
+}
+
 .team-badge {
     background: #e0e7ff;
     color: #4f46e5;
