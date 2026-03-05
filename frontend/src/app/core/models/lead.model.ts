@@ -65,12 +65,23 @@ export interface AuditLog {
     notes: string;
 }
 
+export enum Emirate {
+    DUBAI = 'DUBAI',
+    ABU_DHABI = 'ABU_DHABI',
+    SHARJAH = 'SHARJAH',
+    AJMAN = 'AJMAN',
+    UMM_AL_QUWAIN = 'UMM_AL_QUWAIN',
+    RAS_AL_KHAIMAH = 'RAS_AL_KHAIMAH',
+    FUJAIRAH = 'FUJAIRAH'
+}
+
 export interface Lead {
     id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    emirate?: string;
 
     // IT/Agency Specifics
     company_name?: string;
@@ -80,6 +91,8 @@ export interface Lead {
     project_amount?: number;
     advance_amount?: number;
     remaining_amount?: number;
+
+    reminder_date?: string;
 
     stage: LeadStage;
     assigned_team: Team;

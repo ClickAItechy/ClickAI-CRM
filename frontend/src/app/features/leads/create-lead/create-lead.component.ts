@@ -22,16 +22,21 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class CreateLeadComponent implements OnInit {
     lead: any = {
-        first_name: '',
-        last_name: '',
+        name: '',
         email: '',
         phone: '',
+        address: '',
+        emirate: '',
         company_name: '',
         tech_requirements: '',
         stage: LeadStage.NEW_INQUIRY,
-        assigned_team: Team.ADMIN,
+        assigned_team: Team.SALES,
         lead_generator: null
     };
+
+    emirateOptions = [
+        'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
+    ];
 
     loading = false;
     users: any[] = [];

@@ -87,9 +87,21 @@ class TransitionService:
         Dynamic Permissions:
         - Managers can always edit.
         - Team members can only edit if the lead is in their team's stage.
+        - The assigned user can always edit.
+        - The lead generator can always edit.
         """
-        if getattr(user, 'is_manager', False):
+        if getattr(user, 'is_manager', False) or user.is_superuser:
             return True
+        
+        # User is assigned to the lead
+        if lead.assigned_to == user:
+            return True
+            
+        # User generated the lead
+        if lead.lead_generator == user:
+            return True
+
+        # User is in the team that owns the current stage
         return getattr(user, 'team', None) == lead.assigned_team
 
 class StagnationService:

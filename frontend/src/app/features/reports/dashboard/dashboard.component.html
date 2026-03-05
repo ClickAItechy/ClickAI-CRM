@@ -63,17 +63,7 @@
             </div>
         </div>
 
-        <div class="access-card notifications-card card-amber" *ngIf="isSectionVisible('notifications')"
-            routerLink="/dashboard/notifications">
-            <div class="access-icon">
-                🔔
-                <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-            </div>
-            <div class="access-info">
-                <h3>Notifications</h3>
-                <p>{{ unreadCount > 0 ? unreadCount + ' unread' : 'All caught up' }}</p>
-            </div>
-        </div>
+
 
         <div class="access-card reminders-card card-cyan" *ngIf="isSectionVisible('reminders')"
             routerLink="/dashboard/reminders">

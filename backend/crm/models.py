@@ -43,18 +43,36 @@ class LeadStage(models.TextChoices):
     LOST = 'LOST', _('Lost')
     ON_HOLD = 'ON_HOLD', _('On Hold')
 
+class Emirate(models.TextChoices):
+    DUBAI = 'DUBAI', _('Dubai')
+    ABU_DHABI = 'ABU_DHABI', _('Abu Dhabi')
+    SHARJAH = 'SHARJAH', _('Sharjah')
+    AJMAN = 'AJMAN', _('Ajman')
+    UMM_AL_QUWAIN = 'UMM_AL_QUWAIN', _('Umm Al Quwain')
+    RAS_AL_KHAIMAH = 'RAS_AL_KHAIMAH', _('Ras Al Khaimah')
+    FUJAIRAH = 'FUJAIRAH', _('Fujairah')
+
 class Lead(models.Model):
     # Customer Info
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     email = models.EmailField(unique=False, blank=True, null=True)
     phone = models.CharField(max_length=20, unique=False, blank=True, null=True)
+    
+    # Location Info
+    address = models.TextField(blank=True, null=True)
+    emirate = models.CharField(
+        max_length=50,
+        choices=Emirate.choices,
+        blank=True,
+        null=True
+    )
     
     # IT/Agency Specifics
     company_name = models.CharField(max_length=200, blank=True, null=True)
     tech_requirements = models.TextField(blank=True, null=True)
     
     # Process Info
+    reminder_date = models.DateTimeField(null=True, blank=True, help_text=_('Automated or manual reminder date'))
     stage = models.CharField(
         max_length=30,
         choices=LeadStage.choices,
@@ -101,7 +119,7 @@ class Lead(models.Model):
         return self.project_amount - self.advance_amount
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.stage}"
+        return f"{self.name or 'Unnamed Lead'} - {self.stage}"
 
 class LeadDocument(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='documents')

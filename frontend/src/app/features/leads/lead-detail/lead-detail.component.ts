@@ -37,8 +37,11 @@ export class LeadDetailComponent implements OnInit {
         { id: 'ON_HOLD', name: 'On Hold', stages: [LeadStage.ON_HOLD] }
     ];
     stages = Object.values(LeadStage);
-    activeTab = 'history'; // 'history', 'docs'
+    activeTab = 'notes';
     newNote = '';
+    emirateOptions = [
+        'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
+    ];
 
     // Documents & Transition
     selectedStage: string = '';
@@ -145,6 +148,117 @@ export class LeadDetailComponent implements OnInit {
         });
     }
 
+    // Reminder Date Editing
+    async editReminderDate() {
+        if (!this.isAdmin || !this.lead) return;
+
+        const { value: reminderDateStr } = await Swal.fire({
+            title: 'Edit Reminder Date',
+            html: `<input id="swal-reminder-date" type="date" class="swal2-input" value="${this.lead.reminder_date?.split('T')[0] || ''}">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            preConfirm: () => {
+                return (document.getElementById('swal-reminder-date') as HTMLInputElement).value;
+            }
+        });
+
+        if (reminderDateStr !== undefined) {
+            this.updateReminderDate(reminderDateStr ? reminderDateStr : null);
+        }
+    }
+
+    updateReminderDate(dateStr: string | null) {
+        if (!this.lead) return;
+        let isoDate = null;
+        if (dateStr) {
+            const newDate = new Date(dateStr);
+            if (!isNaN(newDate.getTime())) {
+                isoDate = newDate.toISOString();
+            } else {
+                this.toastService.error('Invalid date format');
+                return;
+            }
+        }
+
+        const updateData: any = { reminder_date: isoDate };
+        this.leadService.updateLead(this.lead.id, updateData).subscribe({
+            next: (updatedLead) => {
+                this.lead = updatedLead;
+                this.toastService.success('Reminder Date updated');
+            },
+            error: () => this.toastService.error('Failed to update reminder date')
+        });
+    }
+
+    // Name Editing
+    async editName() {
+        if (!this.lead) return;
+        const { value: name } = await Swal.fire({
+            title: 'Edit Name',
+            input: 'text',
+            inputValue: this.lead.name,
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) return 'Name is required!';
+                return null;
+            }
+        });
+
+        if (name) {
+            this.updateLead({ name });
+        }
+    }
+
+    // Address Editing
+    async editAddress() {
+        if (!this.lead) return;
+        const { value: address } = await Swal.fire({
+            title: 'Edit Address',
+            input: 'textarea',
+            inputValue: this.lead.address || '',
+            showCancelButton: true
+        });
+
+        if (address !== undefined) {
+            this.updateLead({ address });
+        }
+    }
+
+    // Emirate Editing
+    async editEmirate() {
+        if (!this.lead) return;
+        let optionsHtml = '<option value="">Select Emirate...</option>';
+        this.emirateOptions.forEach(opt => {
+            const selected = this.lead?.emirate === opt ? 'selected' : '';
+            optionsHtml += `<option value="${opt}" ${selected}>${opt}</option>`;
+        });
+
+        const { value: emirate } = await Swal.fire({
+            title: 'Edit Emirate',
+            html: `<select id="swal-emirate" class="swal2-input">${optionsHtml}</select>`,
+            focusConfirm: false,
+            showCancelButton: true,
+            preConfirm: () => {
+                return (document.getElementById('swal-emirate') as HTMLSelectElement).value;
+            }
+        });
+
+        if (emirate !== undefined && emirate !== false) {
+            this.updateLead({ emirate: emirate || null });
+        }
+    }
+
+    updateLead(data: Partial<Lead>) {
+        if (!this.lead) return;
+        this.leadService.updateLead(this.lead.id, data).subscribe({
+            next: (updatedLead) => {
+                this.lead = updatedLead;
+                this.toastService.success('Lead updated');
+            },
+            error: () => this.toastService.error('Failed to update lead')
+        });
+    }
+
     // Financial Editing
     async editFinancials() {
         if (!this.isAdmin || !this.lead) return;
@@ -233,7 +347,7 @@ export class LeadDetailComponent implements OnInit {
             deadline: this.newTaskDeadline,
             status: 'Not Started',
             priority: 'Normal',
-            description: `Task for Lead: ${this.lead?.first_name} ${this.lead?.last_name}`,
+            description: `Task for Lead: ${this.lead?.name}`,
             lead: this.lead?.id
         };
 
@@ -291,10 +405,10 @@ export class LeadDetailComponent implements OnInit {
         }).then((result) => {
             if (result.isConfirmed && this.lead) {
                 this.leadService.transitionLead(this.lead.id, this.selectedStage, this.newNote).subscribe({
-                    next: (updatedLead) => {
-                        this.lead = updatedLead;
+                    next: () => {
                         this.newNote = '';
                         this.toastService.success(`Lead moved to ${this.selectedStage}`);
+                        this.loadLead(this.lead!.id); // Reload to get fresh audit_logs
                     },
                     error: (err) => this.toastService.error('Failed to change stage')
                 });
@@ -322,9 +436,16 @@ export class LeadDetailComponent implements OnInit {
             content: this.noteContent
         };
 
-        this.leadService.createNote(noteData).subscribe(newNote => {
-            this.notes.unshift(newNote); // Add to top
-            this.noteContent = '';
+        this.leadService.createNote(noteData).subscribe({
+            next: () => {
+                this.noteContent = '';
+                this.toastService.success('Note added');
+                this.loadNotes();
+                this.loadLead(this.lead!.id); // Reload to get fresh audit_logs
+            },
+            error: () => {
+                this.toastService.error('Failed to add note');
+            }
         });
     }
 
@@ -357,8 +478,13 @@ export class LeadDetailComponent implements OnInit {
     }
 
     // Avatar Helpers
-    getInitials(firstName: string = '', lastName: string = ''): string {
-        return (firstName.charAt(0) || '') + (lastName.charAt(0) || '');
+    getInitials(name: string = ''): string {
+        if (!name) return '';
+        const parts = name.split(' ');
+        if (parts.length > 1) {
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
     }
 
     getAvatarColor(name: string = ''): string {

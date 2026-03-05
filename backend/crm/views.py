@@ -46,6 +46,9 @@ class LeadSerializer(serializers.ModelSerializer):
     lead_generator_name = serializers.CharField(source='lead_generator.username', read_only=True)
     tech_pipeline_id = serializers.PrimaryKeyRelatedField(source='tech_pipeline', read_only=True)
     remaining_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    name = serializers.CharField(required=True)
+    address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    emirate = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = Lead
@@ -112,9 +115,58 @@ class LeadViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_create_leads', True)):
              raise permissions.PermissionDenied("You do not have permission to create leads.")
-        # Auto-assign if not provided? Serializer might handle it or default to None.
-        # But let's just save.
-        serializer.save()
+        
+        # Check and set default reminder_date if missing
+        reminder_date = serializer.validated_data.get('reminder_date')
+        if not reminder_date:
+            reminder_date = timezone.now() + timedelta(days=7)
+            serializer.validated_data['reminder_date'] = reminder_date
+
+        # Default lead_generator to the current user if not provided
+        if 'lead_generator' not in serializer.validated_data:
+            serializer.validated_data['lead_generator'] = user
+            
+        lead = serializer.save()
+        
+        # Create FollowUpReminder automatically
+        if lead.assigned_to:
+            FollowUpReminder.objects.create(
+                lead=lead,
+                assigned_to=lead.assigned_to,
+                reminder_type='MANUAL' if self.request.data.get('reminder_date') else 'AUTO',
+                due_date=reminder_date,
+                message=f"Follow up with {lead.name}",
+                status='PENDING'
+            )
+
+    def perform_update(self, serializer):
+        # Update lead and sync Reminder
+        old_reminder_date = serializer.instance.reminder_date
+        old_assigned_to = serializer.instance.assigned_to
+        
+        lead = serializer.save()
+        
+        new_reminder_date = lead.reminder_date
+        new_assigned_to = lead.assigned_to
+        
+        # If reminder date changed or assignee changed, update related PENDING reminders
+        if (old_reminder_date != new_reminder_date) or (old_assigned_to != new_assigned_to):
+            if lead.assigned_to and new_reminder_date:
+                # Update existing pending reminder or create a new one
+                reminder = FollowUpReminder.objects.filter(lead=lead, status='PENDING').first()
+                if reminder:
+                    reminder.due_date = new_reminder_date
+                    reminder.assigned_to = lead.assigned_to
+                    reminder.save()
+                else:
+                    FollowUpReminder.objects.create(
+                        lead=lead,
+                        assigned_to=lead.assigned_to,
+                        reminder_type='MANUAL',
+                        due_date=new_reminder_date,
+                        message=f"Follow up with {lead.first_name or 'Lead'} {lead.last_name or str(lead.id)}",
+                        status='PENDING'
+                    )
 
     def perform_destroy(self, instance):
         user = self.request.user
@@ -321,25 +373,36 @@ class LeadDocumentViewSet(viewsets.ModelViewSet):
 
 class NoteSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
+    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
+    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
     class Meta:
         model = Note
         fields = '__all__'
         read_only_fields = ['author', 'created_at']
 
 class NoteViewSet(viewsets.ModelViewSet):
-    queryset = Note.objects.all()
+    queryset = Note.objects.select_related('author').all()
     serializer_class = NoteSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
-        # Filter by lead if provided
+        qs = Note.objects.select_related('author')
         lead_id = self.request.query_params.get('lead')
         if lead_id:
-            return Note.objects.filter(lead_id=lead_id).order_by('-created_at')
-        return Note.objects.all().order_by('-created_at')
+            return qs.filter(lead_id=lead_id).order_by('-created_at')
+        return qs.all().order_by('-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        note = serializer.save(author=self.request.user)
+        # Log note creation in the Activity feed
+        from .models import AuditLog
+        AuditLog.objects.create(
+            lead=note.lead,
+            actor=self.request.user,
+            action="Note Added",
+            notes=note.content[:100]  # First 100 chars as summary
+        )
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
@@ -505,9 +568,14 @@ class DashboardStatsView(APIView):
     def get(self, request):
         user = request.user
         
-        # Trigger Stagnation Check
+        # Throttle Stagnation Check: only run once per hour per user
+        from django.core.cache import cache
         from .services import StagnationService
-        stagnant_count = StagnationService.check_and_alert(user)
+        cache_key = f'stagnation_check_{user.id}'
+        stagnant_count = cache.get(cache_key)
+        if stagnant_count is None:
+            stagnant_count = StagnationService.check_and_alert(user)
+            cache.set(cache_key, stagnant_count, 3600)  # Cache for 1 hour
 
         # Define base querysets based on RBAC
         if user.is_superuser or user.is_manager:
@@ -1027,6 +1095,14 @@ class ReminderViewSet(viewsets.ModelViewSet):
              qs = qs.filter(due_date__gt=timezone.now())
         elif filter_param == 'completed':
              qs = qs.filter(status='COMPLETED')
+
+        date_param = self.request.query_params.get('date')
+        if date_param:
+            try:
+                target_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+                qs = qs.filter(due_date__date=target_date)
+            except ValueError:
+                pass
             
         return qs.order_by('due_date')
 

@@ -113,7 +113,7 @@ export class KanbanBoardComponent implements OnInit {
         if (this.searchTerm) {
             const lowerTerm = this.searchTerm.toLowerCase();
             filteredLeads = this.allLeads.filter(lead =>
-                (lead.first_name + ' ' + lead.last_name).toLowerCase().includes(lowerTerm) ||
+                (lead.name || '').toLowerCase().includes(lowerTerm) ||
                 lead.stage.toLowerCase().replace('_', ' ').includes(lowerTerm)
             );
         }
@@ -188,8 +188,13 @@ export class KanbanBoardComponent implements OnInit {
         return this.phases.map(p => 'phase-' + p.id);
     }
 
-    getInitials(firstName: string, lastName: string): string {
-        return (firstName?.charAt(0) || '') + (lastName?.charAt(0) || '');
+    getInitials(name: string): string {
+        if (!name) return '';
+        const parts = name.split(' ');
+        if (parts.length > 1) {
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
     }
 
     getAvatarColor(name: string): string {

@@ -3,7 +3,8 @@
     <header class="mobile-header" *ngIf="authService.isLoggedIn()">
         <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle Menu">☰</button>
         <div class="mobile-brand brand-gradient">
-            CLICK AI TECHY
+            <img src="assets/images/clickai_logo.png" alt="ClickAI" class="logo-img">
+            <span>CLICK AI TECHY</span>
         </div>
         <div class="header-actions">
         </div>
@@ -16,7 +17,8 @@
     <aside class="sidebar" *ngIf="authService.isLoggedIn()" [class.open]="isSidebarOpen">
         <div class="logo">
             <div class="brand-gradient sidebar-brand">
-                CLICK AI TECHY
+                <img src="assets/images/clickai_logo.png" alt="ClickAI" class="logo-img">
+                <span>CLICK AI TECHY</span>
             </div>
             <button class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close Menu">×</button>
         </div>
@@ -124,6 +126,14 @@
         <!-- Desktop Top Bar -->
         <header class="top-bar" *ngIf="authService.isLoggedIn()">
             <div class="header-right-actions" style="margin-left: auto; display: flex; gap: 1rem; align-items: center;">
+                <!-- Notifications -->
+                <div class="notification-wrapper" routerLink="/dashboard/notifications">
+                    <button class="notification-btn">
+                        🔔
+                        <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+                    </button>
+                </div>
+
                 <!-- Settings Dropdown -->
                 <div class="settings-wrapper">
                     <button class="settings-btn" (click)="toggleSettings()">

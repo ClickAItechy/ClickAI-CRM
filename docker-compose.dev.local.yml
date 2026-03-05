@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: clickai_postgres_dev
+    env_file:
+      - .env.dev
+    environment:
+      - POSTGRES_DB=clickai_crm
+      - POSTGRES_USER=clickai_user
+      - POSTGRES_PASSWORD=strongpassword
+    # Expose DB port for local debugging if needed
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  backend:
+    image: clickai_backend_dev
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    # Override command for development with hot reload
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env.dev
+    # Expose backend port directly for API testing
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_data:/app/media
+
+  frontend:
+    image: clickai_frontend_dev
+    build: ./frontend
+    # Override command for development with hot reload and polling
+    # --poll=2000 ensures file changes are detected even on external drives
+    command: ng serve --host 0.0.0.0 --disable-host-check --poll=2000
+    # Expose frontend port directly for hot reload
+    ports:
+      - "4200:4200"
+
+  gateway:
+    image: clickai_gateway_dev
+    build: ./infrastructure/gateway
+    # Use a different port to avoid conflicts with production (if running)
+    ports:
+      - "8088:80"
+    volumes:
+      - media_data:/app/media
+
+volumes:
+  media_data:
+  postgres_dev_data:

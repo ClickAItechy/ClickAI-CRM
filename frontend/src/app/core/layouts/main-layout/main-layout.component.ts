@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ChangePasswordModalComponent } from '../../../shared/components/change-password-modal/change-password-modal.component';
 import { TeamService } from '../../services/team.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { filter } from 'rxjs/operators';
 
@@ -26,12 +28,14 @@ export class MainLayoutComponent implements OnInit {
     constructor(
         public authService: AuthService,
         public router: Router,
-        private teamService: TeamService
+        private teamService: TeamService,
+        private http: HttpClient
     ) { }
 
     ngOnInit() {
         if (this.authService.isLoggedIn()) {
             this.loadTeams();
+            this.loadUnreadCount();
         }
         this.checkRoute(this.router.url);
         this.router.events.pipe(
@@ -49,10 +53,10 @@ export class MainLayoutComponent implements OnInit {
 
     loadTeams() {
         this.teamService.getTeams().subscribe({
-            next: (teams) => {
+            next: (teams: any[]) => {
                 this.teams = teams;
             },
-            error: (err) => console.error('Failed to load teams', err)
+            error: (err: any) => console.error('Failed to load teams', err)
         });
     }
 
@@ -75,6 +79,13 @@ export class MainLayoutComponent implements OnInit {
 
     toggleTeamsMenu() {
         this.isTeamsMenuOpen = !this.isTeamsMenuOpen;
+    }
+
+    loadUnreadCount() {
+        this.http.get<any>(`${environment.apiUrl}/notifications/unread_count/`).subscribe({
+            next: (data) => this.unreadCount = data.count,
+            error: (err) => console.error('Failed to load unread count', err)
+        });
     }
 
     logout() {

@@ -4,16 +4,38 @@
         <!-- Personal Info -->
         <h4 class="section-title">Personal Information</h4>
         <div class="row">
-            <div class="col-6">
+            <div class="col-12">
                 <div class="form-group">
-                    <label>First Name</label>
-                    <input [(ngModel)]="lead.first_name" name="first_name" required>
+                    <label>Name <span style="color: red;">*</span></label>
+                    <input [(ngModel)]="lead.name" name="name" required #name="ngModel"
+                        [class.invalid]="name.invalid && name.touched">
+                    <div *ngIf="name.invalid && name.touched" style="color: red; font-size: 0.8em;">
+                        Name is required.
+                    </div>
                 </div>
             </div>
-            <div class="col-6">
+        </div>
+
+        <div class="row">
+            <div class="col-12">
                 <div class="form-group">
-                    <label>Last Name</label>
-                    <input [(ngModel)]="lead.last_name" name="last_name" required>
+                    <label>Address</label>
+                    <textarea [(ngModel)]="lead.address" name="address" rows="2"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label>Emirate</label>
+                    <select [(ngModel)]="lead.emirate" name="emirate">
+                        <option value="">Select Emirate...</option>
+                        <option *ngFor="let option of emirateOptions" [value]="option">
+                            {{ option }}
+                        </option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -55,12 +77,18 @@
             <div class="col-12">
                 <div class="form-group">
                     <label>Lead Generator (Team Member)</label>
-                    <select [(ngModel)]="lead.lead_generator" name="lead_generator" required>
+                    <select [(ngModel)]="lead.lead_generator" name="lead_generator">
                         <option [ngValue]="null">Select Team Member...</option>
                         <option *ngFor="let user of users" [ngValue]="user.id">
                             {{ user.username }} ({{ user.team }})
                         </option>
                     </select>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label>Set Reminder (Defaults to +7 days)</label>
+                    <input type="date" [(ngModel)]="lead.reminder_date" name="reminder_date">
                 </div>
             </div>
             <div class="col-12">

@@ -20,6 +20,9 @@
                     (click)="setFilter('all')">All</button>
                 <button class="btn btn-sm" [class.btn-primary]="filter === 'today'"
                     (click)="setFilter('today')">Today</button>
+
+                <input type="date" class="form-control form-control-sm" style="width: auto; margin-left: 10px;"
+                    [(ngModel)]="selectedDate" (change)="onDateChange()">
             </div>
         </div>
 
@@ -30,6 +33,7 @@
                         <th>Lead</th>
                         <th>Message</th>
                         <th>Due Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +51,18 @@
                                 [class.overdue-text]="(reminder.due_date | date:'yyyy-MM-dd') < (today | date:'yyyy-MM-dd')">
                                 {{ reminder.due_date | date:'medium' }}
                             </span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-sm btn-outline-primary"
+                                    (click)="setNewReminder(reminder, $event)" title="Set New Reminder">
+                                    🗓️ Set
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" (click)="stopReminding(reminder, $event)"
+                                    title="Stop Reminding">
+                                    🛑 Stop
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
