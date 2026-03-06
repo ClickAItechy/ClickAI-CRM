@@ -4,14 +4,12 @@ from django.db import migrations
 
 
 def migrate_names(apps, schema_editor):
-    Lead = apps.get_model('crm', 'Lead')
-    for lead in Lead.objects.all():
-        first = lead.first_name or ""
-        last = lead.last_name or ""
-        full_name = f"{first} {last}".strip()
-        if full_name:
-            lead.name = full_name
-            lead.save()
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute('''
+            UPDATE crm_lead 
+            SET name = NULLIF(TRIM(COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')), '')
+            WHERE (name = '' OR name IS NULL OR name = 'Unnamed Lead');
+        ''')
 
 class Migration(migrations.Migration):
 
