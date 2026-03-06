@@ -17,6 +17,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://crm.clickaitech.ae',
     'http://crm.clickaitech.ae',
     'https://click-ai-crm.vercel.app',
+    'https://click-ai-crm-staging.vercel.app',
 ]
 
 INSTALLED_APPS = [
@@ -102,8 +103,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'https://crm.clickaitech.ae,https://click-ai-crm.vercel.app'
+    'https://crm.clickaitech.ae,https://click-ai-crm.vercel.app,https://click-ai-crm-staging.vercel.app'
 ).split(',')
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://click-ai-crm-.*\.vercel\.app$",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
