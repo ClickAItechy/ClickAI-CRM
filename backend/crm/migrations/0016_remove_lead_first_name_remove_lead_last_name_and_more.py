@@ -2,6 +2,13 @@
 
 from django.db import migrations, models
 
+def merge_names(apps, schema_editor):
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute('''
+            UPDATE crm_lead 
+            SET name = NULLIF(TRIM(COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')), '')
+            WHERE (first_name IS NOT NULL OR last_name IS NOT NULL);
+        ''')
 
 class Migration(migrations.Migration):
 
@@ -10,14 +17,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='lead',
-            name='first_name',
-        ),
-        migrations.RemoveField(
-            model_name='lead',
-            name='last_name',
-        ),
         migrations.AddField(
             model_name='lead',
             name='address',
@@ -32,5 +31,14 @@ class Migration(migrations.Migration):
             model_name='lead',
             name='name',
             field=models.CharField(default='Unnamed Lead', max_length=255),
+        ),
+        migrations.RunPython(merge_names, reverse_code=migrations.RunPython.noop),
+        migrations.RemoveField(
+            model_name='lead',
+            name='first_name',
+        ),
+        migrations.RemoveField(
+            model_name='lead',
+            name='last_name',
         ),
     ]
