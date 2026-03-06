@@ -112,6 +112,11 @@ class LeadViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsTeamOwnerOrManager]
     pagination_class = StandardResultsSetPagination
 
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('no_pagination') == 'true':
+            return None
+        return super().paginate_queryset(queryset)
+
     def perform_create(self, serializer):
         user = self.request.user
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_create_leads', True)):
@@ -1262,6 +1267,11 @@ class TechPipelineViewSet(viewsets.ModelViewSet):
     queryset = TechPipeline.objects.all()
     serializer_class = TechPipelineSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('no_pagination') == 'true':
+            return None
+        return super().paginate_queryset(queryset)
 
     def get_queryset(self):
         user = self.request.user

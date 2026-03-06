@@ -42,7 +42,7 @@ export class TechPipelineKanbanComponent implements OnInit {
     }
 
     loadPipelines() {
-        this.http.get<any>(`${environment.apiUrl}/tech-pipeline/`).subscribe({
+        this.http.get<any>(`${environment.apiUrl}/tech-pipeline/?no_pagination=true`).subscribe({
             next: (res) => {
                 this.allPipelines = Array.isArray(res) ? res : res.results || [];
                 this.distributePipelines();

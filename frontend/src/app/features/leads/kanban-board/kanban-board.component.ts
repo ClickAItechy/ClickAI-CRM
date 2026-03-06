@@ -97,7 +97,7 @@ export class KanbanBoardComponent implements OnInit {
     }
 
     loadLeads() {
-        this.leadService.getLeads().subscribe(leads => {
+        this.leadService.getLeads({ no_pagination: 'true' }).subscribe(leads => {
             this.allLeads = leads;
             this.distributeLeads();
         });
