@@ -14,6 +14,17 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write('Seeding data...')
 
+        # 0. Clear existing data to avoid orphans with empty names from previous schema issues
+        self.stdout.write('Clearing existing CRM data...')
+        FollowUpReminder.objects.all().delete()
+        Quotation.objects.all().delete()
+        Invoice.objects.all().delete()
+        Deal.objects.all().delete()
+        Task.objects.all().delete()
+        Lead.objects.all().delete()
+        Contact.objects.all().delete()
+        Account.objects.all().delete()
+
         # 1. Ensure Users and Roles exist
         # Re-use setup_users logic or just get existing
         admin_user = User.objects.filter(username='admin').first()
@@ -62,7 +73,9 @@ class Command(BaseCommand):
         # 4. Create Leads
         lead_names = [
             'Global Logistics Solutions', 'Aura Real Estate', 'Zenix Tech', 
-            'Sarah Al-Maktoum', 'David Miller', 'Cloud Nine Digital'
+            'Sarah Al-Maktoum', 'David Miller', 'Cloud Nine Digital',
+            'Elite Property Group', 'Swift Logistics Ltd', 'NextGen Softwares',
+            'Al-Futtaim Tech', 'Dubai Marina Devs', 'Sharjah Biz Hub'
         ]
         
         stages = [stage for stage, _ in LeadStage.choices]
@@ -91,7 +104,28 @@ class Command(BaseCommand):
             leads.append(lead)
         self.stdout.write(f'Created/Found {len(leads)} Leads')
 
-        # 5. Create Reminders
+        # 5. Create Tasks
+        subjects = [
+            'Initial call to qualify', 'Prepare proposal', 'Follow up on technical requirements',
+            'Arrange meeting with CEO', 'Review contract terms', 'Finalize design documents',
+            'Coordinate with tech team', 'Check payment status'
+        ]
+        
+        for i, lead in enumerate(leads):
+            Task.objects.get_or_create(
+                subject=f"{random.choice(subjects)} - {lead.first_name}",
+                lead=lead,
+                defaults={
+                    'owner': lead.assigned_to,
+                    'deadline': timezone.now() + timedelta(days=random.randint(-1, 7)),
+                    'status': random.choice(['Not Started', 'In Progress', 'Completed']),
+                    'priority': random.choice(['Low', 'Normal', 'High']),
+                    'description': f"Detailed task description for {lead.first_name}"
+                }
+            )
+        self.stdout.write('Created Sample Tasks')
+
+        # 6. Create Reminders
         for lead in leads:
             FollowUpReminder.objects.get_or_create(
                 lead=lead,
@@ -104,7 +138,7 @@ class Command(BaseCommand):
             )
         self.stdout.write('Created Reminders')
 
-        # 6. Create Quotations
+        # 7. Create Quotations
         for i in range(1, 4):
             lead = leads[i % len(leads)]
             Quotation.objects.get_or_create(
@@ -120,7 +154,7 @@ class Command(BaseCommand):
             )
         self.stdout.write('Created Quotations')
 
-        # 7. Create Invoices
+        # 8. Create Invoices
         for i in range(1, 4):
             lead = leads[(i+1) % len(leads)]
             Invoice.objects.get_or_create(
@@ -128,13 +162,12 @@ class Command(BaseCommand):
                 defaults={
                     'client_name': f"{lead.first_name} {lead.last_name}".strip(),
                     'client_email': lead.email,
-                    'grand_total': lead.project_amount * decimal.Decimal('1.05'), # +5% tax maybe? keep it simple
-                    'status': 'ISSUED',
+                    'grand_total': lead.project_amount,
+                    'status': 'PAID',
                     'created_by': admin_user,
-                    'items': [{'name': 'Service Fee', 'price': float(lead.project_amount), 'quantity': 1, 'subtotal': float(lead.project_amount)}]
+                    'items': [{'name': 'Project Installment', 'price': float(lead.project_amount), 'quantity': 1, 'subtotal': float(lead.project_amount)}]
                 }
             )
         self.stdout.write('Created Invoices')
-
+        
         self.stdout.write(self.style.SUCCESS('Database seeded successfully!'))
-import decimal

@@ -19,8 +19,8 @@ export class ContactListComponent implements OnInit {
     constructor(private http: HttpClient) { }
 
     ngOnInit() {
-        this.http.get<any[]>(`${environment.apiUrl}/contacts/`).subscribe({
-            next: (data) => this.contacts = data,
+        this.http.get<any>(`${environment.apiUrl}/contacts/`).subscribe({
+            next: (res) => this.contacts = Array.isArray(res) ? res : res.results || [],
             error: (err) => console.error('Failed to load contacts', err)
         });
     }
@@ -28,7 +28,7 @@ export class ContactListComponent implements OnInit {
     get filteredContacts() {
         if (!this.searchTerm) return this.contacts;
         return this.contacts.filter(contact =>
-            contact.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            ((contact.first_name || '') + ' ' + (contact.last_name || '')).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
             contact.email.toLowerCase().includes(this.searchTerm.toLowerCase())
         );
     }

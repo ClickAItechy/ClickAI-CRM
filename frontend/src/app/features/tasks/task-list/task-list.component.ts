@@ -57,8 +57,8 @@ export class TaskListComponent implements OnInit {
     }
 
     loadTasks() {
-        this.http.get<any[]>(`${environment.apiUrl}/tasks/`).subscribe({
-            next: (data) => this.tasks = data,
+        this.http.get<any>(`${environment.apiUrl}/tasks/`).subscribe({
+            next: (res) => this.tasks = Array.isArray(res) ? res : res.results || [],
             error: (err) => console.error('Failed to load tasks', err)
         });
     }
@@ -67,10 +67,13 @@ export class TaskListComponent implements OnInit {
         this.teamService.getTeams().subscribe({
             next: (teams) => {
                 this.teams = teams;
-                // Pre-load members for all teams
+                // Pre-load members for all teams with X-Skip-Loader to avoid flickering or stuck loader
                 teams.forEach(team => {
-                    this.teamService.getTeamMembers(team.value).subscribe(members => {
-                        this.teamMembersMap.set(team.value, members);
+                    this.http.get<TeamMember[]>(`${environment.apiUrl}/users/?team=${team.value}`, {
+                        headers: { 'X-Skip-Loader': 'true' }
+                    }).subscribe({
+                        next: (members) => this.teamMembersMap.set(team.value, members),
+                        error: (err) => console.error(`Failed to load members for team ${team.value}`, err)
                     });
                 });
             },

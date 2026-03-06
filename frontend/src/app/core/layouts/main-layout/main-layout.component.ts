@@ -82,7 +82,10 @@ export class MainLayoutComponent implements OnInit {
     }
 
     loadUnreadCount() {
-        this.http.get<any>(`${environment.apiUrl}/notifications/unread_count/`).subscribe({
+        // Using teamService (which contains NotificationService logic) or direct call with skip-loader
+        this.http.get<any>(`${environment.apiUrl}/notifications/unread_count/`, {
+            headers: { 'X-Skip-Loader': 'true' }
+        }).subscribe({
             next: (data) => this.unreadCount = data.count,
             error: (err) => console.error('Failed to load unread count', err)
         });

@@ -19,8 +19,8 @@ export class AccountListComponent implements OnInit {
     constructor(private http: HttpClient) { }
 
     ngOnInit() {
-        this.http.get<any[]>(`${environment.apiUrl}/accounts/`).subscribe({
-            next: (data) => this.accounts = data,
+        this.http.get<any>(`${environment.apiUrl}/accounts/`).subscribe({
+            next: (res) => this.accounts = Array.isArray(res) ? res : res.results || [],
             error: (err) => console.error('Failed to load accounts', err)
         });
     }

@@ -21,7 +21,6 @@ class TransitionService:
     # For now, we will allow linear progression + bouncing back
     
     @staticmethod
-    @staticmethod
     def change_stage(lead: Lead, new_stage: str, user, notes: str = ""):
         from django.contrib.auth import get_user_model
         User = get_user_model()
@@ -50,8 +49,8 @@ class TransitionService:
                 # 3. Create Task for Manager
                 Task.objects.create(
                     owner=manager,
-                subject=f"Assign Lead: {lead.first_name or ''} {lead.last_name or ''}".strip(),
-                description=f"Lead moved to {new_stage} ({new_team}). Please assign to a team member.",
+                    subject=f"Assign Lead: {lead.first_name or ''} {lead.last_name or ''}".strip(),
+                    description=f"Lead moved to {new_stage} ({new_team}). Please assign to a team member.",
                     priority='High',
                     status='Not Started',
                     deadline=timezone.now() + timezone.timedelta(hours=24) # 24h SLA

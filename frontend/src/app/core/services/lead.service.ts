@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Lead, LeadDocument } from '../models/lead.model';
 
@@ -13,7 +13,9 @@ export class LeadService {
     constructor(private http: HttpClient) { }
 
     getLeads(params?: any): Observable<Lead[]> {
-        return this.http.get<Lead[]>(this.apiUrl + '/', { params });
+        return this.http.get<any>(this.apiUrl + '/', { params }).pipe(
+            map(res => Array.isArray(res) ? res : res.results || [])
+        );
     }
 
     getLeadById(id: number): Observable<Lead> {
@@ -72,6 +74,8 @@ export class LeadService {
     }
 
     getUsers(): Observable<any[]> {
-        return this.http.get<any[]>(`${environment.apiUrl}/users/`);
+        return this.http.get<any>(`${environment.apiUrl}/users/`).pipe(
+            map(res => Array.isArray(res) ? res : res.results || [])
+        );
     }
 }

@@ -738,12 +738,17 @@ class DealSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TaskSerializer(serializers.ModelSerializer):
-    owner_name = serializers.CharField(source='owner.username', read_only=True)
+    owner_name = serializers.SerializerMethodField()
     owner_team = serializers.CharField(source='owner.team', read_only=True)
     
     class Meta:
         model = Task
         fields = ['id', 'subject', 'deadline', 'status', 'priority', 'deal', 'contact', 'lead', 'owner', 'description', 'created_at', 'owner_name', 'owner_team']
+
+    def get_owner_name(self, obj):
+        if obj.owner:
+            return f"{obj.owner.first_name} {obj.owner.last_name}".strip() or obj.owner.username
+        return "Unassigned"
 
 class DealViewSet(viewsets.ModelViewSet):
     queryset = Deal.objects.all()
@@ -771,9 +776,6 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Task.objects.filter(owner_id=owner_id)
         
         lead_id = self.request.query_params.get('lead')
-        if lead_id:
-            return Task.objects.filter(lead_id=lead_id)
-
         if lead_id:
             return Task.objects.filter(lead_id=lead_id)
 
@@ -946,16 +948,16 @@ class ReportsView(APIView):
             is_active=True, 
             team__in=['SALES', 'OPERATIONS']
         ).annotate(
-            revenue=Subquery(won_deals_subquery, output_field=models.DecimalField()),
-            deals=Subquery(delivered_leads_subquery, output_field=models.IntegerField()),
-            leads=Subquery(assigned_leads_subquery, output_field=models.IntegerField()),
-        ).values('username', 'leads', 'deals', 'revenue').order_by('-revenue')[:10]
+            revenue=Subquery(won_deals_subquery, output_field=models.DecimalField(max_digits=12, decimal_places=2)),
+            deals_count=Subquery(delivered_leads_subquery, output_field=models.IntegerField()),
+            leads_count=Subquery(assigned_leads_subquery, output_field=models.IntegerField()),
+        ).values('username', 'leads_count', 'deals_count', 'revenue').order_by('-revenue')[:10]
 
         team_performance = [
             {
                 'username': item['username'],
-                'leads': item['leads'] or 0,
-                'deals': item['deals'] or 0,
+                'leads': item['leads_count'] or 0,
+                'deals': item['deals_count'] or 0,
                 'revenue': item['revenue'] or 0
             } for item in users_stats
         ]
@@ -1012,9 +1014,10 @@ class DailyActivityView(APIView):
 
         data = []
         for activity in activities:
+            lead_name = f"{activity.lead.first_name or ''} {activity.lead.last_name or ''}".strip()
             data.append({
                 'id': activity.id,
-                'lead_name': f"{activity.lead.first_name or ''} {activity.lead.last_name or ''}".strip(),
+                'lead_name': lead_name if lead_name else "Unnamed Lead",
                 'lead_id': activity.lead.id,
                 'from_stage': activity.from_stage,
                 'to_stage': activity.to_stage,
