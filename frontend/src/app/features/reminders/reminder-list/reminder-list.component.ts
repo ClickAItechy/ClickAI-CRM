@@ -74,7 +74,7 @@ export class ReminderListComponent implements OnInit {
 
         const result = await Swal.fire({
             title: 'Stop Reminding?',
-            text: `Are you sure you want to stop reminding for ${lead.name}?`,
+            text: `Are you sure you want to stop reminding for ${lead.first_name} ${lead.last_name}?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -85,7 +85,7 @@ export class ReminderListComponent implements OnInit {
         if (result.isConfirmed) {
             this.http.patch(`${environment.apiUrl}/leads/${lead.id}/update_reminder/`, { reminder_date: null }).subscribe({
                 next: () => {
-                    this.toastService.success(`Reminder stopped for ${lead.name}`);
+                    this.toastService.success(`Reminder stopped for ${lead.first_name} ${lead.last_name}`);
                     this.loadData();
                     this.loadDashboardStats();
                 },

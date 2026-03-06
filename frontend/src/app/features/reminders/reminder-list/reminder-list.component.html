@@ -37,7 +37,7 @@
                         <td>
                             <a [routerLink]="['/dashboard/leads', lead.id]" class="lead-link"
                                 (click)="$event.stopPropagation()">
-                                {{ lead.name }}
+                                {{ lead.first_name }} {{ lead.last_name }}
                             </a>
                         </td>
                         <td>{{ lead.company_name }}</td>
