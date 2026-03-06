@@ -69,11 +69,16 @@ class Command(BaseCommand):
         emirates = [emirate for emirate, _ in Emirate.choices]
         
         leads = []
-        for i, name in enumerate(lead_names):
+        for i, full_name in enumerate(lead_names):
+            parts = full_name.split(' ', 1)
+            f_name = parts[0]
+            l_name = parts[1] if len(parts) > 1 else ''
+            
             lead, _ = Lead.objects.get_or_create(
-                name=name,
+                first_name=f_name,
+                last_name=l_name,
                 defaults={
-                    'email': f'info@{name.lower().replace(" ", "")}.com',
+                    'email': f'info@{full_name.lower().replace(" ", "")}.com',
                     'phone': f'055{i}234567',
                     'stage': stages[i % len(stages)],
                     'emirate': random.choice(emirates),
@@ -90,7 +95,7 @@ class Command(BaseCommand):
         for lead in leads:
             FollowUpReminder.objects.get_or_create(
                 lead=lead,
-                message=f"Follow up with {lead.name} regarding the project requirements.",
+                message=f"Follow up with {lead.first_name} {lead.last_name} regarding the project requirements.",
                 defaults={
                     'assigned_to': lead.assigned_to,
                     'due_date': timezone.now() + timedelta(days=random.randint(-2, 5)),
@@ -105,7 +110,7 @@ class Command(BaseCommand):
             Quotation.objects.get_or_create(
                 quotation_number=f'Q-2026-{i:03}',
                 defaults={
-                    'client_name': lead.name,
+                    'client_name': f"{lead.first_name} {lead.last_name}".strip(),
                     'client_email': lead.email,
                     'grand_total': lead.project_amount,
                     'status': 'SENT',
@@ -121,7 +126,7 @@ class Command(BaseCommand):
             Invoice.objects.get_or_create(
                 invoice_number=f'INV-2026-{i:03}',
                 defaults={
-                    'client_name': lead.name,
+                    'client_name': f"{lead.first_name} {lead.last_name}".strip(),
                     'client_email': lead.email,
                     'grand_total': lead.project_amount * decimal.Decimal('1.05'), # +5% tax maybe? keep it simple
                     'status': 'ISSUED',

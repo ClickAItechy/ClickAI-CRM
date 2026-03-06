@@ -50,8 +50,8 @@ class TransitionService:
                 # 3. Create Task for Manager
                 Task.objects.create(
                     owner=manager,
-                    subject=f"Assign Lead: {lead.name}",
-                    description=f"Lead moved to {new_stage} ({new_team}). Please assign to a team member.",
+                subject=f"Assign Lead: {lead.first_name or ''} {lead.last_name or ''}".strip(),
+                description=f"Lead moved to {new_stage} ({new_team}). Please assign to a team member.",
                     priority='High',
                     status='Not Started',
                     deadline=timezone.now() + timezone.timedelta(hours=24) # 24h SLA
@@ -60,7 +60,7 @@ class TransitionService:
                 # 4. Notify Manager
                 Notification.objects.create(
                     recipient=manager,
-                    message=f"ACTION REQUIRED: New Lead {lead.name} in {new_stage} needs assignment.",
+                    message=f"ACTION REQUIRED: New Lead {lead.first_name or ''} {lead.last_name or ''} in {new_stage} needs assignment.".replace('  ', ' '),
                     lead=lead
                 )
             else:
@@ -147,7 +147,7 @@ class StagnationService:
                     reminder_type=FollowUpReminder.Type.AUTO,
                     status=FollowUpReminder.Status.PENDING,
                     due_date=timezone.now(),
-                    message=f"Stagnant Lead: {lead.name} has been in {lead.get_stage_display()} since {lead.updated_at.strftime('%Y-%m-%d')}."
+                    message=f"Stagnant Lead: {lead.first_name or ''} {lead.last_name or ''} has been in {lead.get_stage_display()} since {lead.updated_at.strftime('%Y-%m-%d')}.".replace('  ', ' ')
                 ))
                 count += 1
         

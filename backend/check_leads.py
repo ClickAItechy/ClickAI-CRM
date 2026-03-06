@@ -7,5 +7,5 @@ django.setup()
 from crm.models import Lead
 
 for lead in Lead.objects.all()[:10]:
-    print(f"ID: {lead.id}, Name: '{lead.name}'")
+    print(f"ID: {lead.id}, Name: '{lead.first_name} {lead.last_name}'")
 
