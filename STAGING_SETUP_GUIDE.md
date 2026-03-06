@@ -33,7 +33,7 @@ Follow these steps to deploy the staging backend on Render:
     - `DATABASE_URL`: `postgresql://postgres.bjsudfixnbwnmldkxtdg:AXoARqnkDehaHXtJ@aws-1-ap-south-1.pooler.supabase.com:6543/postgres`
     - `DJANGO_SECRET_KEY`: (Generate a new secure key)
     - `DEBUG`: `False`
-    - `ALLOWED_HOSTS`: `crm-api-staging.onrender.com,clickai-crm-staging.onrender.com`
+    - `ALLOWED_HOSTS`: `clickai-crm-staging.onrender.com`
     - `CORS_ALLOWED_ORIGINS`: Your Vercel preview/staging URL (e.g., `https://click-ai-crm-staging.vercel.app`)
 
 ---
@@ -53,7 +53,7 @@ To connect your frontend to the staging backend:
     - Go to **Settings** > **Git** > **Deployment Branche**.
     - Add `staging` as a deployment branch if you want it to be tracked specifically.
 4.  **Preview Deployments**:
-    - Every push to the `staging` branch will now automatically build using the staging configuration and point to: `https://crm-api-staging.onrender.com/api/v1`.
+    - Every push to the `staging` branch will now automatically build using the staging configuration and point to: `https://clickai-crm-staging.onrender.com/api/v1`.
 
 ---
 
