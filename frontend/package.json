@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:staging": "ng build --configuration staging",
+    "build:vercel": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"staging\" ]; then npm run build:staging; else npm run build; fi",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
