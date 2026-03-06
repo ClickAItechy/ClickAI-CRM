@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0016_remove_lead_first_name_remove_lead_last_name_and_more'),
+        ('crm', '0019_remove_lead_first_name_remove_lead_last_name_and_more'),
     ]
 
     operations = [
