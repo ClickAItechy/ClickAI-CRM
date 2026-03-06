@@ -28,8 +28,7 @@ export class ContactListComponent implements OnInit {
     get filteredContacts() {
         if (!this.searchTerm) return this.contacts;
         return this.contacts.filter(contact =>
-            contact.first_name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            contact.last_name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            contact.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
             contact.email.toLowerCase().includes(this.searchTerm.toLowerCase())
         );
     }

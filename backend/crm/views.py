@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'team', 'is_manager', 'is_superuser', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
+        fields = ['id', 'username', 'name', 'email', 'team', 'is_manager', 'is_superuser', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
         read_only_fields = ['is_superuser']
 
 class LeadDocumentSerializer(serializers.ModelSerializer):
@@ -116,10 +116,10 @@ class LeadViewSet(viewsets.ModelViewSet):
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_create_leads', True)):
              raise permissions.PermissionDenied("You do not have permission to create leads.")
         
-        # Check and set default reminder_date if missing
+        # Check and set default reminder_date if missing (DateField: date only)
         reminder_date = serializer.validated_data.get('reminder_date')
         if not reminder_date:
-            reminder_date = timezone.now() + timedelta(days=7)
+            reminder_date = timezone.localdate() + timedelta(days=7)
             serializer.validated_data['reminder_date'] = reminder_date
 
         # Default lead_generator to the current user if not provided
@@ -164,7 +164,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                         assigned_to=lead.assigned_to,
                         reminder_type='MANUAL',
                         due_date=new_reminder_date,
-                        message=f"Follow up with {lead.first_name or 'Lead'} {lead.last_name or str(lead.id)}",
+                        message=f"Follow up with {lead.name}",
                         status='PENDING'
                     )
 
@@ -206,7 +206,19 @@ class LeadViewSet(viewsets.ModelViewSet):
         # New Today Filter
         new_today_param = self.request.query_params.get('new_today')
         if new_today_param == 'true':
-            queryset = queryset.filter(created_at__date=timezone.now().date())
+            today = timezone.localdate()
+            start_of_today = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+            end_of_today = timezone.make_aware(datetime.combine(today, datetime.max.time()))
+            queryset = queryset.filter(created_at__range=(start_of_today, end_of_today))
+
+        # Reminder Date Filter (DateField — simple exact match)
+        reminder_date_param = self.request.query_params.get('reminder_date')
+        if reminder_date_param:
+            try:
+                parsed_date = datetime.strptime(reminder_date_param, '%Y-%m-%d').date()
+                queryset = queryset.filter(reminder_date=parsed_date)
+            except ValueError:
+                pass # Ignore invalid date format
 
         # Sorting
         ordering = self.request.query_params.get('ordering', '-created_at')
@@ -217,8 +229,7 @@ class LeadViewSet(viewsets.ModelViewSet):
         search_query = self.request.query_params.get('search')
         if search_query:
             queryset = queryset.filter(
-                models.Q(first_name__icontains=search_query) |
-                models.Q(last_name__icontains=search_query) |
+                models.Q(name__icontains=search_query) |
                 models.Q(email__icontains=search_query) |
                 models.Q(phone__icontains=search_query)
             )
@@ -249,7 +260,12 @@ class LeadViewSet(viewsets.ModelViewSet):
         ws.title = "Leads Export"
         
         # Headers
-        headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Stage', 'Team', 'Assigned To', 'Created Date', 'Created Time']
+        headers = [
+            'ID', 'Name', 'Company Name', 'Emirate', 'Address', 'Email', 
+            'Phone Number', 'Status', 'Stage', 'Lead Generator', 
+            'Assigned To', 'Created Date', 'Create Time', 
+            'Service Requested', 'Follow up Reminder (latest)', 'Remarks'
+        ]
         ws.append(headers)
         
         for lead in queryset:
@@ -258,17 +274,28 @@ class LeadViewSet(viewsets.ModelViewSet):
             created_date = local_created_at.date().strftime('%Y-%m-%d')
             created_time = local_created_at.time().strftime('%H:%M:%S')
             
+            # Follow up reminder date (DateField - date only)
+            reminder_val = ''
+            if lead.reminder_date:
+                reminder_val = lead.reminder_date.strftime('%Y-%m-%d')
+
             ws.append([
                 lead.id,
-                lead.first_name,
-                lead.last_name,
+                lead.name,
+                lead.company_name or '',
+                lead.emirate or '',
+                lead.address or '',
                 lead.email or '',
                 lead.phone or '',
+                lead.status,
                 lead.stage,
-                lead.assigned_team,
-                lead.assigned_to.username if lead.assigned_to else '',
+                lead.lead_generator.name if lead.lead_generator and getattr(lead.lead_generator, 'name', None) else (lead.lead_generator.username if lead.lead_generator else ''),
+                lead.assigned_to.name if lead.assigned_to and getattr(lead.assigned_to, 'name', None) else (lead.assigned_to.username if lead.assigned_to else ''),
                 created_date,
-                created_time
+                created_time,
+                lead.tech_requirements or '',
+                reminder_val,
+                lead.remarks or ''
             ])
         
         # Determine dynamic filename
@@ -312,7 +339,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                 Notification.objects.create(
                     recipient=user,
                     sender=request.user,
-                    message=f"You have been assigned a new lead: {lead.first_name} {lead.last_name}",
+                    message=f"You have been assigned a new lead: {lead.name}",
                     lead=lead
                 )
                 
@@ -351,13 +378,76 @@ class LeadViewSet(viewsets.ModelViewSet):
             Notification.objects.create(
                 recipient=user,
                 sender=request.user,
-                message=f"You have been assigned a new lead: {lead.first_name} {lead.last_name}",
+                message=f"You have been assigned a new lead: {lead.name}",
                 lead=lead
             )
             
             return Response({'message': 'Assigned successfully'})
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['patch'])
+    def update_reminder(self, request, pk=None):
+        user = request.user
+        lead = self.get_object()
+        
+        # Check permissions - must be assigned, manager, or superuser
+        if not (user.is_superuser or user.is_manager or lead.assigned_to == user):
+             return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+        new_date_str = request.data.get('reminder_date')
+        
+        if new_date_str:
+            # Set the new reminder date (DateField — date only)
+            try:
+                new_reminder_date = datetime.strptime(new_date_str[:10], '%Y-%m-%d').date()
+
+                lead.reminder_date = new_reminder_date
+                lead.save(update_fields=['reminder_date', 'updated_at'])
+                
+                # Dismiss previous pending reminders for this lead
+                FollowUpReminder.objects.filter(lead=lead, status='PENDING').update(status='DISMISSED')
+                
+                # Create a new FollowUpReminder object
+                due_datetime = timezone.make_aware(datetime.combine(new_reminder_date, datetime.min.time().replace(hour=9)))
+                if lead.assigned_to:
+                    FollowUpReminder.objects.create(
+                        lead=lead,
+                        assigned_to=lead.assigned_to,
+                        reminder_type='MANUAL',
+                        due_date=due_datetime,
+                        message=f"Follow up with {lead.name}",
+                        status='PENDING'
+                    )
+                
+                # Log Activity
+                AuditLog.objects.create(
+                    lead=lead,
+                    actor=user,
+                    action='REMINDER_UPDATED',
+                    notes=f"Reminder updated to {new_reminder_date.strftime('%Y-%m-%d')}"
+                )
+                
+                return Response({'status': 'Reminder updated successfully'})
+            except ValueError as e:
+                return Response({'error': 'Invalid date format'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Stop Reminding
+            lead.reminder_date = None
+            lead.save(update_fields=['reminder_date', 'updated_at'])
+            
+            # Dismiss pending reminders
+            FollowUpReminder.objects.filter(lead=lead, status='PENDING').update(status='DISMISSED')
+            
+            # Log Activity
+            AuditLog.objects.create(
+                lead=lead,
+                actor=user,
+                action='REMINDER_STOPPED',
+                notes='Follow-up reminder stopped/cleared.'
+            )
+            
+            return Response({'status': 'Reminder stopped successfully'})
 
 class LeadDocumentViewSet(viewsets.ModelViewSet):
     queryset = LeadDocument.objects.all()
@@ -373,8 +463,7 @@ class LeadDocumentViewSet(viewsets.ModelViewSet):
 
 class NoteSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
-    author_first_name = serializers.CharField(source='author.first_name', read_only=True)
-    author_last_name = serializers.CharField(source='author.last_name', read_only=True)
+    author_full_name = serializers.CharField(source='author.name', read_only=True)
     class Meta:
         model = Note
         fields = '__all__'
@@ -492,19 +581,13 @@ class UserViewSet(viewsets.ModelViewSet):
             
         if User.objects.filter(username=username).exists():
              return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Split Full Name
-        names = full_name.split(' ', 1)
-        first_name = names[0]
-        last_name = names[1] if len(names) > 1 else ''
         
         try:
             user = User.objects.create_user(
                 username=username,
                 email=email,
                 password='password123',
-                first_name=first_name,
-                last_name=last_name,
+                name=full_name,
                 team=team,
                 is_manager=is_manager # Set manager status
             )
@@ -598,20 +681,24 @@ class DashboardStatsView(APIView):
         task_stats = tasks.values('status').annotate(count=Count('id'))
 
         # Recent & Upcoming
-        today = timezone.now().date()
+        today = timezone.localdate()
         current_month = today.month
         current_year = today.year
+        
+        start_of_today = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+        end_of_today = timezone.make_aware(datetime.combine(today, datetime.max.time()))
         
         # Admin/User KPIs
         open_leads_count = leads.exclude(stage__in=[LeadStage.DELIVERED, LeadStage.LOST, LeadStage.ON_HOLD]).count()
         completed_leads_count = leads.filter(stage=LeadStage.DELIVERED).count()
         deals_closing_month = deals.filter(closing_date__month=current_month, closing_date__year=current_year).count()
-        new_leads_today = leads.filter(created_at__date=today).count()
+        new_leads_today = leads.filter(created_at__range=(start_of_today, end_of_today)).count()
         unassigned_leads = leads.filter(assigned_to__isnull=True).count()
 
         todays_tasks = tasks.filter(deadline__date=today).order_by('priority')[:5]
         recent_leads = leads.order_by('-created_at')[:5]
         recent_completed_leads = leads.filter(stage=LeadStage.DELIVERED).order_by('-updated_at')[:5]
+        today_reminders_count = leads.filter(reminder_date=today).count()
 
         # Prepare response data
         data = {
@@ -627,9 +714,10 @@ class DashboardStatsView(APIView):
             'deals_closing_this_month': deals_closing_month,
             'new_leads_today': new_leads_today,
             'unassigned_leads': unassigned_leads,
+            'today_reminders_count': today_reminders_count,
             'todays_tasks': [{'id': t.id, 'subject': t.subject, 'priority': t.priority, 'status': t.status} for t in todays_tasks],
-            'recent_leads': [{'id': l.id, 'name': f"{l.first_name} {l.last_name}", 'stage': l.stage, 'created_at': l.created_at} for l in recent_leads],
-            'recent_completed_leads': [{'id': l.id, 'name': f"{l.first_name} {l.last_name}", 'stage': l.stage, 'updated_at': l.updated_at} for l in recent_completed_leads],
+            'recent_leads': [{'id': l.id, 'name': l.name, 'stage': l.stage, 'created_at': l.created_at} for l in recent_leads],
+            'recent_completed_leads': [{'id': l.id, 'name': l.name, 'stage': l.stage, 'updated_at': l.updated_at} for l in recent_completed_leads],
             'stagnant_leads_count': stagnant_count,
             'pending_reminders_count': FollowUpReminder.objects.filter(assigned_to=user, status='PENDING').count(),
         }
@@ -717,7 +805,7 @@ class ReportsView(APIView):
             return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
         timeframe = request.query_params.get('timeframe', 'monthly')
-        today = timezone.now().date()
+        today = timezone.localdate()
         
         # Determine Date Range
         if timeframe == 'daily':
@@ -917,7 +1005,7 @@ class DailyActivityView(APIView):
         for activity in activities:
             data.append({
                 'id': activity.id,
-                'lead_name': f"{activity.lead.first_name} {activity.lead.last_name}",
+                'lead_name': activity.lead.name,
                 'lead_id': activity.lead.id,
                 'from_stage': activity.from_stage,
                 'to_stage': activity.to_stage,
@@ -948,7 +1036,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     def get_lead_name(self, obj):
         if obj.lead:
-             return f"{obj.lead.first_name} {obj.lead.last_name}"
+             return obj.lead.name
         return None
 
 class RevenueStatsView(APIView):
@@ -970,7 +1058,7 @@ class RevenueStatsView(APIView):
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
             
-        today = timezone.now().date()
+        today = timezone.localdate()
         current_month = today.month
         current_year = today.year
         

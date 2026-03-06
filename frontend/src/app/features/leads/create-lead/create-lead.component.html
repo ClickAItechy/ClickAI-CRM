@@ -1,104 +1,220 @@
-<div class="container">
-    <h2>Create New Lead</h2>
-    <form (ngSubmit)="onSubmit()">
-        <!-- Personal Info -->
-        <h4 class="section-title">Personal Information</h4>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Name <span style="color: red;">*</span></label>
-                    <input [(ngModel)]="lead.name" name="name" required #name="ngModel"
-                        [class.invalid]="name.invalid && name.touched">
-                    <div *ngIf="name.invalid && name.touched" style="color: red; font-size: 0.8em;">
-                        Name is required.
+<div>
+    <!-- Page Header -->
+    <div class="cl-header">
+        <div class="cl-header-content">
+            <div class="cl-header-left">
+                <div class="cl-header-icon">
+                    <span>✨</span>
+                </div>
+                <div>
+                    <h1 class="cl-header-title">Add New Lead</h1>
+                    <p class="cl-header-subtitle">Capture a new business opportunity</p>
+                </div>
+            </div>
+            <button type="button" class="cl-back-btn" (click)="cancel()">
+                ← Back to Leads
+            </button>
+        </div>
+    </div>
+
+    <div class="cl-body">
+        <form (ngSubmit)="onSubmit()" #leadForm="ngForm" class="cl-form">
+
+            <!-- Status Selection -->
+            <div class="cl-section cl-section-status">
+                <div class="cl-section-header">
+                    <div class="cl-section-icon status-icon">🎯</div>
+                    <div>
+                        <h3 class="cl-section-title">Lead Status</h3>
+                        <p class="cl-section-desc">How interested is this lead?</p>
+                    </div>
+                </div>
+                <div class="status-pill-group">
+                    <label class="status-pill pill-green" [class.selected]="lead.status === LeadStatus.INTERESTED">
+                        <input type="radio" name="status" [value]="LeadStatus.INTERESTED" [(ngModel)]="lead.status">
+                        <span class="pill-icon">✅</span>
+                        <span>Interested</span>
+                    </label>
+                    <label class="status-pill pill-amber" [class.selected]="lead.status === LeadStatus.NEEDS_FOLLOW_UP">
+                        <input type="radio" name="status" [value]="LeadStatus.NEEDS_FOLLOW_UP"
+                            [(ngModel)]="lead.status">
+                        <span class="pill-icon">🔔</span>
+                        <span>Needs Follow-up</span>
+                    </label>
+                    <label class="status-pill pill-red" [class.selected]="lead.status === LeadStatus.NOT_INTERESTED">
+                        <input type="radio" name="status" [value]="LeadStatus.NOT_INTERESTED" [(ngModel)]="lead.status">
+                        <span class="pill-icon">❌</span>
+                        <span>Not Interested</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Two column layout -->
+            <div class="cl-two-col">
+
+                <!-- Left column -->
+                <div class="cl-col">
+                    <!-- Personal Info -->
+                    <div class="cl-section">
+                        <div class="cl-section-header">
+                            <div class="cl-section-icon info-icon">👤</div>
+                            <div>
+                                <h3 class="cl-section-title">Personal Information</h3>
+                                <p class="cl-section-desc">Lead's basic details</p>
+                            </div>
+                        </div>
+                        <div class="cl-fields">
+                            <div class="cl-field full">
+                                <label class="cl-label">Full Name <span class="required">*</span></label>
+                                <input class="cl-input" [(ngModel)]="lead.name" name="name" required #name="ngModel"
+                                    [class.cl-input-error]="name.invalid && name.touched"
+                                    placeholder="e.g. Ahmed Al-Rashidi">
+                                <div *ngIf="name.invalid && name.touched" class="cl-error">Name is required</div>
+                            </div>
+
+                            <div class="cl-field">
+                                <label class="cl-label">Company Name</label>
+                                <input class="cl-input" [(ngModel)]="lead.company_name" name="company_name"
+                                    placeholder="e.g. Acme Corp">
+                            </div>
+
+                            <div class="cl-field">
+                                <label class="cl-label">Emirate</label>
+                                <select class="cl-input" [(ngModel)]="lead.emirate" name="emirate">
+                                    <option value="">Select Emirate...</option>
+                                    <option *ngFor="let option of emirateOptions" [value]="option">{{ option }}</option>
+                                </select>
+                            </div>
+
+                            <div class="cl-field full">
+                                <label class="cl-label">Address</label>
+                                <input class="cl-input" [(ngModel)]="lead.address" name="address"
+                                    placeholder="e.g. 123 Business Bay, Dubai">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="cl-section">
+                        <div class="cl-section-header">
+                            <div class="cl-section-icon contact-icon">📱</div>
+                            <div>
+                                <h3 class="cl-section-title">Contact Details</h3>
+                                <p class="cl-section-desc">How to reach this lead</p>
+                            </div>
+                        </div>
+                        <div class="cl-fields">
+                            <div class="cl-field">
+                                <label class="cl-label">Email Address</label>
+                                <input type="email" class="cl-input" [(ngModel)]="lead.email" name="email"
+                                    placeholder="john@example.com">
+                            </div>
+
+                            <div class="cl-field">
+                                <label class="cl-label">Phone Number</label>
+                                <div class="phone-row">
+                                    <div class="phone-type-toggle">
+                                        <label class="phone-type-btn" [class.active]="phoneType === 'mobile'">
+                                            <input type="radio" name="phoneType" value="mobile"
+                                                (change)="onPhoneTypeChange('mobile')"
+                                                [checked]="phoneType === 'mobile'">
+                                            📱 Mobile
+                                        </label>
+                                        <label class="phone-type-btn" [class.active]="phoneType === 'landline'">
+                                            <input type="radio" name="phoneType" value="landline"
+                                                (change)="onPhoneTypeChange('landline')"
+                                                [checked]="phoneType === 'landline'">
+                                            ☎️ Landline
+                                        </label>
+                                    </div>
+                                    <div class="phone-input-row">
+                                        <div class="phone-prefix">{{ phonePrefix }}</div>
+                                        <input type="tel" class="cl-input phone-num" [(ngModel)]="phoneLocal"
+                                            name="phoneLocal"
+                                            [placeholder]="phoneType === 'mobile' ? '50 123 4567' : '4 123 4567'">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column -->
+                <div class="cl-col">
+                    <!-- Assignment -->
+                    <div class="cl-section">
+                        <div class="cl-section-header">
+                            <div class="cl-section-icon assign-icon">🤝</div>
+                            <div>
+                                <h3 class="cl-section-title">Assignment & Scheduling</h3>
+                                <p class="cl-section-desc">Who handles this lead?</p>
+                            </div>
+                        </div>
+                        <div class="cl-fields">
+                            <div class="cl-field full">
+                                <label class="cl-label">Lead Generator</label>
+                                <select class="cl-input" [(ngModel)]="lead.lead_generator" name="lead_generator">
+                                    <option [ngValue]="null">Select Team Member...</option>
+                                    <option *ngFor="let user of users" [ngValue]="user.id">
+                                        {{ user.username }} ({{ user.team }})
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="cl-field full">
+                                <label class="cl-label">Follow-up Reminder Date</label>
+                                <input type="date" class="cl-input" [(ngModel)]="lead.reminder_date"
+                                    name="reminder_date">
+                                <span class="cl-hint">💡 Leave empty to default to +7 days from today</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="cl-section">
+                        <div class="cl-section-header">
+                            <div class="cl-section-icon notes-icon">📋</div>
+                            <div>
+                                <h3 class="cl-section-title">Project Details</h3>
+                                <p class="cl-section-desc">Tech requirements & notes</p>
+                            </div>
+                        </div>
+                        <div class="cl-fields">
+                            <div class="cl-field full">
+                                <label class="cl-label">Tech Requirements</label>
+                                <textarea class="cl-input cl-textarea" [(ngModel)]="lead.tech_requirements"
+                                    name="tech_requirements" rows="3"
+                                    placeholder="Describe project needs, technologies required..."></textarea>
+                            </div>
+
+                            <div class="cl-field full">
+                                <label class="cl-label">Remarks & Notes</label>
+                                <textarea class="cl-input cl-textarea" [(ngModel)]="lead.remarks" name="remarks"
+                                    rows="3" placeholder="Any initial observations or key notes..."></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Address</label>
-                    <textarea [(ngModel)]="lead.address" name="address" rows="2"
-                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            <!-- Action Bar -->
+            <div class="cl-action-bar">
+                <div class="cl-action-inner">
+                    <div class="cl-action-info">
+                        <span *ngIf="leadForm.invalid && leadForm.submitted" class="cl-action-warn">⚠️ Please fill
+                            required fields</span>
+                        <span *ngIf="leadForm.valid" class="cl-action-ready">✅ Ready to submit</span>
+                    </div>
+                    <div class="cl-action-btns">
+                        <button type="button" class="cl-btn-cancel" (click)="cancel()">Cancel</button>
+                        <button type="submit" class="cl-btn-submit" [disabled]="loading || leadForm.invalid">
+                            <span *ngIf="!loading">🚀 Create Lead</span>
+                            <span *ngIf="loading">⏳ Saving...</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Emirate</label>
-                    <select [(ngModel)]="lead.emirate" name="emirate">
-                        <option value="">Select Emirate...</option>
-                        <option *ngFor="let option of emirateOptions" [value]="option">
-                            {{ option }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Company Name</label>
-                    <input [(ngModel)]="lead.company_name" name="company_name">
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Tech Requirements / Project Details</label>
-                    <textarea [(ngModel)]="lead.tech_requirements" name="tech_requirements" rows="4"
-                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Info -->
-        <h4 class="section-title">Contact Information</h4>
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" [(ngModel)]="lead.email" name="email">
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" [(ngModel)]="lead.phone" name="phone">
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Lead Generator (Team Member)</label>
-                    <select [(ngModel)]="lead.lead_generator" name="lead_generator">
-                        <option [ngValue]="null">Select Team Member...</option>
-                        <option *ngFor="let user of users" [ngValue]="user.id">
-                            {{ user.username }} ({{ user.team }})
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Set Reminder (Defaults to +7 days)</label>
-                    <input type="date" [(ngModel)]="lead.reminder_date" name="reminder_date">
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <label>Initial Stage</label>
-                    <input [value]="lead.stage" disabled>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn" [disabled]="loading">Create Lead</button>
-    </form>
+        </form>
+    </div>
 </div>

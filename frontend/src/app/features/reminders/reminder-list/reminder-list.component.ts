@@ -2,7 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ReminderService, Reminder, ReminderStats } from '../../../core/services/reminder.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { LeadService } from '../../../core/services/lead.service';
+import { Lead } from '../../../core/models/lead.model';
+import { ToastService } from '../../../core/services/toast.service';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-reminder-list',
@@ -12,100 +17,115 @@ import { ReminderService, Reminder, ReminderStats } from '../../../core/services
     styleUrls: ['./reminder-list.component.css']
 })
 export class ReminderListComponent implements OnInit {
-    reminders: Reminder[] = [];
-    stats: ReminderStats | null = null;
+    leads: Lead[] = [];
+    todayRemindersCount: number = 0;
     loading = true;
-    filter: 'all' | 'today' | 'date' = 'all';
     selectedDate: string = '';
     today = new Date();
 
-    constructor(private reminderService: ReminderService) { }
+    constructor(
+        private leadService: LeadService,
+        private http: HttpClient,
+        private toastService: ToastService
+    ) { }
 
     ngOnInit(): void {
-        this.selectedDate = this.today.toISOString().split('T')[0];
+        const offset = this.today.getTimezoneOffset();
+        const localDate = new Date(this.today.getTime() - (offset * 60 * 1000));
+        this.selectedDate = localDate.toISOString().split('T')[0];
+
         this.loadData();
-        this.reminderService.getReminderStats().subscribe(stats => this.stats = stats);
+        this.loadDashboardStats();
+    }
+
+    loadDashboardStats(): void {
+        this.http.get<any>(`${environment.apiUrl}/dashboard-stats/`).subscribe({
+            next: (data) => {
+                this.todayRemindersCount = data.today_reminders_count || 0;
+            },
+            error: (err) => console.error('Failed to load dashboard stats', err)
+        });
     }
 
     loadData(): void {
         this.loading = true;
         const params: any = {};
-        params.status = 'PENDING'; // Always show only pending
 
-        if (this.filter === 'today') {
-            params.filter = 'today';
-        } else if (this.filter === 'date' && this.selectedDate) {
-            params.date = this.selectedDate;
+        if (this.selectedDate) {
+            params.reminder_date = this.selectedDate;
         }
 
-        this.reminderService.getReminders(params).subscribe({
+        this.http.get<any>(`${environment.apiUrl}/leads/`, { params }).subscribe({
             next: (data) => {
-                this.reminders = data;
+                // Handle paginated response: { count, next, previous, results }
+                this.leads = data.results || data;
                 this.loading = false;
             },
             error: () => this.loading = false
         });
     }
 
-    setFilter(f: 'all' | 'today' | 'date'): void {
-        this.filter = f;
-        this.loadData();
-    }
-
     onDateChange(): void {
-        this.filter = 'date';
         this.loadData();
     }
 
-    markAsRead(reminder: Reminder): void {
-        if (!reminder.is_read) {
-            this.reminderService.markReminderAsRead(reminder.id).subscribe({
-                next: () => {
-                    reminder.is_read = true;
-                    this.reminderService.refreshStats();
-                }
-            });
-        }
-    }
-
-    stopReminding(reminder: Reminder, event: Event): void {
+    async stopReminding(lead: Lead, event: Event): Promise<void> {
         event.stopPropagation();
-        if (confirm('Are you sure you want to stop reminding for this lead?')) {
-            this.reminderService.dismissReminder(reminder.id).subscribe({
+
+        const result = await Swal.fire({
+            title: 'Stop Reminding?',
+            text: `Are you sure you want to stop reminding for ${lead.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, stop it!'
+        });
+
+        if (result.isConfirmed) {
+            this.http.patch(`${environment.apiUrl}/leads/${lead.id}/update_reminder/`, { reminder_date: null }).subscribe({
                 next: () => {
+                    this.toastService.success(`Reminder stopped for ${lead.name}`);
                     this.loadData();
-                    this.reminderService.refreshStats();
-                }
+                    this.loadDashboardStats();
+                },
+                error: (err) => this.toastService.error('Failed to stop reminder.')
             });
         }
     }
 
-    setNewReminder(reminder: Reminder, event: Event): void {
+    async setNewReminder(lead: Lead, event: Event): Promise<void> {
         event.stopPropagation();
-        const newDateStr = prompt('Enter new reminder date (YYYY-MM-DD):', reminder.due_date.split('T')[0]);
+
+        // Extract just the YYYY-MM-DD from the current reminder date if it exists
+        let currentDateString = this.selectedDate;
+        if (lead.reminder_date) {
+            currentDateString = lead.reminder_date.substring(0, 10);
+        }
+
+        const { value: newDateStr } = await Swal.fire({
+            title: 'Update Reminder Date',
+            html: `<input id="swal-reminder-date" type="date" class="swal2-input" value="${currentDateString}">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            preConfirm: () => {
+                return (document.getElementById('swal-reminder-date') as HTMLInputElement).value;
+            }
+        });
+
         if (newDateStr) {
-            const newDate = new Date(newDateStr);
-            if (!isNaN(newDate.getTime())) {
-                // Ideally there should be an update endpoint in ReminderService. 
-                // If not, we can create a new reminder or use a custom endpoint.
-                // Since user asked for "set new reminder", a custom endpoint or standard PUT might be needed.
-                // To keep it simple, we will call an imaginary update endpoint or just re-create.
-                // Wait, creating a new one:
-                this.reminderService.dismissReminder(reminder.id).subscribe(() => {
-                    this.reminderService.createReminder({
-                        lead: reminder.lead,
-                        assigned_to: reminder.assigned_to,
-                        due_date: newDate.toISOString(),
-                        message: reminder.message,
-                        reminder_type: 'MANUAL',
-                        status: 'PENDING'
-                    }).subscribe(() => {
+            const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+            if (datePattern.test(newDateStr)) {
+                this.http.patch(`${environment.apiUrl}/leads/${lead.id}/update_reminder/`, { reminder_date: newDateStr }).subscribe({
+                    next: () => {
+                        this.toastService.success(`Reminder updated to ${newDateStr}`);
                         this.loadData();
-                        this.reminderService.refreshStats();
-                    });
+                        this.loadDashboardStats();
+                    },
+                    error: (err) => this.toastService.error('Failed to update reminder.')
                 });
             } else {
-                alert('Invalid date format.');
+                this.toastService.error('Invalid date format.');
             }
         }
     }

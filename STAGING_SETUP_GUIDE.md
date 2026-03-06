@@ -26,14 +26,14 @@ Follow these steps to deploy the staging backend on Render:
     - **Name**: `clickai-crm-staging`
     - **Environment**: `Docker`
     - **Region**: Same as production (likely `singapore`).
-    - **Branch**: Select your feature branch or a dedicated `staging` branch.
+    - **Branch**: `staging`
     - **Dockerfile Path**: `./backend/Dockerfile`
     - **Docker Context**: `.`
 3.  **Environment Variables**:
     - `DATABASE_URL`: `postgresql://postgres.bjsudfixnbwnmldkxtdg:AXoARqnkDehaHXtJ@aws-1-ap-south-1.pooler.supabase.com:6543/postgres`
     - `DJANGO_SECRET_KEY`: (Generate a new secure key)
     - `DEBUG`: `False`
-    - `ALLOWED_HOSTS`: `clickai-crm-staging.onrender.com`
+    - `ALLOWED_HOSTS`: `crm-api-staging.onrender.com,clickai-crm-staging.onrender.com`
     - `CORS_ALLOWED_ORIGINS`: Your Vercel preview/staging URL (e.g., `https://click-ai-crm-staging.vercel.app`)
 
 ---
@@ -43,13 +43,17 @@ Follow these steps to deploy the staging backend on Render:
 To connect your frontend to the staging backend:
 
 1.  **Vercel Project Settings**:
-    - Go to your Vercel project > **Settings** > **Environment Variables**.
-2.  **Configure Environment Variables**:
-    - Create a new variable named `NEXT_PUBLIC_API_URL` (or whatever your frontend uses for the API base).
-    - **Value**: `https://clickai-crm-staging.onrender.com/api/v1/`
-    - **Environment**: Select **Preview** and **Development**.
-3.  **Preview Deployments**:
-    - Every pull request or push to a branch (other than `main`) will now automatically build a preview deployment pointing to your staging backend.
+    - Go to your Vercel project > **Settings** > **Git**.
+    - Ensure your repository is connected.
+2.  **Configure Build Settings**:
+    - **Root Directory**: `frontend`
+    - **Build Command**: `npm run build:staging` (This points to the staging backend automatically).
+    - **Output Directory**: `dist/clickai-crm-frontend/browser`
+3.  **Configure Staging Branch**:
+    - Go to **Settings** > **Git** > **Deployment Branche**.
+    - Add `staging` as a deployment branch if you want it to be tracked specifically.
+4.  **Preview Deployments**:
+    - Every push to the `staging` branch will now automatically build using the staging configuration and point to: `https://crm-api-staging.onrender.com/api/v1`.
 
 ---
 

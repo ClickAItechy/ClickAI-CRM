@@ -66,7 +66,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://clickai_user:strongpassword@db:5432/clickai_crm',
+        default=f"postgres://{os.getenv('POSTGRES_USER', 'clickai_user')}:{os.getenv('POSTGRES_PASSWORD', 'strongpassword')}@{os.getenv('POSTGRES_HOST', '127.0.0.1')}:5432/{os.getenv('POSTGRES_DB', 'clickai_crm')}",
         conn_max_age=600
     )
 }

@@ -12,8 +12,8 @@ export class LeadService {
 
     constructor(private http: HttpClient) { }
 
-    getLeads(): Observable<Lead[]> {
-        return this.http.get<Lead[]>(this.apiUrl + '/');
+    getLeads(params?: any): Observable<Lead[]> {
+        return this.http.get<Lead[]>(this.apiUrl + '/', { params });
     }
 
     getLeadById(id: number): Observable<Lead> {

@@ -10,6 +10,9 @@ class Team(models.TextChoices):
     TECH = 'TECH', _('Tech')
 
 class User(AbstractUser):
+    first_name = None
+    last_name = None
+    name = models.CharField(max_length=255, blank=True)
     team = models.CharField(
         max_length=20,
         choices=Team.choices,
@@ -52,6 +55,11 @@ class Emirate(models.TextChoices):
     RAS_AL_KHAIMAH = 'RAS_AL_KHAIMAH', _('Ras Al Khaimah')
     FUJAIRAH = 'FUJAIRAH', _('Fujairah')
 
+class LeadStatus(models.TextChoices):
+    INTERESTED = 'INTERESTED', _('Interested')
+    NOT_INTERESTED = 'NOT_INTERESTED', _('Not Interested')
+    NEEDS_FOLLOW_UP = 'NEEDS_FOLLOW_UP', _('Needs Follow-up')
+
 class Lead(models.Model):
     # Customer Info
     name = models.CharField(max_length=255)
@@ -72,7 +80,14 @@ class Lead(models.Model):
     tech_requirements = models.TextField(blank=True, null=True)
     
     # Process Info
-    reminder_date = models.DateTimeField(null=True, blank=True, help_text=_('Automated or manual reminder date'))
+    reminder_date = models.DateField(null=True, blank=True, help_text=_('Automated or manual reminder date'))
+    status = models.CharField(
+        max_length=30,
+        choices=LeadStatus.choices,
+        default=LeadStatus.INTERESTED,
+        db_index=True
+    )
+    remarks = models.TextField(blank=True, null=True)
     stage = models.CharField(
         max_length=30,
         choices=LeadStage.choices,
@@ -156,8 +171,7 @@ class Account(models.Model):
         return self.name
 
 class Contact(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='contacts', null=True, blank=True)
@@ -166,7 +180,7 @@ class Contact(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.name
 
 class Deal(models.Model):
     name = models.CharField(max_length=255)

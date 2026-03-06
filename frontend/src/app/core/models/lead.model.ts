@@ -1,3 +1,9 @@
+export enum LeadStatus {
+    INTERESTED = 'INTERESTED',
+    NOT_INTERESTED = 'NOT_INTERESTED',
+    NEEDS_FOLLOW_UP = 'NEEDS_FOLLOW_UP'
+}
+
 export enum LeadStage {
     NEW_INQUIRY = 'NEW_INQUIRY',
     QUALIFICATION = 'QUALIFICATION',
@@ -95,6 +101,8 @@ export interface Lead {
     reminder_date?: string;
 
     stage: LeadStage;
+    status?: LeadStatus;
+    remarks?: string;
     assigned_team: Team;
     assigned_to?: number;
     assigned_to_name?: string;

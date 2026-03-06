@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LeadService } from '../../../core/services/lead.service';
-import { Lead, LeadStage, LeadDocument, TechPipelineStage } from '../../../core/models/lead.model';
+import { Lead, LeadStage, LeadStatus, LeadDocument, TechPipelineStage } from '../../../core/models/lead.model';
 import { TaskService, Task } from '../../../core/services/task.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -169,18 +169,8 @@ export class LeadDetailComponent implements OnInit {
 
     updateReminderDate(dateStr: string | null) {
         if (!this.lead) return;
-        let isoDate = null;
-        if (dateStr) {
-            const newDate = new Date(dateStr);
-            if (!isNaN(newDate.getTime())) {
-                isoDate = newDate.toISOString();
-            } else {
-                this.toastService.error('Invalid date format');
-                return;
-            }
-        }
 
-        const updateData: any = { reminder_date: isoDate };
+        const updateData: any = { reminder_date: dateStr };
         this.leadService.updateLead(this.lead.id, updateData).subscribe({
             next: (updatedLead) => {
                 this.lead = updatedLead;
@@ -245,6 +235,50 @@ export class LeadDetailComponent implements OnInit {
 
         if (emirate !== undefined && emirate !== false) {
             this.updateLead({ emirate: emirate || null });
+        }
+    }
+
+    // Status Editing
+    async editStatus() {
+        if (!this.isAdmin || !this.lead) return;
+        let optionsHtml = '';
+        const statuses = [
+            { id: LeadStatus.INTERESTED, label: 'Interested' },
+            { id: LeadStatus.NEEDS_FOLLOW_UP, label: 'Needs Follow-up' },
+            { id: LeadStatus.NOT_INTERESTED, label: 'Not Interested' }
+        ];
+        statuses.forEach(s => {
+            const selected = this.lead?.status === s.id ? 'selected' : '';
+            optionsHtml += `<option value="${s.id}" ${selected}>${s.label}</option>`;
+        });
+
+        const { value: status } = await Swal.fire({
+            title: 'Edit Lead Status',
+            html: `<select id="swal-status" class="swal2-input">${optionsHtml}</select>`,
+            focusConfirm: false,
+            showCancelButton: true,
+            preConfirm: () => {
+                return (document.getElementById('swal-status') as HTMLSelectElement).value;
+            }
+        });
+
+        if (status !== undefined && status !== false) {
+            this.updateLead({ status: status as LeadStatus });
+        }
+    }
+
+    // Remarks Editing
+    async editRemarks() {
+        if (!this.isAdmin || !this.lead) return;
+        const { value: remarks } = await Swal.fire({
+            title: 'Edit Remarks',
+            input: 'textarea',
+            inputValue: this.lead.remarks || '',
+            showCancelButton: true
+        });
+
+        if (remarks !== undefined) {
+            this.updateLead({ remarks });
         }
     }
 

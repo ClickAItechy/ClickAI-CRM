@@ -6,7 +6,6 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js/auto';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { ReminderService } from '../../../core/services/reminder.service';
 
 
 import { RevenueWidgetComponent } from '../../../shared/components/revenue-widget/revenue-widget.component';
@@ -21,7 +20,6 @@ import { RevenueWidgetComponent } from '../../../shared/components/revenue-widge
 export class DashboardComponent implements OnInit {
   stats: any = {};
   unreadCount = 0;
-  reminderUnreadCount = 0;
 
   // Potential Revenue (Bar Chart)
   public revenueChartOptions: ChartConfiguration['options'] = {
@@ -53,8 +51,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService,
-    private reminderService: ReminderService
+    private authService: AuthService
   ) {
     this.currentUser = this.authService.currentUserValue;
     this.isAdmin = this.currentUser?.is_manager || this.currentUser?.is_superuser || false;
@@ -72,12 +69,6 @@ export class DashboardComponent implements OnInit {
     this.http.get<any>(`${environment.apiUrl}/notifications/unread_count/`).subscribe({
       next: (data) => this.unreadCount = data.count,
       error: (err) => console.error('Failed to load unread count', err)
-    });
-
-    // Fetch reminder unread count
-    this.reminderService.getReminderStats().subscribe({
-      next: (stats) => this.reminderUnreadCount = stats.unread_count,
-      error: (err) => console.error('Failed to load reminder stats', err)
     });
   }
 

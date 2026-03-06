@@ -21,7 +21,7 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let contact of filteredContacts">
-                        <td><strong>{{ contact.first_name }} {{ contact.last_name }}</strong></td>
+                        <td><strong>{{ contact.name }}</strong></td>
                         <td>{{ contact.email }}</td>
                         <td>{{ contact.phone || '-' }}</td>
                     </tr>

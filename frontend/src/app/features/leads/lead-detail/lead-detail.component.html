@@ -1,285 +1,327 @@
-<div class="glass-container" *ngIf="lead">
-  <div class="container" style="overflow-x: hidden;">
+<div class="ld-page" *ngIf="lead">
 
-    <!-- Hero Header -->
-    <div class="glass-card-header hero-content hero-gradient">
-      <div class="hero-title">
-        <h1>{{ lead.name }}</h1>
-        <span class="badge" [ngClass]="{
-            'badge-info': lead.stage === 'NEW_INQUIRY' || lead.stage === 'QUALIFICATION' || lead.stage === 'DISCOVERY',
-            'badge-success': lead.stage === 'WON' || lead.stage === 'PROJECT_EXECUTION' || lead.stage === 'DELIVERED',
-            'badge-danger': lead.stage === 'LOST',
-            'badge-warning': lead.stage === 'PROPOSAL' || lead.stage === 'NEGOTIATION' || lead.stage === 'ON_HOLD'
-        }">{{ lead.stage }}</span>
+  <!-- ============================
+       COLORFUL HERO HEADER
+  ============================= -->
+  <div class="ld-hero">
+    <div class="ld-hero-content">
+
+      <!-- Left: Avatar + Identity -->
+      <div class="ld-identity">
+        <div class="ld-avatar" [style.background]="getAvatarColor(lead.name)">
+          {{ getInitials(lead.name) }}
+        </div>
+        <div class="ld-identity-text">
+          <h1 class="ld-name">{{ lead.name }}</h1>
+          <p class="ld-company" *ngIf="lead.company_name">🏢 {{ lead.company_name }}</p>
+          <div class="ld-tags">
+            <span class="ld-tag ld-tag-stage">
+              {{ getStageLabel(lead.stage) }}
+            </span>
+            <span class="ld-tag" [ngClass]="{
+              'ld-tag-green': lead.status === 'INTERESTED',
+              'ld-tag-amber': lead.status === 'NEEDS_FOLLOW_UP',
+              'ld-tag-red': lead.status === 'NOT_INTERESTED'
+            }">{{ getStageLabel(lead.status) }}</span>
+            <span class="ld-tag ld-tag-team">{{ lead.assigned_team | titlecase }} Team</span>
+          </div>
+        </div>
       </div>
 
-      <div class="hero-meta">
-        <span>{{ lead.assigned_team | titlecase }} Team</span>
-        <span>•</span>
-        <span>{{ lead.assigned_to_name || 'Unassigned' }}</span>
-        <span>•</span>
-        <span>Added {{ lead.created_at | date:'mediumDate' }}</span>
-      </div>
-
-      <div class="hero-actions">
-        <button class="action-btn" (click)="activeTab = 'info'">
-          <span>✏️</span> Edit
-        </button>
-        <button class="action-btn" (click)="openEmailModal()">
-          <span>📧</span> Email
-        </button>
-        <a [href]="'tel:' + lead.phone" class="action-btn" style="text-decoration:none;">
+      <!-- Right: Quick Actions -->
+      <div class="ld-hero-actions">
+        <a [href]="'tel:' + lead.phone" class="ld-action-btn ld-action-green">
           <span>📞</span> Call
         </a>
+        <button class="ld-action-btn ld-action-blue" (click)="openEmailModal()">
+          <span>✉️</span> Email
+        </button>
+        <button class="ld-action-btn ld-action-purple" (click)="openDocumentModal()">
+          <span>📎</span> Docs
+        </button>
       </div>
+
     </div>
 
-    <!-- Pipeline Progress Bar -->
-    <div class="pipeline-bar">
-      <div *ngFor="let phase of phases; let i = index" class="pipeline-step"
-        [class.active]="phase.stages.includes(lead.stage)" [class.completed]="i < currentPhaseIndex"
-        (click)="changePhaseWithConfirm(phase.id)">
-        {{ phase.name }}
+    <!-- Quick Stat Strip -->
+    <div class="ld-stat-strip">
+      <div class="ld-stat">
+        <div class="ld-stat-icon">📅</div>
+        <div>
+          <div class="ld-stat-label">Created</div>
+          <div class="ld-stat-value">{{ lead.created_at | date:'d MMM yyyy' }}</div>
+        </div>
+      </div>
+      <div class="ld-stat-div"></div>
+      <div class="ld-stat">
+        <div class="ld-stat-icon">⏰</div>
+        <div>
+          <div class="ld-stat-label">Reminder</div>
+          <div class="ld-stat-value editable" (click)="isAdmin && editReminderDate()">
+            {{ (lead.reminder_date | date:'d MMM yyyy') || 'Not set' }}
+            <span *ngIf="isAdmin" class="ld-edit-tag">✎</span>
+          </div>
+        </div>
+      </div>
+      <div class="ld-stat-div"></div>
+      <div class="ld-stat">
+        <div class="ld-stat-icon">🏙️</div>
+        <div>
+          <div class="ld-stat-label">Emirate</div>
+          <div class="ld-stat-value editable" (click)="isAdmin && editEmirate()">
+            {{ lead.emirate || 'Not set' }}
+            <span *ngIf="isAdmin" class="ld-edit-tag">✎</span>
+          </div>
+        </div>
+      </div>
+      <div class="ld-stat-div"></div>
+      <div class="ld-stat">
+        <div class="ld-stat-icon">🤝</div>
+        <div>
+          <div class="ld-stat-label">Lead Generator</div>
+          <div class="ld-stat-value editable" (click)="isAdmin && editLeadGenerator()">
+            {{ lead.lead_generator_name || 'Not assigned' }}
+            <span *ngIf="isAdmin" class="ld-edit-tag">✎</span>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- 3-Column Grid -->
-    <div class="detail-grid">
-
-      <!-- LEFT: Profile -->
-      <div class="glass-card">
-        <div class="profile-header">
-          <div class="profile-avatar" [style.background]="getAvatarColor(lead.name)">
-            {{ getInitials(lead.name) }}
+  <!-- ============================
+       PIPELINE PROGRESS
+  ============================= -->
+  <div class="ld-pipeline-wrap">
+    <div class="ld-pipeline-label">Lead Progress</div>
+    <div class="ld-pipeline">
+      <div *ngFor="let phase of phases; let i = index; let last = last" class="ld-phase-wrap">
+        <div class="ld-phase" [class.ld-phase-done]="i < currentPhaseIndex"
+          [class.ld-phase-active]="i === currentPhaseIndex" (click)="changePhaseWithConfirm(phase.id)">
+          <div class="ld-phase-circle">
+            <span *ngIf="i < currentPhaseIndex">✓</span>
+            <span *ngIf="i === currentPhaseIndex">●</span>
+            <span *ngIf="i > currentPhaseIndex">{{ i+1 }}</span>
           </div>
-          <div class="profile-name">{{ lead.name }}</div>
-          <div class="profile-role">{{ lead.company_name || 'No Company' }}</div>
+          <span class="ld-phase-name">{{ phase.name }}</span>
         </div>
+        <div *ngIf="!last" class="ld-phase-line" [class.ld-phase-line-done]="i < currentPhaseIndex"></div>
+      </div>
+    </div>
+  </div>
 
-        <div class="profile-details">
-          <div class="profile-row">
-            <div class="profile-icon">👤</div>
-            <div>
-              <div class="profile-label">
-                Name
-                <span *ngIf="isAdmin" (click)="editName()"
-                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
-              </div>
-              <div class="profile-value">{{ lead.name }}</div>
-            </div>
-          </div>
+  <!-- ============================
+       MAIN BODY: Two Sections
+  ============================= -->
+  <div class="ld-body">
 
-          <div class="profile-row">
-            <div class="profile-icon">📍</div>
-            <div>
-              <div class="profile-label">
-                Address
-                <span *ngIf="isAdmin" (click)="editAddress()"
-                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
-              </div>
-              <div class="profile-value">{{ lead.address || 'No address provided' }}</div>
-            </div>
-          </div>
+    <!-- LEFT PANEL: Details + Financials -->
+    <div class="ld-left">
 
-          <div class="profile-row">
-            <div class="profile-icon">🏙️</div>
-            <div>
-              <div class="profile-label">
-                Emirate
-                <span *ngIf="isAdmin" (click)="editEmirate()"
-                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
-              </div>
-              <div class="profile-value">{{ lead.emirate || 'Not set' }}</div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">📧</div>
-            <div>
-              <div class="profile-label">Email Address</div>
-              <div class="profile-value">
-                <a [href]="'mailto:' + lead.email">{{ lead.email || '-' }}</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">📞</div>
-            <div>
-              <div class="profile-label">Phone Number</div>
-              <div class="profile-value">
-                <a [href]="'tel:' + lead.phone">{{ lead.phone || '-' }}</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">🏢</div>
-            <div>
-              <div class="profile-label">Company</div>
-              <div class="profile-value">{{ lead.company_name || '-' }}</div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">💻</div>
-            <div>
-              <div class="profile-label">Tech Requirements</div>
-              <div class="profile-value">{{ lead.tech_requirements || 'No requirements specified' }}</div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">🤝</div>
-            <div>
-              <div class="profile-label">
-                Lead Generator
-                <span *ngIf="isAdmin" (click)="editLeadGenerator()"
-                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
-              </div>
-              <div class="profile-value">{{ lead.lead_generator_name || 'Not assigned' }}</div>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <div class="profile-icon">⏰</div>
-            <div>
-              <div class="profile-label">
-                Reminder Date
-                <span *ngIf="isAdmin" (click)="editReminderDate()"
-                  style="cursor:pointer; margin-left:5px; font-size: 0.9em; opacity: 0.7;">✎</span>
-              </div>
-              <div class="profile-value">{{ (lead.reminder_date | date:'medium') || 'Not set' }}</div>
-            </div>
+      <!-- Contact Info Cards -->
+      <div class="ld-section-header">
+        <span class="ld-section-dot" style="background:#6366f1"></span>
+        Contact Information
+        <button *ngIf="isAdmin" class="ld-section-edit-btn" (click)="editAddress()">Edit ✎</button>
+      </div>
+      <div class="ld-info-grid">
+        <div class="ld-info-tile ld-tile-blue">
+          <div class="ld-tile-icon">📧</div>
+          <div class="ld-tile-label">Email</div>
+          <div class="ld-tile-value"><a [href]="'mailto:' + lead.email">{{ lead.email || '—' }}</a></div>
+        </div>
+        <div class="ld-info-tile ld-tile-green">
+          <div class="ld-tile-icon">📞</div>
+          <div class="ld-tile-label">Phone</div>
+          <div class="ld-tile-value"><a [href]="'tel:' + lead.phone">{{ lead.phone || '—' }}</a></div>
+        </div>
+        <div class="ld-info-tile ld-tile-purple">
+          <div class="ld-tile-icon">📍</div>
+          <div class="ld-tile-label">Address</div>
+          <div class="ld-tile-value">{{ lead.address || 'Not provided' }}</div>
+        </div>
+        <div class="ld-info-tile ld-tile-orange">
+          <div class="ld-tile-icon">📊</div>
+          <div class="ld-tile-label">Status</div>
+          <div class="ld-tile-value">
+            <span class="ld-status-badge" [ngClass]="{
+              'status-green': lead.status === 'INTERESTED',
+              'status-amber': lead.status === 'NEEDS_FOLLOW_UP',
+              'status-red': lead.status === 'NOT_INTERESTED'
+            }">{{ getStageLabel(lead.status) }}</span>
+            <button *ngIf="isAdmin" class="ld-tiny-edit" (click)="editStatus()">✎</button>
           </div>
         </div>
-
       </div>
 
-      <!-- MIDDLE: Financials & Tabs -->
-      <div class="">
-        <!-- Financial Cards -->
-        <div class="fin-cards">
-          <div class="fin-card" (click)="editFinancials()">
-            <div class="fin-label">
-              Project Amount
-              <span *ngIf="isAdmin" class="edit-icon">✎</span>
-            </div>
-            <div class="fin-value">{{ lead.project_amount | currency:'USD' }}</div>
+      <!-- Financial Section -->
+      <div class="ld-section-header" style="margin-top:1.5rem">
+        <span class="ld-section-dot" style="background:#10b981"></span>
+        Financial Overview
+      </div>
+      <div class="ld-finance-row">
+        <div class="ld-finance-card ld-finance-indigo" (click)="isAdmin && editFinancials()">
+          <div class="ld-finance-top">
+            <span class="ld-finance-icon">💰</span>
+            <span *ngIf="isAdmin" class="ld-finance-edit-hint">tap to edit</span>
           </div>
-
-          <div class="fin-card green" (click)="editFinancials()">
-            <div class="fin-label">
-              Advance
-              <span *ngIf="isAdmin" class="edit-icon">✎</span>
-            </div>
-            <div class="fin-value">{{ lead.advance_amount | currency:'USD' }}</div>
-          </div>
-
-          <div class="fin-card red">
-            <div class="fin-label">Remaining</div>
-            <div class="fin-value">{{ lead.remaining_amount | currency:'USD' }}</div>
-          </div>
+          <div class="ld-finance-amount">{{ (lead.project_amount || 0) | currency:'USD':'symbol':'1.0-0' }}</div>
+          <div class="ld-finance-label">Project Value</div>
         </div>
-
-        <!-- Tabs -->
-        <div class="tabs-container">
-          <button class="tab-btn" [class.active]="activeTab === 'notes'" (click)="activeTab = 'notes'">
-            <span>📝</span> Notes
-          </button>
-          <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
-            <span>🕒</span> Activity
-          </button>
-        </div>
-
-        <!-- Tab Content -->
-        <div *ngIf="activeTab === 'history'">
-          <div class="scrollable-section">
-            <ul class="timeline-modern">
-              <li class="timeline-item-modern" *ngFor="let log of lead.audit_logs">
-                <div class="timeline-icon">
-                  <span>📌</span>
-                </div>
-                <div class="timeline-content-modern">
-                  <div class="timeline-header">
-                    <span class="timeline-title">
-                      <ng-container *ngIf="log.action === 'Stage Change'">
-                        Stage changed from <b>{{ getStageLabel(log.from_stage) }}</b> to <b>{{
-                          getStageLabel(log.to_stage) }}</b>
-                      </ng-container>
-                      <ng-container *ngIf="log.action !== 'Stage Change'">
-                        {{ log.action }}
-                      </ng-container>
-                    </span>
-                    <span class="timeline-time">{{ log.timestamp | date:'MMM d, h:mm a' }}</span>
-                  </div>
-                  <div class="timeline-body" *ngIf="log.notes">{{ log.notes }}</div>
-                  <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;">by {{ log.actor_name }}</div>
-                </div>
-              </li>
-              <li *ngIf="!lead.audit_logs?.length" class="empty-state">No activity history.</li>
-            </ul>
+        <div class="ld-finance-card ld-finance-emerald" (click)="isAdmin && editFinancials()">
+          <div class="ld-finance-top">
+            <span class="ld-finance-icon">✅</span>
+            <span *ngIf="isAdmin" class="ld-finance-edit-hint">tap to edit</span>
           </div>
+          <div class="ld-finance-amount">{{ (lead.advance_amount || 0) | currency:'USD':'symbol':'1.0-0' }}</div>
+          <div class="ld-finance-label">Advance Paid</div>
         </div>
-
-        <div *ngIf="activeTab === 'notes'">
-          <div class="note-input-card">
-            <textarea rows="3" [(ngModel)]="noteContent" placeholder="Type a note here..."></textarea>
-            <div style="text-align: right;">
-              <button class="btn btn-primary btn-sm" (click)="saveNote()" [disabled]="!noteContent.trim()">Add
-                Note</button>
-            </div>
-          </div>
-          <div class="notes-area scrollable-section">
-            <div *ngFor="let note of notes" class="note-card">
-              <div class="note-meta">
-                <span class="note-author">{{ (note.author_first_name && note.author_last_name) ? (note.author_first_name
-                  + ' ' + note.author_last_name) : (note.author_name || 'Unknown') }}</span>
-                <span class="note-time">{{ note.created_at | date:'MMM d, y, h:mm a' }}</span>
-              </div>
-              <div class="note-text">{{ note.content }}</div>
-            </div>
-            <div *ngIf="!notes.length" class="empty-state">No notes yet.</div>
-          </div>
+        <div class="ld-finance-card ld-finance-rose">
+          <div class="ld-finance-top"><span class="ld-finance-icon">⏳</span></div>
+          <div class="ld-finance-amount">{{ (lead.remaining_amount || 0) | currency:'USD':'symbol':'1.0-0' }}</div>
+          <div class="ld-finance-label">Remaining</div>
         </div>
-
       </div>
 
-      <!-- RIGHT: Widgets -->
-      <div class="widget-stack">
-        <!-- Documents Widget -->
-        <div class="widget-item" (click)="toggleSection('attachments')">
-          <span style="display:flex; align-items:center; gap:0.5rem;">
-            <i class="icon">📄</i> Documents ({{ lead.documents.length }})
-          </span>
-          <span>{{ expandedSection === 'attachments' ? '▼' : '▶' }}</span>
+      <!-- Tech Requirements + Remarks -->
+      <div *ngIf="lead.tech_requirements || lead.remarks" style="margin-top:1.5rem">
+        <div *ngIf="lead.tech_requirements" class="ld-detail-box ld-box-blue">
+          <div class="ld-box-header">💻 Tech Requirements</div>
+          <p class="ld-box-text">{{ lead.tech_requirements }}</p>
         </div>
-        <div *ngIf="expandedSection === 'attachments'" class="glass-card"
-          style="margin-top: -0.5rem; border-top-left-radius: 0; border-top-right-radius: 0;">
-          <div class="doc-item" *ngFor="let doc of lead.documents">
-            <div><a [href]="doc.file_path" target="_blank">{{ doc.name || 'Document' }}</a></div>
+        <div *ngIf="lead.remarks" class="ld-detail-box ld-box-pink" style="margin-top:1rem">
+          <div class="ld-box-header">
+            💬 Remarks
+            <button *ngIf="isAdmin" class="ld-tiny-edit" (click)="editRemarks()">✎ Edit</button>
           </div>
-          <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 1rem;"
-            (click)="openDocumentModal()">Manage Documents</button>
+          <p class="ld-box-text">{{ lead.remarks }}</p>
         </div>
+      </div>
 
-        <!-- Tech Pipeline Widget (if applicable) -->
-        <div *ngIf="techPipeline" class="widget-item" (click)="toggleSection('tech')">
-          <span style="display:flex; align-items:center; gap:0.5rem;">
-            <i class="icon">🚀</i> Tech Pipeline
-          </span>
-          <span>{{ expandedSection === 'tech' ? '▼' : '▶' }}</span>
+      <!-- Documents -->
+      <div style="margin-top:1.5rem">
+        <div class="ld-section-header">
+          <span class="ld-section-dot" style="background:#f59e0b"></span>
+          Documents ({{ lead.documents?.length || 0 }})
+          <button class="ld-section-edit-btn" (click)="openDocumentModal()">Manage</button>
         </div>
-        <div *ngIf="techPipeline && expandedSection === 'tech'" class="glass-card" style="margin-top: -0.5rem;">
+        <div class="ld-docs-list">
+          <div *ngFor="let doc of lead.documents" class="ld-doc-item">
+            <span class="ld-doc-icon">📄</span>
+            <a [href]="doc.file_path" target="_blank" class="ld-doc-link">{{ doc.name || 'Document' }}</a>
+          </div>
+          <div *ngIf="!lead.documents?.length" class="ld-empty-sm">No documents uploaded yet.</div>
+        </div>
+      </div>
+
+      <!-- Tech Pipeline -->
+      <div *ngIf="techPipeline" style="margin-top:1.5rem">
+        <div class="ld-section-header">
+          <span class="ld-section-dot" style="background:#8b5cf6"></span>
+          Tech Pipeline
+          <button class="ld-section-edit-btn" (click)="toggleSection('tech')">
+            {{ expandedSection === 'tech' ? 'Collapse' : 'Expand' }}
+          </button>
+        </div>
+        <div *ngIf="expandedSection === 'tech'" class="ld-pipeline-widget">
           <app-tech-pipeline [pipelineId]="techPipeline.id" [currentStage]="techPipeline.stage"
             [initialNotes]="techPipeline.notes || ''"></app-tech-pipeline>
         </div>
       </div>
     </div>
 
+    <!-- RIGHT PANEL: Notes + Activity -->
+    <div class="ld-right">
+
+      <!-- Tab Bar -->
+      <div class="ld-tabs">
+        <button class="ld-tab" [class.active]="activeTab === 'notes'" (click)="activeTab = 'notes'">
+          📝 Notes
+          <span class="ld-tab-badge" *ngIf="notes.length">{{ notes.length }}</span>
+        </button>
+        <button class="ld-tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+          🕒 Activity
+          <span class="ld-tab-badge" *ngIf="lead.audit_logs?.length">{{ lead.audit_logs.length }}</span>
+        </button>
+      </div>
+
+      <!-- NOTES TAB -->
+      <div *ngIf="activeTab === 'notes'" class="ld-tab-panel">
+        <!-- Compose -->
+        <div class="ld-compose">
+          <div class="ld-compose-avatar">{{ getInitials(lead.name).charAt(0) }}</div>
+          <div class="ld-compose-input-wrap">
+            <textarea class="ld-compose-textarea" [(ngModel)]="noteContent" rows="3"
+              placeholder="Write a note about this lead..."></textarea>
+            <button class="ld-compose-btn" (click)="saveNote()" [disabled]="!noteContent.trim()">
+              ➕ Add Note
+            </button>
+          </div>
+        </div>
+
+        <!-- Notes Feed -->
+        <div class="ld-notes-feed">
+          <div *ngFor="let note of notes" class="ld-note">
+            <div class="ld-note-avatar-wrap">
+              <div class="ld-note-avatar">
+                {{ (note.author_full_name || note.author_name || 'U').charAt(0).toUpperCase() }}
+              </div>
+            </div>
+            <div class="ld-note-content">
+              <div class="ld-note-meta">
+                <span class="ld-note-author">{{ note.author_full_name || note.author_name || 'Unknown' }}</span>
+                <span class="ld-note-time">{{ note.created_at | date:'d MMM y, h:mm a' }}</span>
+              </div>
+              <div class="ld-note-text">{{ note.content }}</div>
+            </div>
+          </div>
+          <div *ngIf="!notes.length" class="ld-empty">
+            <div class="ld-empty-icon">📝</div>
+            <div>No notes yet. Add the first one!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY TAB -->
+      <div *ngIf="activeTab === 'history'" class="ld-tab-panel">
+        <div class="ld-activity">
+          <div *ngFor="let log of lead.audit_logs" class="ld-activity-item">
+            <div class="ld-activity-line"></div>
+            <div class="ld-activity-dot"></div>
+            <div class="ld-activity-card">
+              <div class="ld-activity-header">
+                <span class="ld-activity-action">
+                  <ng-container *ngIf="log.action === 'Stage Change'">
+                    🔄 Stage: <b>{{ getStageLabel(log.from_stage) }}</b> → <b>{{ getStageLabel(log.to_stage) }}</b>
+                  </ng-container>
+                  <ng-container *ngIf="log.action !== 'Stage Change'">
+                    {{ log.action }}
+                  </ng-container>
+                </span>
+                <span class="ld-activity-time">{{ log.timestamp | date:'d MMM, h:mm a' }}</span>
+              </div>
+              <div class="ld-activity-note" *ngIf="log.notes">{{ log.notes }}</div>
+              <div class="ld-activity-by">by <b>{{ log.actor_name }}</b></div>
+            </div>
+          </div>
+          <div *ngIf="!lead.audit_logs?.length" class="ld-empty">
+            <div class="ld-empty-icon">🕒</div>
+            <div>No activity recorded yet.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
+
 </div>
 
+<!-- Loading State -->
+<div *ngIf="!lead" class="ld-loading">
+  <div class="ld-loading-spinner"></div>
+  <p>Loading lead details...</p>
+</div>
+
+<!-- Modals -->
 <app-email-compose-modal *ngIf="showEmailModal" [to]="lead?.email || ''" (close)="showEmailModal = false"
   (send)="sendEmail($event)"></app-email-compose-modal>
 <app-document-upload-modal *ngIf="showDocumentModal" [leadId]="lead?.id || 0" [documents]="lead?.documents || []"

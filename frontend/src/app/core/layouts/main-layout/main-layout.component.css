@@ -19,61 +19,111 @@
     z-index: 100;
 }
 
-.logo {
-    height: 72px;
+.sidebar-brand-section {
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0 1.25rem;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
 }
 
-.brand-gradient {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 900;
-    letter-spacing: -0.025em;
-    font-family: 'Inter', sans-serif;
+.sidebar-brand-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, #6366f1, #a855f7, #ec4899);
 }
 
-.mobile-brand {
-    font-weight: 800;
-    font-size: 1.1rem;
+.brand-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
-.sidebar-brand.brand-gradient {
-    font-size: 1.25rem;
-    line-height: 1.1;
-    width: 100%;
+.logo-wrapper {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    padding: 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
 }
 
 .logo-img {
-    height: 40px;
+    max-height: 100%;
     width: auto;
     object-fit: contain;
 }
 
-.logo span {
-    margin-right: 8px;
+.brand-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-primary {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+
+.brand-secondary {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    color: #818cf8;
+    margin-top: 2px;
+}
+
+.brand-info-mobile {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-info-mobile .brand-primary {
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-info-mobile .brand-secondary {
+    font-size: 0.65rem;
+    color: #6366f1;
+    letter-spacing: 0.2em;
+    font-weight: 800;
+    margin-top: -2px;
 }
 
 .close-sidebar-btn {
     display: none;
-    background: none;
+    background: rgba(0, 0, 0, 0.05);
     border: none;
     color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     font-size: 1.5rem;
     cursor: pointer;
+    align-items: center;
+    justify-content: center;
 }
 
 nav {

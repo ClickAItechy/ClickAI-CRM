@@ -69,12 +69,13 @@
             routerLink="/dashboard/reminders">
             <div class="access-icon">
                 ⏰
-                <span class="unread-badge" *ngIf="reminderUnreadCount > 0">{{
-                    reminderUnreadCount }}</span>
+                <span class="unread-badge" *ngIf="stats.today_reminders_count > 0">{{ stats.today_reminders_count
+                    }}</span>
             </div>
             <div class="access-info">
                 <h3>Follow-up Reminders</h3>
-                <p>{{ reminderUnreadCount > 0 ? reminderUnreadCount + ' unread' : 'All caught up' }}</p>
+                <p>{{ stats.today_reminders_count > 0 ? stats.today_reminders_count + ' for today' : 'None for today' }}
+                </p>
             </div>
         </div>
         <div class="access-card tasks-card card-rose" *ngIf="isSectionVisible('tasks')" routerLink="/dashboard/tasks">
