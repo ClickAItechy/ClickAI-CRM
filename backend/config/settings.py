@@ -101,10 +101,17 @@ MEDIA_ROOT = "/app/media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'https://crm.clickaitech.ae,https://click-ai-crm.vercel.app,https://click-ai-crm-staging.vercel.app'
-).split(',')
+cors_allowed_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+if cors_allowed_origins_env:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_allowed_origins_env.split(',') if origin.strip()]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'https://crm.clickaitech.ae',
+        'https://click-ai-crm.vercel.app',
+        'https://click-ai-crm-staging.vercel.app',
+        'http://localhost:4200',
+        'http://localhost:4201',
+    ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://click-ai-crm-.*\.vercel\.app$",
