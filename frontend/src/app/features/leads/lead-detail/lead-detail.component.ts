@@ -186,7 +186,7 @@ export class LeadDetailComponent implements OnInit {
         const { value: name } = await Swal.fire({
             title: 'Edit Name',
             input: 'text',
-            inputValue: this.lead.name,
+            inputValue: this.lead.first_name + ' ' + this.lead.last_name,
             showCancelButton: true,
             inputValidator: (value) => {
                 if (!value) return 'Name is required!';
@@ -195,7 +195,10 @@ export class LeadDetailComponent implements OnInit {
         });
 
         if (name) {
-            this.updateLead({ name });
+            const parts = name.trim().split(/\s+/);
+            const first_name = parts[0] || '';
+            const last_name = parts.slice(1).join(' ') || '';
+            this.updateLead({ first_name, last_name });
         }
     }
 
@@ -381,7 +384,7 @@ export class LeadDetailComponent implements OnInit {
             deadline: this.newTaskDeadline,
             status: 'Not Started',
             priority: 'Normal',
-            description: `Task for Lead: ${this.lead?.name}`,
+            description: `Task for Lead: ${this.lead?.first_name} ${this.lead?.last_name}`,
             lead: this.lead?.id
         };
 

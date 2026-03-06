@@ -113,7 +113,7 @@ export class KanbanBoardComponent implements OnInit {
         if (this.searchTerm) {
             const lowerTerm = this.searchTerm.toLowerCase();
             filteredLeads = this.allLeads.filter(lead =>
-                (lead.name || '').toLowerCase().includes(lowerTerm) ||
+                ((lead.first_name || '') + ' ' + (lead.last_name || '')).toLowerCase().includes(lowerTerm) ||
                 lead.stage.toLowerCase().replace('_', ' ').includes(lowerTerm)
             );
         }

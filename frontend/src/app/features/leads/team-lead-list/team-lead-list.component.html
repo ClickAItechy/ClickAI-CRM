@@ -92,7 +92,7 @@
                             <input type="checkbox" [checked]="isSelected(lead.id)" (change)="toggleSelection(lead.id)">
                         </td>
                         <td>
-                            <strong>{{ lead.name }}</strong><br>
+                            <strong>{{ lead.first_name }} {{ lead.last_name }}</strong><br>
                             <small>{{ lead.email }}</small>
                         </td>
                         <td>

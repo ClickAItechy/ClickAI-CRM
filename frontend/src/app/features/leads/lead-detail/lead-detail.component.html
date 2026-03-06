@@ -8,11 +8,11 @@
 
       <!-- Left: Avatar + Identity -->
       <div class="ld-identity">
-        <div class="ld-avatar" [style.background]="getAvatarColor(lead.name)">
-          {{ getInitials(lead.name) }}
+        <div class="ld-avatar" [style.background]="getAvatarColor(lead.first_name + ' ' + lead.last_name)">
+          {{ getInitials(lead.first_name + ' ' + lead.last_name) }}
         </div>
         <div class="ld-identity-text">
-          <h1 class="ld-name">{{ lead.name }}</h1>
+          <h1 class="ld-name">{{ lead.first_name }} {{ lead.last_name }}</h1>
           <p class="ld-company" *ngIf="lead.company_name">🏢 {{ lead.company_name }}</p>
           <div class="ld-tags">
             <span class="ld-tag ld-tag-stage">
@@ -248,7 +248,7 @@
       <div *ngIf="activeTab === 'notes'" class="ld-tab-panel">
         <!-- Compose -->
         <div class="ld-compose">
-          <div class="ld-compose-avatar">{{ getInitials(lead.name).charAt(0) }}</div>
+          <div class="ld-compose-avatar">{{ getInitials(lead.first_name + ' ' + lead.last_name).charAt(0) }}</div>
           <div class="ld-compose-input-wrap">
             <textarea class="ld-compose-textarea" [(ngModel)]="noteContent" rows="3"
               placeholder="Write a note about this lead..."></textarea>

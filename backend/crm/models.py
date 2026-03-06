@@ -10,9 +10,6 @@ class Team(models.TextChoices):
     TECH = 'TECH', _('Tech')
 
 class User(AbstractUser):
-    first_name = None
-    last_name = None
-    name = models.CharField(max_length=255, blank=True)
     team = models.CharField(
         max_length=20,
         choices=Team.choices,
@@ -62,7 +59,8 @@ class LeadStatus(models.TextChoices):
 
 class Lead(models.Model):
     # Customer Info
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(unique=False, blank=True, null=True)
     phone = models.CharField(max_length=20, unique=False, blank=True, null=True)
     
@@ -134,7 +132,8 @@ class Lead(models.Model):
         return self.project_amount - self.advance_amount
 
     def __str__(self):
-        return f"{self.name or 'Unnamed Lead'} - {self.stage}"
+        full_name = f"{self.first_name or ''} {self.last_name or ''}".strip()
+        return f"{full_name or 'Unnamed Lead'} - {self.stage}"
 
 class LeadDocument(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='documents')
@@ -171,7 +170,8 @@ class Account(models.Model):
         return self.name
 
 class Contact(models.Model):
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='contacts', null=True, blank=True)
@@ -180,7 +180,7 @@ class Contact(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.last_name}"
 
 class Deal(models.Model):
     name = models.CharField(max_length=255)

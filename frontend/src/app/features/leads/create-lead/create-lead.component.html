@@ -64,12 +64,21 @@
                             </div>
                         </div>
                         <div class="cl-fields">
-                            <div class="cl-field full">
-                                <label class="cl-label">Full Name <span class="required">*</span></label>
-                                <input class="cl-input" [(ngModel)]="lead.name" name="name" required #name="ngModel"
-                                    [class.cl-input-error]="name.invalid && name.touched"
-                                    placeholder="e.g. Ahmed Al-Rashidi">
-                                <div *ngIf="name.invalid && name.touched" class="cl-error">Name is required</div>
+                            <div class="cl-field">
+                                <label class="cl-label">First Name <span class="required">*</span></label>
+                                <input class="cl-input" [(ngModel)]="lead.first_name" name="first_name" required
+                                    #firstName="ngModel" [class.cl-input-error]="firstName.invalid && firstName.touched"
+                                    placeholder="e.g. Ahmed">
+                                <div *ngIf="firstName.invalid && firstName.touched" class="cl-error">First name is
+                                    required</div>
+                            </div>
+                            <div class="cl-field">
+                                <label class="cl-label">Last Name <span class="required">*</span></label>
+                                <input class="cl-input" [(ngModel)]="lead.last_name" name="last_name" required
+                                    #lastName="ngModel" [class.cl-input-error]="lastName.invalid && lastName.touched"
+                                    placeholder="e.g. Al-Rashidi">
+                                <div *ngIf="lastName.invalid && lastName.touched" class="cl-error">Last name is required
+                                </div>
                             </div>
 
                             <div class="cl-field">

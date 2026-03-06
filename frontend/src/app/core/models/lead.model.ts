@@ -34,14 +34,19 @@ export enum TechPipelineStage {
 export interface User {
     id: number;
     username: string;
+    first_name?: string;
+    last_name?: string;
     email: string;
     team: Team;
     is_manager: boolean;
+    is_superuser?: boolean;
+    view_all_leads?: boolean;
     view_tech_pipeline?: boolean;
     manage_tech_pipeline?: boolean;
     can_create_leads?: boolean;
     can_delete_leads?: boolean;
     can_export_leads?: boolean;
+    revenue_threshold?: number;
 }
 
 export interface TechPipeline {
@@ -83,7 +88,8 @@ export enum Emirate {
 
 export interface Lead {
     id: number;
-    name: string;
+    first_name: string;
+    last_name: string;
     email?: string;
     phone?: string;
     address?: string;

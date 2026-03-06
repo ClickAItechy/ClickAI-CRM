@@ -14,7 +14,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'team_badge', 'is_manager', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline')
     list_editable = ('is_manager', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline')
     list_filter = ('team', 'is_manager', 'is_staff', 'is_superuser')
-    search_fields = ('username', 'email', 'name')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('team', 'username')
     
     fieldsets = UserAdmin.fieldsets + (
@@ -39,9 +39,9 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Lead)
 class LeadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'phone', 'stage', 'assigned_team', 'assigned_to', 'created_at')
+    list_display = ('first_name', 'last_name', 'email', 'phone', 'stage', 'assigned_team', 'assigned_to', 'created_at')
     list_filter = ('stage', 'assigned_team')
-    search_fields = ('name', 'email', 'phone')
+    search_fields = ('first_name', 'last_name', 'email', 'phone')
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
     
@@ -62,8 +62,8 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'phone', 'account', 'owner')
-    search_fields = ('name', 'email')
+    list_display = ('first_name', 'last_name', 'email', 'phone', 'account', 'owner')
+    search_fields = ('first_name', 'last_name', 'email')
     list_filter = ('account',)
 
 
@@ -112,5 +112,5 @@ class FollowUpReminderAdmin(admin.ModelAdmin):
 class TechPipelineAdmin(admin.ModelAdmin):
     list_display = ('lead', 'stage', 'created_at', 'updated_at')
     list_filter = ('stage',)
-    search_fields = ('lead__name', 'notes')
+    search_fields = ('lead__first_name', 'lead__last_name', 'notes')
     ordering = ('-updated_at',)

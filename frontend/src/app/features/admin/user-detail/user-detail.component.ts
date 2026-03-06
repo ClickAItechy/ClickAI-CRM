@@ -10,7 +10,8 @@ import { ToastService } from '../../../core/services/toast.service';
 interface UserDetail {
     id: number;
     username: string;
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     team: string;
     is_manager: boolean;
@@ -109,7 +110,8 @@ export class UserDetailComponent implements OnInit {
         this.saving = true;
 
         const payload: any = {
-            name: this.editModel.name,
+            first_name: this.editModel.first_name,
+            last_name: this.editModel.last_name,
             email: this.editModel.email,
             team: this.editModel.team,
             is_manager: this.editModel.is_manager,
@@ -159,15 +161,15 @@ export class UserDetailComponent implements OnInit {
 
     getInitials(): string {
         if (!this.user) return '?';
-        const name = this.user.name || this.user.username;
-        const initial = name.charAt(0).toUpperCase();
-        return initial || 'U';
+        const first = (this.user.first_name || '').charAt(0).toUpperCase();
+        const last = (this.user.last_name || '').charAt(0).toUpperCase();
+        return (first + last) || this.user.username.charAt(0).toUpperCase() || 'U';
     }
 
     getFullName(): string {
         if (!this.user) return '';
-        const name = this.user.name || this.user.username;
-        return name || 'Unknown User';
+        const name = ((this.user.first_name || '') + ' ' + (this.user.last_name || '')).trim();
+        return name || this.user.username || 'Unknown User';
     }
 
     getPriorityClass(priority: string): string {

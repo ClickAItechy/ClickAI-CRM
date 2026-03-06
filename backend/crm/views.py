@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = User
-        fields = ['id', 'username', 'name', 'email', 'team', 'is_manager', 'is_superuser', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'team', 'is_manager', 'is_superuser', 'view_all_leads', 'view_tech_pipeline', 'manage_tech_pipeline', 'can_create_leads', 'can_delete_leads', 'can_export_leads', 'roles', 'role_ids', 'revenue_threshold']
         read_only_fields = ['is_superuser']
 
 class LeadDocumentSerializer(serializers.ModelSerializer):
@@ -46,7 +46,8 @@ class LeadSerializer(serializers.ModelSerializer):
     lead_generator_name = serializers.CharField(source='lead_generator.username', read_only=True)
     tech_pipeline_id = serializers.PrimaryKeyRelatedField(source='tech_pipeline', read_only=True)
     remaining_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
-    name = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
     address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     emirate = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
@@ -135,7 +136,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                 assigned_to=lead.assigned_to,
                 reminder_type='MANUAL' if self.request.data.get('reminder_date') else 'AUTO',
                 due_date=reminder_date,
-                message=f"Follow up with {lead.name}",
+                message=f"Follow up with {lead.first_name} {lead.last_name}",
                 status='PENDING'
             )
 
@@ -164,7 +165,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                         assigned_to=lead.assigned_to,
                         reminder_type='MANUAL',
                         due_date=new_reminder_date,
-                        message=f"Follow up with {lead.name}",
+                        message=f"Follow up with {lead.first_name} {lead.last_name}",
                         status='PENDING'
                     )
 
@@ -229,7 +230,8 @@ class LeadViewSet(viewsets.ModelViewSet):
         search_query = self.request.query_params.get('search')
         if search_query:
             queryset = queryset.filter(
-                models.Q(name__icontains=search_query) |
+                models.Q(first_name__icontains=search_query) |
+                models.Q(last_name__icontains=search_query) |
                 models.Q(email__icontains=search_query) |
                 models.Q(phone__icontains=search_query)
             )
@@ -281,7 +283,7 @@ class LeadViewSet(viewsets.ModelViewSet):
 
             ws.append([
                 lead.id,
-                lead.name,
+                f"{lead.first_name} {lead.last_name}",
                 lead.company_name or '',
                 lead.emirate or '',
                 lead.address or '',
@@ -289,8 +291,8 @@ class LeadViewSet(viewsets.ModelViewSet):
                 lead.phone or '',
                 lead.status,
                 lead.stage,
-                lead.lead_generator.name if lead.lead_generator and getattr(lead.lead_generator, 'name', None) else (lead.lead_generator.username if lead.lead_generator else ''),
-                lead.assigned_to.name if lead.assigned_to and getattr(lead.assigned_to, 'name', None) else (lead.assigned_to.username if lead.assigned_to else ''),
+                f"{lead.lead_generator.first_name} {lead.lead_generator.last_name}" if lead.lead_generator and getattr(lead.lead_generator, 'first_name', None) else (lead.lead_generator.username if lead.lead_generator else ''),
+                f"{lead.assigned_to.first_name} {lead.assigned_to.last_name}" if lead.assigned_to and getattr(lead.assigned_to, 'first_name', None) else (lead.assigned_to.username if lead.assigned_to else ''),
                 created_date,
                 created_time,
                 lead.tech_requirements or '',
@@ -339,7 +341,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                 Notification.objects.create(
                     recipient=user,
                     sender=request.user,
-                    message=f"You have been assigned a new lead: {lead.name}",
+                    message=f"You have been assigned a new lead: {lead.first_name} {lead.last_name}",
                     lead=lead
                 )
                 
@@ -378,7 +380,7 @@ class LeadViewSet(viewsets.ModelViewSet):
             Notification.objects.create(
                 recipient=user,
                 sender=request.user,
-                message=f"You have been assigned a new lead: {lead.name}",
+                message=f"You have been assigned a new lead: {lead.first_name} {lead.last_name}",
                 lead=lead
             )
             
@@ -416,7 +418,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                         assigned_to=lead.assigned_to,
                         reminder_type='MANUAL',
                         due_date=due_datetime,
-                        message=f"Follow up with {lead.name}",
+                        message=f"Follow up with {lead.first_name} {lead.last_name}",
                         status='PENDING'
                     )
                 
@@ -463,7 +465,13 @@ class LeadDocumentViewSet(viewsets.ModelViewSet):
 
 class NoteSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
-    author_full_name = serializers.CharField(source='author.name', read_only=True)
+    author_full_name = serializers.SerializerMethodField(read_only=True)
+
+    def get_author_full_name(self, obj):
+        if obj.author:
+            return f"{obj.author.first_name} {obj.author.last_name}".strip()
+        return ""
+
     class Meta:
         model = Note
         fields = '__all__'
@@ -587,7 +595,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 username=username,
                 email=email,
                 password='password123',
-                name=full_name,
+                first_name=full_name.split(' ')[0] if full_name else '',
+                last_name=' '.join(full_name.split(' ')[1:]) if full_name and ' ' in full_name else '',
                 team=team,
                 is_manager=is_manager # Set manager status
             )
@@ -716,8 +725,8 @@ class DashboardStatsView(APIView):
             'unassigned_leads': unassigned_leads,
             'today_reminders_count': today_reminders_count,
             'todays_tasks': [{'id': t.id, 'subject': t.subject, 'priority': t.priority, 'status': t.status} for t in todays_tasks],
-            'recent_leads': [{'id': l.id, 'name': l.name, 'stage': l.stage, 'created_at': l.created_at} for l in recent_leads],
-            'recent_completed_leads': [{'id': l.id, 'name': l.name, 'stage': l.stage, 'updated_at': l.updated_at} for l in recent_completed_leads],
+            'recent_leads': [{'id': l.id, 'first_name': l.first_name, 'last_name': l.last_name, 'stage': l.stage, 'created_at': l.created_at} for l in recent_leads],
+            'recent_completed_leads': [{'id': l.id, 'first_name': l.first_name, 'last_name': l.last_name, 'stage': l.stage, 'updated_at': l.updated_at} for l in recent_completed_leads],
             'stagnant_leads_count': stagnant_count,
             'pending_reminders_count': FollowUpReminder.objects.filter(assigned_to=user, status='PENDING').count(),
         }
@@ -1005,7 +1014,7 @@ class DailyActivityView(APIView):
         for activity in activities:
             data.append({
                 'id': activity.id,
-                'lead_name': activity.lead.name,
+                'lead_name': f"{activity.lead.first_name or ''} {activity.lead.last_name or ''}".strip(),
                 'lead_id': activity.lead.id,
                 'from_stage': activity.from_stage,
                 'to_stage': activity.to_stage,
@@ -1036,7 +1045,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     def get_lead_name(self, obj):
         if obj.lead:
-             return obj.lead.name
+             return f"{obj.lead.first_name or ''} {obj.lead.last_name or ''}".strip()
         return None
 
 class RevenueStatsView(APIView):
