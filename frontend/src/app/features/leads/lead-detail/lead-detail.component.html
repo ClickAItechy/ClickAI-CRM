@@ -121,7 +121,7 @@
       <div class="ld-section-header">
         <span class="ld-section-dot" style="background:#6366f1"></span>
         Contact Information
-        <button *ngIf="isAdmin" class="ld-section-edit-btn" (click)="editAddress()">Edit ✎</button>
+        <button *ngIf="isAdmin" class="ld-section-edit-btn" (click)="editContactInfo()">Edit ✎</button>
       </div>
       <div class="ld-info-grid">
         <div class="ld-info-tile ld-tile-blue">
@@ -138,6 +138,14 @@
           <div class="ld-tile-icon">📍</div>
           <div class="ld-tile-label">Address</div>
           <div class="ld-tile-value">{{ lead.address || 'Not provided' }}</div>
+        </div>
+        <div class="ld-info-tile ld-tile-blue">
+          <div class="ld-tile-icon">🏢</div>
+          <div class="ld-tile-label">Industry</div>
+          <div class="ld-tile-value">
+            {{ lead.industry || 'Not provided' }}
+            <button *ngIf="isAdmin" class="ld-tiny-edit" (click)="editIndustry()">✎</button>
+          </div>
         </div>
         <div class="ld-info-tile ld-tile-orange">
           <div class="ld-tile-icon">📊</div>

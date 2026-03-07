@@ -118,10 +118,21 @@ export class LeadDetailComponent implements OnInit {
         });
 
         const { value: userId } = await Swal.fire({
-            title: 'Edit Lead Generator',
-            html: `<select id="swal-lead-gen" class="swal2-input">${optionsHtml}</select>`,
+            title: 'Update Lead Generator',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Assign Lead Generator</label>
+                    <select id="swal-lead-gen" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; background: white;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        ${optionsHtml}
+                    </select>
+                </div>
+                `,
             focusConfirm: false,
             showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
             preConfirm: () => {
                 return (document.getElementById('swal-lead-gen') as HTMLSelectElement).value;
             }
@@ -153,10 +164,24 @@ export class LeadDetailComponent implements OnInit {
         if (!this.isAdmin || !this.lead) return;
 
         const { value: reminderDateStr } = await Swal.fire({
-            title: 'Edit Reminder Date',
-            html: `<input id="swal-reminder-date" type="date" class="swal2-input" value="${this.lead.reminder_date?.split('T')[0] || ''}">`,
+            title: 'Update Reminder Date',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Follow-up Date</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">📅</span>
+                            <input id="swal-reminder-date" type="date" value="${this.lead.reminder_date?.split('T')[0] || ''}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                </div>
+                `,
             focusConfirm: false,
             showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
             preConfirm: () => {
                 return (document.getElementById('swal-reminder-date') as HTMLInputElement).value;
             }
@@ -185,12 +210,30 @@ export class LeadDetailComponent implements OnInit {
         if (!this.lead) return;
         const { value: name } = await Swal.fire({
             title: 'Edit Name',
-            input: 'text',
-            inputValue: this.lead.first_name + ' ' + this.lead.last_name,
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Full Name</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">👤</span>
+                            <input id="swal-name" type="text" value="${this.lead.first_name + ' ' + this.lead.last_name}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
             showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) return 'Name is required!';
-                return null;
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                const val = (document.getElementById('swal-name') as HTMLInputElement).value;
+                if (!val) {
+                    Swal.showValidationMessage('Name is required!');
+                    return false;
+                }
+                return val;
             }
         });
 
@@ -202,18 +245,89 @@ export class LeadDetailComponent implements OnInit {
         }
     }
 
-    // Address Editing
-    async editAddress() {
+    // Contact Info Editing (Email, Phone, Address)
+    async editContactInfo() {
         if (!this.lead) return;
-        const { value: address } = await Swal.fire({
-            title: 'Edit Address',
-            input: 'textarea',
-            inputValue: this.lead.address || '',
-            showCancelButton: true
+        const { value: contactData } = await Swal.fire({
+            title: 'Update Contact Info',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Email Address</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">📧</span>
+                            <input id="swal-email" type="email" value="${this.lead.email || ''}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Phone Number</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">📞</span>
+                            <input id="swal-phone" type="tel" value="${this.lead.phone || ''}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Full Address</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">📍</span>
+                            <textarea id="swal-address" rows="3" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; resize: vertical;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">${this.lead.address || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                return {
+                    email: (document.getElementById('swal-email') as HTMLInputElement).value,
+                    phone: (document.getElementById('swal-phone') as HTMLInputElement).value,
+                    address: (document.getElementById('swal-address') as HTMLTextAreaElement).value
+                }
+            }
         });
 
-        if (address !== undefined) {
-            this.updateLead({ address });
+        if (contactData) {
+            this.updateLead({
+                email: contactData.email || null,
+                phone: contactData.phone || null,
+                address: contactData.address || null
+            });
+        }
+    }
+
+    // Industry Editing
+    async editIndustry() {
+        if (!this.lead) return;
+        const { value: industry } = await Swal.fire({
+            title: 'Update Industry',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Industry & Sector</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">🏢</span>
+                            <input id="swal-industry" type="text" value="${this.lead.industry || ''}" placeholder="e.g. Technology, Healthcare, Real Estate..." style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                return (document.getElementById('swal-industry') as HTMLInputElement).value;
+            }
+        });
+
+        if (industry !== undefined) {
+            this.updateLead({ industry });
         }
     }
 
@@ -227,10 +341,21 @@ export class LeadDetailComponent implements OnInit {
         });
 
         const { value: emirate } = await Swal.fire({
-            title: 'Edit Emirate',
-            html: `<select id="swal-emirate" class="swal2-input">${optionsHtml}</select>`,
+            title: 'Update Emirate',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Select Emirate</label>
+                    <select id="swal-emirate" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; background: white;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        ${optionsHtml}
+                    </select>
+                </div>
+                `,
             focusConfirm: false,
             showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
             preConfirm: () => {
                 return (document.getElementById('swal-emirate') as HTMLSelectElement).value;
             }
@@ -256,10 +381,21 @@ export class LeadDetailComponent implements OnInit {
         });
 
         const { value: status } = await Swal.fire({
-            title: 'Edit Lead Status',
-            html: `<select id="swal-status" class="swal2-input">${optionsHtml}</select>`,
+            title: 'Update Lead Status',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Select Status</label>
+                    <select id="swal-status" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; background: white;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        ${optionsHtml}
+                    </select>
+                </div>
+                `,
             focusConfirm: false,
             showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
             preConfirm: () => {
                 return (document.getElementById('swal-status') as HTMLSelectElement).value;
             }
@@ -274,10 +410,27 @@ export class LeadDetailComponent implements OnInit {
     async editRemarks() {
         if (!this.isAdmin || !this.lead) return;
         const { value: remarks } = await Swal.fire({
-            title: 'Edit Remarks',
-            input: 'textarea',
-            inputValue: this.lead.remarks || '',
-            showCancelButton: true
+            title: 'Update Remarks',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Remarks & Notes</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">📝</span>
+                            <textarea id="swal-remarks" rows="4" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; resize: vertical;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">${this.lead.remarks || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                return (document.getElementById('swal-remarks') as HTMLTextAreaElement).value;
+            }
         });
 
         if (remarks !== undefined) {
@@ -301,20 +454,31 @@ export class LeadDetailComponent implements OnInit {
         if (!this.isAdmin || !this.lead) return;
 
         const { value: formValues } = await Swal.fire({
-            title: 'Edit Financials',
+            title: 'Update Financials',
             html:
                 `
-                <div style="text-align:left; margin-bottom:10px;">
-                    <label>Project Amount</label>
-                    <input id="swal-project-amount" type="number" class="swal2-input" value="${this.lead.project_amount || 0}">
-                </div>
-                <div style="text-align:left;">
-                    <label>Advance Amount</label>
-                    <input id="swal-advance-amount" type="number" class="swal2-input" value="${this.lead.advance_amount || 0}">
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Project Amount (AED)</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">💰</span>
+                            <input id="swal-project-amount" type="number" value="${this.lead.project_amount || 0}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Advance Amount (AED)</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">💵</span>
+                            <input id="swal-advance-amount" type="number" value="${this.lead.advance_amount || 0}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
                 </div>
                 `,
             focusConfirm: false,
             showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
             preConfirm: () => {
                 return {
                     project_amount: (document.getElementById('swal-project-amount') as HTMLInputElement).value,

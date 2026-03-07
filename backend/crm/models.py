@@ -64,6 +64,9 @@ class Lead(models.Model):
     email = models.EmailField(unique=False, blank=True, null=True)
     phone = models.CharField(max_length=20, unique=False, blank=True, null=True)
     
+    # Optional Fields
+    industry = models.CharField(max_length=200, blank=True, null=True)
+    
     # Location Info
     address = models.TextField(blank=True, null=True)
     emirate = models.CharField(
