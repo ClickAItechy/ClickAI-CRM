@@ -268,7 +268,7 @@ class LeadViewSet(viewsets.ModelViewSet):
         
         # Headers
         headers = [
-            'ID', 'Name', 'Company Name', 'Emirate', 'Address', 'Email', 
+            'ID', 'Name', 'Company Name', 'Industry', 'Emirate', 'Address', 'Email', 
             'Phone Number', 'Status', 'Stage', 'Lead Generator', 
             'Assigned To', 'Created Date', 'Create Time', 
             'Service Requested', 'Follow up Reminder (latest)', 'Remarks'
@@ -290,6 +290,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                 lead.id,
                 f"{lead.first_name} {lead.last_name}",
                 lead.company_name or '',
+                lead.industry or '',
                 lead.emirate or '',
                 lead.address or '',
                 lead.email or '',

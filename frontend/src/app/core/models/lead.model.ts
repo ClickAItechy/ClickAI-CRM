@@ -97,6 +97,7 @@ export interface Lead {
 
     // IT/Agency Specifics
     company_name?: string;
+    industry?: string;
     tech_requirements?: string;
 
     // Financials

@@ -7,11 +7,11 @@ import { Team, LeadStage, LeadStatus } from '../../../core/models/lead.model';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
-    selector: 'app-create-lead',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    templateUrl: './create-lead.component.html',
-    styles: [`
+  selector: 'app-create-lead',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './create-lead.component.html',
+  styles: [`
     :host { display: block; font-family: 'Inter', system-ui, sans-serif; background: #f0f4f8; min-height: 100vh; }
 
     .cl-header {
@@ -139,99 +139,100 @@ import { ToastService } from '../../../core/services/toast.service';
   `]
 })
 export class CreateLeadComponent implements OnInit {
-    lead: any = {
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        emirate: '',
-        company_name: '',
-        tech_requirements: '',
-        stage: LeadStage.NEW_INQUIRY,
-        status: LeadStatus.INTERESTED,
-        remarks: '',
-        assigned_team: Team.SALES,
-        lead_generator: null,
-        reminder_date: ''
-    };
+  lead: any = {
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    emirate: '',
+    company_name: '',
+    industry: '',
+    tech_requirements: '',
+    stage: LeadStage.NEW_INQUIRY,
+    status: LeadStatus.INTERESTED,
+    remarks: '',
+    assigned_team: Team.SALES,
+    lead_generator: null,
+    reminder_date: ''
+  };
 
-    phoneType: 'mobile' | 'landline' = 'mobile';
-    phonePrefix = '+971 ';
-    phoneLocal = '';
+  phoneType: 'mobile' | 'landline' = 'mobile';
+  phonePrefix = '+971 ';
+  phoneLocal = '';
 
-    LeadStatus = LeadStatus;
+  LeadStatus = LeadStatus;
 
-    emirateOptions = [
-        'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
-    ];
+  emirateOptions = [
+    'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
+  ];
 
-    loading = false;
-    users: any[] = [];
+  loading = false;
+  users: any[] = [];
 
-    constructor(
-        private leadService: LeadService,
-        private router: Router,
-        private toastService: ToastService
-    ) { }
+  constructor(
+    private leadService: LeadService,
+    private router: Router,
+    private toastService: ToastService
+  ) { }
 
-    ngOnInit() {
-        this.leadService.getUsers().subscribe(users => {
-            this.users = users;
-        });
+  ngOnInit() {
+    this.leadService.getUsers().subscribe(users => {
+      this.users = users;
+    });
+  }
+
+  onPhoneTypeChange(type: 'mobile' | 'landline') {
+    this.phoneType = type;
+    this.phonePrefix = '+971 ';
+  }
+
+  setStatus(status: LeadStatus) {
+    this.lead.status = status;
+  }
+
+  onSubmit() {
+    const finalPhone = this.phoneLocal ? (this.phonePrefix + this.phoneLocal.trim()) : '';
+    const submissionData = { ...this.lead, phone: finalPhone };
+
+    if (!submissionData.reminder_date) {
+      delete submissionData.reminder_date;
     }
 
-    onPhoneTypeChange(type: 'mobile' | 'landline') {
-        this.phoneType = type;
-        this.phonePrefix = '+971 ';
-    }
-
-    setStatus(status: LeadStatus) {
-        this.lead.status = status;
-    }
-
-    onSubmit() {
-        const finalPhone = this.phoneLocal ? (this.phonePrefix + this.phoneLocal.trim()) : '';
-        const submissionData = { ...this.lead, phone: finalPhone };
-
-        if (!submissionData.reminder_date) {
-            delete submissionData.reminder_date;
-        }
-
-        this.loading = true;
-        this.leadService.createLead(submissionData).subscribe({
-            next: (newLead) => {
-                this.toastService.success('Lead Created! ID: ' + newLead.id);
-                this.router.navigate(['/dashboard/leads']);
-            },
-            error: (err) => {
-                console.error(err);
-                let errorMessage = 'Error creating lead.';
-                if (err.error) {
-                    if (typeof err.error === 'object' && !Array.isArray(err.error)) {
-                        const errors: string[] = [];
-                        for (const [field, messages] of Object.entries(err.error)) {
-                            if (Array.isArray(messages)) {
-                                errors.push(`${field}: ${messages.join(', ')}`);
-                            } else {
-                                errors.push(`${field}: ${messages}`);
-                            }
-                        }
-                        if (errors.length > 0) {
-                            errorMessage = errors.join('; ');
-                        }
-                    } else if (typeof err.error === 'string') {
-                        errorMessage = err.error;
-                    } else if (err.error.detail) {
-                        errorMessage = err.error.detail;
-                    }
-                }
-                this.toastService.error(errorMessage);
-                this.loading = false;
-            }
-        });
-    }
-
-    cancel() {
+    this.loading = true;
+    this.leadService.createLead(submissionData).subscribe({
+      next: (newLead) => {
+        this.toastService.success('Lead Created! ID: ' + newLead.id);
         this.router.navigate(['/dashboard/leads']);
-    }
+      },
+      error: (err) => {
+        console.error(err);
+        let errorMessage = 'Error creating lead.';
+        if (err.error) {
+          if (typeof err.error === 'object' && !Array.isArray(err.error)) {
+            const errors: string[] = [];
+            for (const [field, messages] of Object.entries(err.error)) {
+              if (Array.isArray(messages)) {
+                errors.push(`${field}: ${messages.join(', ')}`);
+              } else {
+                errors.push(`${field}: ${messages}`);
+              }
+            }
+            if (errors.length > 0) {
+              errorMessage = errors.join('; ');
+            }
+          } else if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (err.error.detail) {
+            errorMessage = err.error.detail;
+          }
+        }
+        this.toastService.error(errorMessage);
+        this.loading = false;
+      }
+    });
+  }
+
+  cancel() {
+    this.router.navigate(['/dashboard/leads']);
+  }
 }
