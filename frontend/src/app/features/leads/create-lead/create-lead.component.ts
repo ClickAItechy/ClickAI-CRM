@@ -166,6 +166,23 @@ export class CreateLeadComponent implements OnInit {
     'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
   ];
 
+  industryOptions = [
+    'Automobiles',
+    'Aviation & Aerospace',
+    'Banking & Finance',
+    'Construction & Real Estate',
+    'Education & E-learning',
+    'Energy & Renewables',
+    'Events & Hospitality',
+    'Healthcare & Medical',
+    'Information Technology',
+    'Logistics & Supply Chain',
+    'Manufacturing',
+    'Media & Marketing',
+    'Retail & E-commerce',
+    'Tourism & Travel'
+  ];
+
   loading = false;
   users: any[] = [];
 

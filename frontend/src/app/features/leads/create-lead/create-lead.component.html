@@ -90,7 +90,10 @@
                             <div class="cl-field">
                                 <label class="cl-label">Industry</label>
                                 <input class="cl-input" [(ngModel)]="lead.industry" name="industry"
-                                    placeholder="e.g. Technology, Retail">
+                                    placeholder="e.g. Technology, Retail" list="industryList">
+                                <datalist id="industryList">
+                                    <option *ngFor="let option of industryOptions" [value]="option"></option>
+                                </datalist>
                             </div>
 
                             <div class="cl-field">

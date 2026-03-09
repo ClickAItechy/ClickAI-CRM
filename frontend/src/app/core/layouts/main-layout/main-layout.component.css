@@ -9,24 +9,25 @@
 
 /* Sidebar */
 .sidebar {
-    width: 260px;
-    background-color: #0f172a;
-    color: #f8fafc;
+    width: 280px;
+    background: #ffffff;
+    color: #1e293b;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
+    border-right: 1.5px solid #cbd5e1;
 }
 
 .sidebar-brand-section {
-    height: 90px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 1.25rem;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
     position: relative;
     overflow: hidden;
 }
@@ -36,9 +37,9 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 3px;
+    width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, #6366f1, #a855f7, #ec4899);
+    background: linear-gradient(to bottom, #4f46e5, #7c3aed, #ec4899);
 }
 
 .brand-box {
@@ -48,17 +49,16 @@
 }
 
 .logo-wrapper {
-    width: 44px;
-    height: 44px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(8px);
+    padding: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .logo-img {
@@ -76,7 +76,7 @@
     font-size: 1.25rem;
     font-weight: 900;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -87,7 +87,7 @@
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.3em;
-    color: #818cf8;
+    color: #4f46e5;
     margin-top: 2px;
 }
 
@@ -114,9 +114,9 @@
 
 .close-sidebar-btn {
     display: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: #f1f5f9;
     border: none;
-    color: white;
+    color: #64748b;
     width: 32px;
     height: 32px;
     border-radius: 8px;
@@ -127,59 +127,92 @@
 }
 
 nav {
-    padding: 1rem 0;
+    padding: 1.5rem 0.75rem;
     flex-grow: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    gap: 0.25rem;
 }
 
 nav a {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1.5rem;
-    color: #94a3b8;
+    padding: 0.85rem 1rem;
+    color: #64748b;
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.2s;
-    border-left: 4px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1.2px solid #e2e8f0;
 }
 
 nav a:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: white;
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #4f46e5;
+    transform: translateX(4px);
+    border-radius: 8px;
 }
 
 nav a.active {
-    background-color: rgba(79, 70, 229, 0.1);
-    color: #818cf8;
-    border-left-color: #818cf8;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    border-bottom: none;
 }
 
 nav a .icon {
-    margin-right: 1rem;
+    margin-right: 1.25rem;
+    font-size: 1.1rem;
     font-style: normal;
     width: 24px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-label {
+    display: block;
+    padding: 0 1rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .user-profile {
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0.75rem;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.user-profile:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
 }
 
 .user-profile strong {
     display: block;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .user-profile small {
-    color: #94a3b8;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 2px;
+    display: block;
 }
 
 /* Main Content Area */
