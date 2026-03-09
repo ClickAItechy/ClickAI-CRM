@@ -42,6 +42,22 @@ export class LeadDetailComponent implements OnInit {
     emirateOptions = [
         'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'
     ];
+    industryOptions = [
+        'Automobiles',
+        'Aviation & Aerospace',
+        'Banking & Finance',
+        'Construction & Real Estate',
+        'Education & E-learning',
+        'Energy & Renewables',
+        'Events & Hospitality',
+        'Healthcare & Medical',
+        'Information Technology',
+        'Logistics & Supply Chain',
+        'Manufacturing',
+        'Media & Marketing',
+        'Retail & E-commerce',
+        'Tourism & Travel'
+    ];
 
     // Documents & Transition
     selectedStage: string = '';
@@ -302,20 +318,79 @@ export class LeadDetailComponent implements OnInit {
     // Industry Editing
     async editIndustry() {
         if (!this.lead) return;
+
+        const options = this.industryOptions;
+        const currentVal = this.lead.industry || '';
+
         const { value: industry } = await Swal.fire({
             title: 'Update Industry',
             html:
                 `
-                <div style="padding: 0.5rem 0; text-align: left;">
+                <div style="padding: 0.25rem 0; text-align: left;">
                     <div style="margin-bottom: 0.5rem;">
                         <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Industry & Sector</label>
-                        <div style="position: relative;">
+                        <div style="position: relative;" id="swal-industry-wrapper">
                             <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">🏢</span>
-                            <input id="swal-industry" type="text" value="${this.lead.industry || ''}" placeholder="e.g. Technology, Healthcare, Real Estate..." style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                            <input id="swal-industry" type="text" autocomplete="off" value="${currentVal}" placeholder="e.g. Technology, Healthcare, Real Estate..." style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                            
+                            <!-- Custom Suggestions Container -->
+                            <div id="swal-industry-suggestions" style="display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: white; border-radius: 12px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); z-index: 999999; max-height: 200px; overflow-y: auto; padding: 0.5rem; scrollbar-width: thin;">
+                            </div>
                         </div>
                     </div>
                 </div>
+                <style>
+                    .swal2-html-container { overflow: visible !important; z-index: 20 !important; }
+                    .swal2-content { overflow: visible !important; }
+                    .swal2-actions { z-index: 10 !important; }
+                    .swal2-suggestion-item {
+                        padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer;
+                        font-size: 0.9rem; color: #1e293b; transition: all 0.15s;
+                        text-align: left;
+                    }
+                    .swal2-suggestion-item:hover { background: #f5f3ff; color: #4f46e5; }
+                    .swal2-empty-suggestion { padding: 0.75rem 1rem; color: #94a3b8; font-size: 0.85rem; font-style: italic; }
+                </style>
                 `,
+            didOpen: () => {
+                const input = document.getElementById('swal-industry') as HTMLInputElement;
+                const suggestions = document.getElementById('swal-industry-suggestions') as HTMLDivElement;
+
+                const renderSuggestions = (filter: string) => {
+                    const filtered = options.filter(opt => opt.toLowerCase().includes(filter.toLowerCase()));
+                    if (filtered.length > 0) {
+                        suggestions.innerHTML = filtered.map(opt => `<div class="swal2-suggestion-item" data-value="${opt}">${opt}</div>`).join('');
+                    } else {
+                        suggestions.innerHTML = '<div class="swal2-empty-suggestion">No matching industries found</div>';
+                    }
+                    suggestions.style.display = 'block';
+                };
+
+                // Show suggestions immediately on open
+                setTimeout(() => {
+                    renderSuggestions(input.value);
+                }, 100);
+
+                // Event delegation for clicks on suggestions
+                suggestions.addEventListener('mousedown', (e) => {
+                    const target = e.target as HTMLElement;
+                    const item = target.closest('.swal2-suggestion-item');
+                    if (item) {
+                        e.preventDefault();
+                        const val = item.getAttribute('data-value');
+                        if (val) {
+                            input.value = val;
+                            suggestions.style.display = 'none';
+                        }
+                    }
+                });
+
+                input.addEventListener('input', () => renderSuggestions(input.value));
+                input.addEventListener('focus', () => renderSuggestions(input.value));
+                input.addEventListener('blur', () => {
+                    setTimeout(() => { suggestions.style.display = 'none'; }, 200);
+                });
+            },
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Save Changes',

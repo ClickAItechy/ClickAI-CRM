@@ -129,6 +129,27 @@ import { ToastService } from '../../../core/services/toast.service';
     .cl-btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
     .cl-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
+    /* Custom Dropdown Styles */
+    .cl-field.relative { position: relative; }
+    .cl-suggestions-container {
+      position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+      background: white; border-radius: 12px; border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 1000; max-height: 240px; overflow-y: auto;
+      padding: 0.5rem; animation: cl-slide-down 0.2s ease-out;
+    }
+    .cl-suggestion-item {
+      padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer;
+      font-size: 0.9rem; color: #1e293b; transition: all 0.15s;
+    }
+    .cl-suggestion-item:hover { background: #f5f3ff; color: #4f46e5; }
+    .cl-empty-suggestion { padding: 0.75rem 1rem; color: #94a3b8; font-size: 0.85rem; font-style: italic; }
+
+    @keyframes cl-slide-down {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 768px) {
       .cl-two-col { grid-template-columns: 1fr; }
       .cl-fields { grid-template-columns: 1fr; }
@@ -185,12 +206,35 @@ export class CreateLeadComponent implements OnInit {
 
   loading = false;
   users: any[] = [];
+  showIndustrySuggestions = false;
+  filteredIndustries: string[] = [];
 
   constructor(
     private leadService: LeadService,
     private router: Router,
     private toastService: ToastService
-  ) { }
+  ) {
+    this.filteredIndustries = [...this.industryOptions];
+  }
+
+  filterIndustries() {
+    const val = this.lead.industry ? this.lead.industry.toLowerCase() : '';
+    this.filteredIndustries = this.industryOptions.filter(opt =>
+      opt.toLowerCase().includes(val)
+    );
+  }
+
+  selectIndustry(opt: string) {
+    this.lead.industry = opt;
+    this.showIndustrySuggestions = false;
+  }
+
+  onIndustryBlur() {
+    // Delay hiding to allow click event on suggestion to fire
+    setTimeout(() => {
+      this.showIndustrySuggestions = false;
+    }, 200);
+  }
 
   ngOnInit() {
     this.leadService.getUsers().subscribe(users => {

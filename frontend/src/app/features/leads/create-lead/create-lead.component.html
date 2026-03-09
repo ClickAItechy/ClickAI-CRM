@@ -87,13 +87,24 @@
                                     placeholder="e.g. Acme Corp">
                             </div>
 
-                            <div class="cl-field">
+                            <div class="cl-field relative">
                                 <label class="cl-label">Industry</label>
                                 <input class="cl-input" [(ngModel)]="lead.industry" name="industry"
-                                    placeholder="e.g. Technology, Retail" list="industryList">
-                                <datalist id="industryList">
-                                    <option *ngFor="let option of industryOptions" [value]="option"></option>
-                                </datalist>
+                                    placeholder="e.g. Technology, Retail" (input)="filterIndustries()"
+                                    (focus)="showIndustrySuggestions = true; filterIndustries()"
+                                    (blur)="onIndustryBlur()">
+
+                                <div class="cl-suggestions-container"
+                                    *ngIf="showIndustrySuggestions && filteredIndustries.length > 0">
+                                    <div class="cl-suggestion-item" *ngFor="let opt of filteredIndustries"
+                                        (mousedown)="selectIndustry(opt)">
+                                        {{ opt }}
+                                    </div>
+                                </div>
+                                <div class="cl-suggestions-container"
+                                    *ngIf="showIndustrySuggestions && filteredIndustries.length === 0">
+                                    <div class="cl-empty-suggestion">No matching industries found</div>
+                                </div>
                             </div>
 
                             <div class="cl-field">
