@@ -10,7 +10,7 @@
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: #ffffff;
+    background: #e0f2fe;
     color: #1e293b;
     display: flex;
     flex-direction: column;
@@ -21,12 +21,12 @@
 }
 
 .sidebar-brand-section {
-    height: 100px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 1.25rem;
-    background: #ffffff;
+    background: #e0f2fe;
     border-bottom: 1px solid #e2e8f0;
     position: relative;
     overflow: hidden;
@@ -51,14 +51,14 @@
 .logo-wrapper {
     width: 60px;
     height: 60px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    box-shadow: none;
 }
 
 .logo-img {
@@ -147,7 +147,7 @@ nav a {
 }
 
 nav a:hover {
-    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(90deg, #f5f3ff 0%, #ede9fe 100%);
     color: #4f46e5;
     transform: translateX(4px);
     border-radius: 8px;
