@@ -65,6 +65,17 @@
       </div>
       <div class="ld-stat-div"></div>
       <div class="ld-stat">
+        <div class="ld-stat-icon">🗓️</div>
+        <div>
+          <div class="ld-stat-label">Latest Update</div>
+          <div class="ld-stat-value editable" (click)="isAdmin && editLatestUpdate()">
+            {{ (lead.latest_update | date:'d MMM yyyy') || 'Not set' }}
+            <span *ngIf="isAdmin" class="ld-edit-tag">✎</span>
+          </div>
+        </div>
+      </div>
+      <div class="ld-stat-div"></div>
+      <div class="ld-stat">
         <div class="ld-stat-icon">🏙️</div>
         <div>
           <div class="ld-stat-label">Emirate</div>
@@ -191,17 +202,20 @@
       </div>
 
       <!-- Tech Requirements + Remarks -->
-      <div *ngIf="lead.tech_requirements || lead.remarks" style="margin-top:1.5rem">
-        <div *ngIf="lead.tech_requirements" class="ld-detail-box ld-box-blue">
-          <div class="ld-box-header">💻 Tech Requirements</div>
-          <p class="ld-box-text">{{ lead.tech_requirements }}</p>
+      <div style="margin-top:1.5rem">
+        <div class="ld-detail-box ld-box-blue">
+          <div class="ld-box-header">
+            💻 Tech Requirements
+            <button *ngIf="isAdmin" class="ld-tiny-edit" (click)="editTechRequirements()">✎ Edit</button>
+          </div>
+          <p class="ld-box-text">{{ lead.tech_requirements || 'No technical requirements provided.' }}</p>
         </div>
-        <div *ngIf="lead.remarks" class="ld-detail-box ld-box-pink" style="margin-top:1rem">
+        <div class="ld-detail-box ld-box-pink" style="margin-top:1rem">
           <div class="ld-box-header">
             💬 Remarks
             <button *ngIf="isAdmin" class="ld-tiny-edit" (click)="editRemarks()">✎ Edit</button>
           </div>
-          <p class="ld-box-text">{{ lead.remarks }}</p>
+          <p class="ld-box-text">{{ lead.remarks || 'No remarks provided.' }}</p>
         </div>
       </div>
 

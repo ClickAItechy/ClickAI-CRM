@@ -10,14 +10,14 @@
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: #e0f2fe;
-    color: #1e293b;
+    background: #0f172a; /* Slate 900 */
+    color: #e2e8f0; /* Slate 200 */
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
-    border-right: 1.5px solid #cbd5e1;
+    border-right: 1.5px solid #1e293b;
 }
 
 .sidebar-brand-section {
@@ -26,8 +26,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1.25rem;
-    background: #e0f2fe;
-    border-bottom: 1px solid #e2e8f0;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
     position: relative;
     overflow: hidden;
 }
@@ -76,7 +76,7 @@
     font-size: 1.25rem;
     font-weight: 900;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -139,16 +139,16 @@ nav a {
     display: flex;
     align-items: center;
     padding: 0.85rem 1rem;
-    color: #64748b;
+    color: #94a3b8; /* Slate 400 */
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-bottom: 1.2px solid #e2e8f0;
+    border-bottom: 1.2px solid #1e293b;
 }
 
 nav a:hover {
-    background: linear-gradient(90deg, #f5f3ff 0%, #ede9fe 100%);
-    color: #4f46e5;
+    background: linear-gradient(90deg, #1e293b 0%, #334155 100%);
+    color: #f8fafc;
     transform: translateX(4px);
     border-radius: 8px;
 }
@@ -181,7 +181,7 @@ nav a .icon {
     padding: 0 1rem 0.5rem;
     font-size: 0.7rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -190,15 +190,15 @@ nav a .icon {
     padding: 1rem 1.25rem;
     margin: 1rem 0.75rem;
     border-radius: 16px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #1e293b;
+    background: #1e293b; /* Slate 800 */
+    border: 1px solid #334155;
+    color: #f8fafc;
     transition: all 0.2s;
 }
 
 .user-profile:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: #334155;
+    border-color: #475569;
 }
 
 .user-profile strong {
@@ -208,7 +208,7 @@ nav a .icon {
 }
 
 .user-profile small {
-    color: #64748b;
+    color: #94a3b8;
     font-size: 0.75rem;
     font-weight: 500;
     margin-top: 2px;
@@ -232,8 +232,21 @@ nav a .icon {
     display: flex;
     align-items: center;
     padding: 0 2rem;
-    justify-content: space-between;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.top-bar > .header-left {
+    flex: 1;
+}
+
+.top-bar > .header-center {
+    flex: 1;
+}
+
+.top-bar > .header-right-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .search-bar input {

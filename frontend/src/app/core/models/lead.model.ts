@@ -106,6 +106,7 @@ export interface Lead {
     remaining_amount?: number;
 
     reminder_date?: string;
+    latest_update?: string;
 
     stage: LeadStage;
     status?: LeadStatus;
