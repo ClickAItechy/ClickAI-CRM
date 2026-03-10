@@ -82,6 +82,7 @@ class Lead(models.Model):
     
     # Process Info
     reminder_date = models.DateField(null=True, blank=True, help_text=_('Automated or manual reminder date'))
+    latest_update = models.DateField(null=True, blank=True, help_text=_('Date of latest visit or update'))
     status = models.CharField(
         max_length=30,
         choices=LeadStatus.choices,

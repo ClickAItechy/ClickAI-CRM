@@ -205,6 +205,52 @@ export class LeadDetailComponent implements OnInit {
         });
     }
 
+    // Latest Update Editing
+    async editLatestUpdate() {
+        if (!this.isAdmin || !this.lead) return;
+
+        const { value: updateDateStr } = await Swal.fire({
+            title: 'Update Latest Visit/Update',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Latest Update Date</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">🗓️</span>
+                            <input id="swal-latest-update" type="date" value="${this.lead.latest_update?.split('T')[0] || ''}" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                return (document.getElementById('swal-latest-update') as HTMLInputElement).value;
+            }
+        });
+
+        if (updateDateStr !== undefined) {
+            this.updateLatestUpdate(updateDateStr ? updateDateStr : null);
+        }
+    }
+
+    updateLatestUpdate(dateStr: string | null) {
+        if (!this.lead) return;
+
+        const updateData: any = { latest_update: dateStr };
+        this.leadService.updateLead(this.lead.id, updateData).subscribe({
+            next: (updatedLead) => {
+                this.lead = updatedLead;
+                this.toastService.success('Latest Update saved');
+            },
+            error: () => this.toastService.error('Failed to save latest update')
+        });
+    }
+
     // Name Editing
     async editName() {
         if (!this.lead) return;
@@ -403,6 +449,38 @@ export class LeadDetailComponent implements OnInit {
 
         if (status !== undefined && status !== false) {
             this.updateLead({ status: status as LeadStatus });
+        }
+    }
+
+    // Tech Requirements Editing
+    async editTechRequirements() {
+        if (!this.isAdmin || !this.lead) return;
+        const { value: tech_requirements } = await Swal.fire({
+            title: 'Update Tech Requirements',
+            html:
+                `
+                <div style="padding: 0.5rem 0; text-align: left;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Technical Requirements</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 12px; font-size: 1.1rem; opacity: 0.6;">💻</span>
+                            <textarea id="swal-tech-reqs" rows="4" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem 0.75rem 2.75rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; color: #0f172a; outline: none; transition: all 0.2s; resize: vertical;" onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.15)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">${this.lead.tech_requirements || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            preConfirm: () => {
+                return (document.getElementById('swal-tech-reqs') as HTMLTextAreaElement).value;
+            }
+        });
+
+        if (tech_requirements !== undefined) {
+            this.updateLead({ tech_requirements });
         }
     }
 

@@ -149,11 +149,22 @@ class LeadViewSet(viewsets.ModelViewSet):
         # Update lead and sync Reminder
         old_reminder_date = serializer.instance.reminder_date
         old_assigned_to = serializer.instance.assigned_to
+        old_remarks = serializer.instance.remarks
         
         lead = serializer.save()
         
         new_reminder_date = lead.reminder_date
         new_assigned_to = lead.assigned_to
+        new_remarks = lead.remarks
+        
+        # If remarks changed, create an AuditLog
+        if old_remarks != new_remarks:
+            AuditLog.objects.create(
+                lead=lead,
+                actor=self.request.user,
+                action='Remarks Updated',
+                notes=new_remarks or 'Remarks cleared'
+            )
         
         # If reminder date changed or assignee changed, update related PENDING reminders
         if (old_reminder_date != new_reminder_date) or (old_assigned_to != new_assigned_to):
@@ -271,7 +282,7 @@ class LeadViewSet(viewsets.ModelViewSet):
             'ID', 'Name', 'Company Name', 'Industry', 'Emirate', 'Address', 'Email', 
             'Phone Number', 'Status', 'Stage', 'Lead Generator', 
             'Assigned To', 'Created Date', 'Create Time', 
-            'Service Requested', 'Follow up Reminder (latest)', 'Remarks'
+            'Service Requested', 'Follow up Reminder (latest)', 'Latest Update Date', 'Remarks'
         ]
         ws.append(headers)
         
@@ -285,6 +296,11 @@ class LeadViewSet(viewsets.ModelViewSet):
             reminder_val = ''
             if lead.reminder_date:
                 reminder_val = lead.reminder_date.strftime('%Y-%m-%d')
+
+            # Latest Update date (DateField - date only)
+            latest_update_val = ''
+            if lead.latest_update:
+                latest_update_val = lead.latest_update.strftime('%Y-%m-%d')
 
             ws.append([
                 lead.id,
@@ -303,6 +319,7 @@ class LeadViewSet(viewsets.ModelViewSet):
                 created_time,
                 lead.tech_requirements or '',
                 reminder_val,
+                latest_update_val,
                 lead.remarks or ''
             ])
         

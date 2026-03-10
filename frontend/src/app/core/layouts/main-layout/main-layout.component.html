@@ -3,7 +3,7 @@
     <header class="mobile-header" *ngIf="authService.isLoggedIn()">
         <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle Menu">☰</button>
         <div class="mobile-brand">
-            <img src="assets/images/clickai_logo.png" alt="ClickAI" class="logo-img">
+            <img src="assets/images/clickai_new_logo.png" alt="ClickAI" class="logo-img">
             <div class="brand-info-mobile">
                 <span class="brand-primary">CLICK AI</span>
                 <span class="brand-secondary">TECHY</span>
@@ -20,12 +20,8 @@
     <aside class="sidebar" *ngIf="authService.isLoggedIn()" [class.open]="isSidebarOpen">
         <div class="sidebar-brand-section">
             <div class="brand-box">
-                <div class="logo-wrapper">
-                    <img src="assets/images/clickai_logo.png" alt="ClickAI" class="logo-img">
-                </div>
                 <div class="brand-info">
-                    <span class="brand-primary">CLICK AI</span>
-                    <span class="brand-secondary">TECHY</span>
+                    <span class="brand-primary" style="font-size: 1.5rem;">CRM</span>
                 </div>
             </div>
             <button class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close Menu">×</button>
@@ -133,6 +129,16 @@
     <div class="content">
         <!-- Desktop Top Bar -->
         <header class="top-bar" *ngIf="authService.isLoggedIn()">
+            <div class="header-left"></div>
+            
+            <div class="header-center" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                <img src="assets/images/clickai_new_logo.png" alt="ClickAI" style="height: 40px; width: auto;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">CLICK AI</span>
+                    <span style="font-size: 0.75rem; font-weight: 800; letter-spacing: 0.3em; color: #4f46e5; margin-top: 2px;">TECHY</span>
+                </div>
+            </div>
+
             <div class="header-right-actions" style="margin-left: auto; display: flex; gap: 1rem; align-items: center;">
                 <!-- Notifications -->
                 <div class="notification-wrapper" routerLink="/dashboard/notifications">
