@@ -18,6 +18,21 @@
     </div>
 
     <div class="cl-body">
+
+        <!-- Location Capture Status Banner -->
+        <div *ngIf="locationStatus === 'pending'" style="display:flex;align-items:center;gap:0.6rem;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.875rem;color:#92400e;">
+            <span>📡</span> <span>Capturing your location automatically&hellip;</span>
+        </div>
+        <div *ngIf="locationStatus === 'captured'" style="display:flex;align-items:center;gap:0.6rem;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.875rem;color:#065f46;">
+            <span>📍</span> <span>Location captured successfully — will be saved with this lead.</span>
+        </div>
+        <div *ngIf="locationStatus === 'denied'" style="display:flex;align-items:center;gap:0.6rem;background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.875rem;color:#9a3412;">
+            <span>⚠️</span> <span>Location access denied — lead will be saved without location data.</span>
+        </div>
+        <div *ngIf="locationStatus === 'unavailable'" style="display:flex;align-items:center;gap:0.6rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.875rem;color:#64748b;">
+            <span>🚫</span> <span>Geolocation is not available on this device/browser.</span>
+        </div>
+
         <form (ngSubmit)="onSubmit()" #leadForm="ngForm" class="cl-form">
 
             <!-- Status Selection -->

@@ -279,10 +279,11 @@ class LeadViewSet(viewsets.ModelViewSet):
         
         # Headers
         headers = [
-            'ID', 'Name', 'Company Name', 'Industry', 'Emirate', 'Address', 'Email', 
-            'Phone Number', 'Status', 'Stage', 'Lead Generator', 
-            'Assigned To', 'Created Date', 'Create Time', 
-            'Service Requested', 'Follow up Reminder (latest)', 'Latest Update Date', 'Remarks'
+            'ID', 'Name', 'Company Name', 'Industry', 'Emirate', 'Address', 'Email',
+            'Phone Number', 'Status', 'Stage', 'Lead Generator',
+            'Assigned To', 'Created Date', 'Create Time',
+            'Service Requested', 'Follow up Reminder (latest)', 'Latest Update Date', 'Remarks',
+            'Location Link'
         ]
         ws.append(headers)
         
@@ -320,7 +321,8 @@ class LeadViewSet(viewsets.ModelViewSet):
                 lead.tech_requirements or '',
                 reminder_val,
                 latest_update_val,
-                lead.remarks or ''
+                lead.remarks or '',
+                lead.created_location_link or ''
             ])
         
         # Determine dynamic filename

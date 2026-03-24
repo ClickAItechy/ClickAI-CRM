@@ -96,6 +96,19 @@
           </div>
         </div>
       </div>
+      <div class="ld-stat-div"></div>
+      <div class="ld-stat">
+        <div class="ld-stat-icon">🗺️</div>
+        <div>
+          <div class="ld-stat-label">Creation Location</div>
+          <div class="ld-stat-value">
+            <a *ngIf="lead.created_location_link" [href]="lead.created_location_link" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;text-decoration:underline;font-weight:600;">
+              View on Maps
+            </a>
+            <span *ngIf="!lead.created_location_link">Not captured</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -149,6 +162,16 @@
           <div class="ld-tile-icon">📍</div>
           <div class="ld-tile-label">Address</div>
           <div class="ld-tile-value">{{ lead.address || 'Not provided' }}</div>
+        </div>
+        <div class="ld-info-tile ld-tile-green">
+          <div class="ld-tile-icon">🗺️</div>
+          <div class="ld-tile-label">Creation Location</div>
+          <div class="ld-tile-value">
+            <a *ngIf="lead.created_location_link" [href]="lead.created_location_link" target="_blank" rel="noopener noreferrer" style="color:#059669;text-decoration:underline;font-weight:600;">
+              View on Maps
+            </a>
+            <span *ngIf="!lead.created_location_link" style="color:#94a3b8;">Not captured</span>
+          </div>
         </div>
         <div class="ld-info-tile ld-tile-blue">
           <div class="ld-tile-icon">🏢</div>

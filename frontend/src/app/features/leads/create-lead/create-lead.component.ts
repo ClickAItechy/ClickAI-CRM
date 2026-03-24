@@ -174,8 +174,13 @@ export class CreateLeadComponent implements OnInit {
     remarks: '',
     assigned_team: Team.SALES,
     lead_generator: null,
-    reminder_date: ''
+    reminder_date: '',
+    created_location_lat: null,
+    created_location_lng: null,
+    created_location_link: null
   };
+
+  locationStatus: 'pending' | 'captured' | 'denied' | 'unavailable' = 'pending';
 
   phoneType: 'mobile' | 'landline' = 'mobile';
   phonePrefix = '+971 ';
@@ -240,6 +245,28 @@ export class CreateLeadComponent implements OnInit {
     this.leadService.getUsers().subscribe(users => {
       this.users = users;
     });
+    this.captureLocation();
+  }
+
+  captureLocation() {
+    if (!navigator.geolocation) {
+      this.locationStatus = 'unavailable';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = parseFloat(position.coords.latitude.toFixed(8));
+        const lng = parseFloat(position.coords.longitude.toFixed(8));
+        this.lead.created_location_lat = lat;
+        this.lead.created_location_lng = lng;
+        this.lead.created_location_link = `https://maps.google.com/?q=${lat},${lng}`;
+        this.locationStatus = 'captured';
+      },
+      (_err) => {
+        this.locationStatus = 'denied';
+      },
+      { timeout: 10000, maximumAge: 0 }
+    );
   }
 
   onPhoneTypeChange(type: 'mobile' | 'landline') {

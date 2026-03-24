@@ -131,6 +131,11 @@ class Lead(models.Model):
     project_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     advance_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
+    # Creation Location (auto-captured from browser when lead is created)
+    created_location_lat = models.DecimalField(max_digits=12, decimal_places=8, null=True, blank=True)
+    created_location_lng = models.DecimalField(max_digits=12, decimal_places=8, null=True, blank=True)
+    created_location_link = models.CharField(max_length=500, null=True, blank=True, help_text=_('Google Maps link auto-captured at lead creation time'))
+
     @property
     def remaining_amount(self):
         return self.project_amount - self.advance_amount

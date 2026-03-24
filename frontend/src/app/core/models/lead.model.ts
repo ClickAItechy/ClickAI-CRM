@@ -124,4 +124,9 @@ export interface Lead {
     audit_logs: AuditLog[];
     created_at: string;
     updated_at: string;
+
+    // Auto-captured location at lead creation time
+    created_location_lat?: number;
+    created_location_lng?: number;
+    created_location_link?: string;
 }
