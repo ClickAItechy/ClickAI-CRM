@@ -121,7 +121,13 @@ class LeadViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not (user.is_superuser or user.is_manager or getattr(user, 'can_create_leads', True)):
              raise permissions.PermissionDenied("You do not have permission to create leads.")
-        
+
+        # Duplicate phone check
+        phone = serializer.validated_data.get('phone')
+        if phone:
+            if Lead.objects.filter(phone=phone).exists():
+                raise exceptions.ValidationError({'phone': 'A lead with this mobile number already exists.'})
+
         # Check and set default reminder_date if missing (DateField: date only)
         reminder_date = serializer.validated_data.get('reminder_date')
         if not reminder_date:

@@ -33,6 +33,16 @@
             <span>🚫</span> <span>Geolocation is not available on this device/browser.</span>
         </div>
 
+        <!-- Duplicate Phone Error Banner -->
+        <div *ngIf="duplicatePhoneError" style="display:flex;align-items:center;gap:0.75rem;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:0.85rem 1.25rem;margin-bottom:1rem;font-size:0.9rem;color:#991b1b;">
+            <span style="font-size:1.25rem;">🚫</span>
+            <div>
+                <strong>Duplicate Mobile Number</strong><br>
+                <span>{{ duplicatePhoneError }} Please check the existing lead or use a different number.</span>
+            </div>
+            <button type="button" (click)="duplicatePhoneError = null" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#991b1b;padding:0;">✕</button>
+        </div>
+
         <form (ngSubmit)="onSubmit()" #leadForm="ngForm" class="cl-form">
 
             <!-- Status Selection -->

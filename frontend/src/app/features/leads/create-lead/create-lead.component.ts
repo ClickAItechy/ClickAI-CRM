@@ -210,6 +210,7 @@ export class CreateLeadComponent implements OnInit {
   ];
 
   loading = false;
+  duplicatePhoneError: string | null = null;
   users: any[] = [];
   showIndustrySuggestions = false;
   filteredIndustries: string[] = [];
@@ -287,6 +288,7 @@ export class CreateLeadComponent implements OnInit {
     }
 
     this.loading = true;
+    this.duplicatePhoneError = null;
     this.leadService.createLead(submissionData).subscribe({
       next: (newLead) => {
         this.toastService.success('Lead Created! ID: ' + newLead.id);
@@ -294,13 +296,22 @@ export class CreateLeadComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        this.loading = false;
+
+        // Check for duplicate phone error specifically
+        if (err.error && err.error.phone) {
+          const msg = Array.isArray(err.error.phone) ? err.error.phone[0] : err.error.phone;
+          this.duplicatePhoneError = msg;
+          return;
+        }
+
         let errorMessage = 'Error creating lead.';
         if (err.error) {
           if (typeof err.error === 'object' && !Array.isArray(err.error)) {
             const errors: string[] = [];
             for (const [field, messages] of Object.entries(err.error)) {
               if (Array.isArray(messages)) {
-                errors.push(`${field}: ${messages.join(', ')}`);
+                errors.push(`${field}: ${(messages as string[]).join(', ')}`);
               } else {
                 errors.push(`${field}: ${messages}`);
               }
@@ -315,7 +326,6 @@ export class CreateLeadComponent implements OnInit {
           }
         }
         this.toastService.error(errorMessage);
-        this.loading = false;
       }
     });
   }
